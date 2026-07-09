@@ -46,6 +46,8 @@ The two rules that matter most:
 | [`LESSONS.md`](LESSONS.md) | Every real defect that taught me something, and the check it turned into | You want to know *why* a rule exists |
 | [`POLICY.md`](POLICY.md) | How much process each kind of change gets — a doc tweak and an auth change are not the same | You're starting a piece of work and deciding its tier |
 | [`ONBOARDING.md`](ONBOARDING.md) | How to put an existing repo under these rules, and what only a human can decide | You're adding a repo |
+| [`DISPATCH.md`](DISPATCH.md) | The one-page cheat sheet: decide the tier, fire the four seats in order, what to do when review drags | You're starting a piece of work |
+| [`templates/`](templates/) | The copy-paste context block for each repo's CLAUDE.md / AGENTS.md | You're onboarding a repo |
 | [`prompts/`](prompts/) | Ready-to-use prompts for each seat: critic, test author, coder, reviewer | You're dispatching agents |
 | [`process-guard/`](process-guard/) | The small CI action that does the actual enforcing | You're wiring up CI |
 
