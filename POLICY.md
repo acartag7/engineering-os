@@ -81,6 +81,21 @@ A new model is never adopted on launch-day vibes:
 
 The same protocol re-runs for the *incumbent* when its provider ships a major version.
 
+## Review capacity is a budget, not a backstop
+
+AI review (Codex, CodeRabbit, Greptile, any of them) runs on shared quotas — per-seat
+limits, rate limits, or plan caps. One PR that burns 16 rounds starves every other PR
+and future review of the same capacity. So:
+
+- Review exists to **verify**, never to **discover**. A round that teaches you what
+  the spec should have said is the most expensive possible way to write a spec:
+  serialized, quota-billed, and after the code already exists.
+- Target: 1–2 rounds per PR. More than 3 is recorded as a process failure (PC-15) —
+  the question is never "why did review find so much" but "why did so much reach
+  review."
+- Round burn is tracked per repo by the audit, like cost. A repo trending up is a
+  signal its contracts or upstream gates are weakening.
+
 ## Verification floor (all tiers, every repo — see BASELINE.md)
 
 Frozen-lockfile installs, exact pins, SHA-pinned actions, secret-history lint,
