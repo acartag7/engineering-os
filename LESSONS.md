@@ -175,3 +175,26 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   without a bounded contract; SC-9: contracts with pending decisions or out-of-repo
   references are not implementable), PC-15 (>3 rounds = process failure, recorded),
   and the review-stance line: review verifies, it never discovers.
+
+## L-013 — The prompt already said it — and the code shipped wrong anyway <a name="l-013"></a>
+
+- **What:** A PR audit in the most process-mature repo found three review findings
+  whose rule was stated **verbatim in the implementation prompt** (key identities by
+  issuer+subject, enforce PKCE S256, validate the token hash) — and the code violated
+  all three. In the same repo, a natural experiment: a large PR whose spec section was
+  locked in the contract beforehand merged in **1 review round**; a similar-sized PR
+  with a spec gap took **~19**. Two further round-multipliers: fixes that didn't sweep
+  sibling code paths (one decision alone consumed 5 rounds as siblings resurfaced),
+  and an implementer that **built a parser nobody asked for** and defended it for 6
+  rounds before the owner deleted it.
+- **Where:** OAuth/identity layer, security-critical OSS.
+- **Caught by:** PR-history audit (2026-07-09).
+- **Class:** prompts are guidance, not enforcement — even correct, explicit prompts
+  get ignored under implementation pressure. Only a red test binds. ~85–90% of the
+  audited findings were preventable before review.
+- **Became:** confirmation that the acceptance-split is the only reliable carrier of
+  stated requirements (a rule the prompt states must ALSO be a frozen test);
+  implementer prompt v1.1 (standing fail-closed hygiene checklist — the same
+  guard-class mistake repeated ~6× in one PR); sibling-sweep required before
+  re-requesting review; SC-8 validated from the opposite direction (unnecessary
+  hand-rolled parser, not just a risky one).
