@@ -1,4 +1,4 @@
-# Critique Prompt — v1.0
+# Critique Prompt — v1.1
 
 Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
 suite is authored. The critic's findings are structurally consumed by stage 4: every
@@ -24,7 +24,7 @@ INPUTS
 - Contract section(s): <paste or path>
 - Threat rows for this change (T2+): <paste or path>
 - Change tier: <T1 | T2 | T3>
-- Silence-class checklist: v1.0 (below)
+- Silence-class checklist: v1.1 (below)
 
 TASK
 1. For each silence class, ask: where is the contract silent? For each silence,
@@ -34,7 +34,7 @@ TASK
    yet fully green and letter-compliant with this contract. Be specific about the
    defect and why the contract's wording permits it.
 
-SILENCE CLASSES (v1.0)
+SILENCE CLASSES (v1.1)
 SC-1  Domain completeness — for every input: null, empty, absent, malformed,
       composite, oversized, unicode/encoding edge. What does the contract say
       happens? If nothing: silence.
@@ -52,6 +52,17 @@ SC-6  Composition/wiring — who calls this, what configuration reaches it, star
       composition-silent is a silence.
 SC-7  Authority — who may invoke each operation, as which identity, in which
       tenant/scope. Is the identity checked at this layer or assumed from another?
+SC-8  Wrong tool / unbounded input space — does this change hand-roll parsing,
+      escaping, or state-machine logic over untrusted input (HTML, URLs, encodings)
+      where a proven library exists, or where the whole problem can be avoided
+      (e.g. escalate to a real renderer instead of string-stripping)? If the
+      contract permits a hand-rolled parser, it must also bound the malformed-input
+      space it handles — otherwise reviewers will discover that space one round at
+      a time.
+SC-9  Readiness — does the contract contain pending decisions, references to files
+      outside the repo, or "design is done" claims pointing at ephemeral paths?
+      A contract with open decisions is not ready for implementation; naming them
+      is a P1 finding, not a footnote.
 
 OUTPUT CONTRACT (structured findings only — no prose-only findings)
 Each finding:
@@ -74,5 +85,9 @@ CALIBRATION
 
 ## Changelog
 
+- **v1.1** — added SC-8 (wrong tool / unbounded input space) and SC-9 (readiness:
+  no pending decisions, no out-of-repo references) after a PR audit found the worst
+  PRs (13–17 review rounds) were caused by a hand-rolled HTML/URL parser and by
+  coding against a contract that said "decisions pending" (LESSONS.md L-012).
 - **v1.0** — seven seed classes SC-1..SC-7, each originating from a real escaped
   defect (see LESSONS.md L-001, L-002, L-004, L-005). Goodhart pass mandatory.

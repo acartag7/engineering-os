@@ -154,3 +154,24 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   the evolution axis the ledger measures against.
 - **Became:** validation of PC-05, PC-08, PC-21; the founding-harvest origin note in
   BASELINE.md.
+
+## L-012 — Review used as spec discovery: 17 rounds on one small PR <a name="l-012"></a>
+
+- **What:** A PR audit found the worst PRs took 13–17 review rounds. Almost none of
+  it was sloppy code: ~43% of findings were edge cases in a hand-rolled HTML/URL
+  parser (each fix revealed the next broken input), ~28% were behavior the contract
+  never specified (coding started while the design said "decisions pending" and
+  pointed at a file in /tmp), ~24% were missing guards. The review bot's false-positive
+  rate was ~0 — the reviewer was fine; the inputs to coding were not. ~93% of all
+  findings were preventable before review. Round count tracked the subsystem
+  (parsing, redaction), not the diff size: an 8-file PR took 17 rounds while one
+  three times larger merged in 3.
+- **Where:** two security-critical OSS repos, parser/egress subsystems.
+- **Caught by:** PR-history audit (2026-07-09), prompted by the operator noticing the
+  review-round burn (and its real cost: a shared review quota).
+- **Class:** review verifying → review discovering. Wrong tool chosen at design time;
+  contracts shipped to implementers with open decisions.
+- **Became:** critique v1.1 (SC-8: no hand-rolled parsers over untrusted input
+  without a bounded contract; SC-9: contracts with pending decisions or out-of-repo
+  references are not implementable), PC-15 (>3 rounds = process failure, recorded),
+  and the review-stance line: review verifies, it never discovers.
