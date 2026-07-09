@@ -1,0 +1,30 @@
+name: process-guard
+description: >
+  Enforces the artifact chain on every PR: freeze-hash (acceptance tests match the
+  committed manifest), mixed-diff (implementation and acceptance tests never change
+  together without a contract change), and stage-artifact (src changes require the
+  frozen suite on the base branch). Pin this action by commit SHA.
+inputs:
+  base-ref:
+    description: Base ref to diff against (the PR base branch)
+    default: origin/main
+  acceptance-dir:
+    description: Directory holding the frozen acceptance suite
+    default: test/acceptance
+  src-paths:
+    description: Comma-separated path prefixes that count as implementation
+    default: src/
+  contract-paths:
+    description: Comma-separated files whose change unlocks acceptance edits
+    default: contracts.md,docs/contracts.md
+runs:
+  using: composite
+  steps:
+    - name: process-guard checks
+      shell: bash
+      env:
+        PG_BASE_REF: ${{ inputs.base-ref }}
+        PG_ACCEPTANCE_DIR: ${{ inputs.acceptance-dir }}
+        PG_SRC_PATHS: ${{ inputs.src-paths }}
+        PG_CONTRACT_PATHS: ${{ inputs.contract-paths }}
+      run: node "${{ github.action_path }}/scripts/check.mjs"
