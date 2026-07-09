@@ -1,61 +1,57 @@
 # Process Conformance Baseline
 
-Every repo is audited against the items below, filtered by its declared tier
-(`S | I | X` — see [`OS.md`](OS.md) §3). Each item exists because a real defect
-created it — the `Origin` column links the lesson. An item's `Enforcement` states
-where it currently lives; anything not at HARD is explicitly unfinished, not assumed.
+The checklist every repo is audited against, filtered by its tier (`S | I | X` — see
+[`OS.md`](OS.md)). Every item says **what it prevents** — if I can't name the failure
+an item stops, the item doesn't belong here. The Origin column says where it came
+from: a real incident ([`LESSONS.md`](LESSONS.md)) or a practice already proven in one
+of my repos.
 
-Per-repo status matrices are **audit output**, produced by the monthly audit run and
-kept with each repo — they are not maintained by hand in this file.
+Audit results live with each repo, not in this file.
 
-| ID | Check | Tier | Enforcement | Origin |
-|---|---|---|---|---|
-| PC-01 | Git-history secret lint: planted-secret scan over full history runs in CI | S, I | HARD (CI job) — port pending to all repos | [L-003](LESSONS.md#l-003) |
-| PC-02 | Anti-silent-skip: every env-gated suite must prove it ran; missing env hard-fails, never skips green | S, I | HARD (CI assertion) — port pending | [L-006](LESSONS.md#l-006) |
-| PC-03 | Threat model exists: assets, trust boundaries, controls→tests mapping, residuals as first-class output. One page suffices for Tier I | S, I | AUDIT (file-shape check plannable) | [L-001](LESSONS.md#l-001), [L-005](LESSONS.md#l-005) |
-| PC-04 | Claims-vs-enforcement: every guarantee verb (never/always/cannot/enforced/only) in deployer-facing docs traces to enforcing code or a test. Enforce-or-don't-write | S | SEMI (grep in review; CI-able) | [L-005](LESSONS.md#l-005) |
-| PC-05 | Supply chain floor: exact version pins, committed lockfile + frozen installs, SHA-pinned actions, minimum release-age gate (7 days; 15 for anything with network egress or publish rights) | S, I | HARD (CI) — inconsistent across repos, standardization pending | ecosystem practice |
-| PC-06 | Residuals ledger present and machine-readable where possible; known gaps are named, never silent | S | AUDIT | [L-007](LESSONS.md#l-007) |
-| PC-07 | Closed positive sets at trust boundaries: boundary decisions specified and implemented as allowlists; any deny-list at a boundary is a review finding by default | S, I | SEMI (critique class + review lens; lint heuristic plannable) | [L-001](LESSONS.md#l-001), [L-002](LESSONS.md#l-002) |
-| PC-08 | Stage-artifact chain on T2/T3 paths: implementation PRs require spec + critique + acceptance manifest on base branch | S, I | HARD (process-guard) | [L-001](LESSONS.md#l-001) |
-| PC-09 | Acceptance freeze: hash manifest over acceptance tests, recomputed every PR; edits red, activation-file changes green | S, I | HARD (process-guard) | [L-001](LESSONS.md#l-001) |
-| PC-10 | Mixed-diff guard: src/** + test/acceptance/** in one diff fails unless the contract changed in the same PR | S, I | HARD (process-guard) | [L-001](LESSONS.md#l-001) |
-| PC-11 | CI exists in-repo and runs the repo's full verify (typecheck, tests, build) on every PR; branch protection requires it | S, I | HARD (platform) | [L-004](LESSONS.md#l-004) |
-| PC-12 | Tier declared in one machine-readable line; promotion triggers (new auth boundary, real data, published package, egress, external write access) flag mismatches | S, I, X | AUDIT | [L-008](LESSONS.md#l-008) |
-| PC-13 | Author-identity split: committer on acceptance paths ≠ committer on src paths | S, I | SEMI (identity check + audit; forgeable by owner — named residual) | [L-001](LESSONS.md#l-001) |
-| PC-14 | Review front-load: round 1 ships with the contract claims list, threat rows, and invariant checklist | S, I | PROMPT (template-enforced) + AUDIT | [L-005](LESSONS.md#l-005) |
-| PC-15 | Review-round ceiling: >3 rounds on one PR is recorded as a process finding in the ledger | S, I | AUDIT | [L-005](LESSONS.md#l-005) |
-| PC-16 | Integration depth: the real end-to-end flow (real entry point, real adapters/stores, real client where one exists) runs in CI before any done/release claim — green units alone are never "done" | S, I | HARD where suites exist; AUDIT for coverage breadth | [L-004](LESSONS.md#l-004) |
-| PC-17 | Property/generative tests at parser and encoding boundaries (input parsing, redaction, token/scope handling, serialization round-trips) | S | NOT YET ENFORCED — backlog, targets named per repo | [L-002](LESSONS.md#l-002) |
-| PC-18 | Mutation testing as periodic audit of test-suite honesty — scheduled report, never a CI gate | S | NOT YET ENFORCED — backlog | [L-001](LESSONS.md#l-001) |
-| PC-19 | Prose honesty: process/verification docs describe only what exists; aspirational designs are explicitly marked as such | S, I | AUDIT | [L-007](LESSONS.md#l-007) |
-| PC-20 | Orchestrator holds no enforcement: any agent-dispatching system is governed by the same enforcement plane it dispatches into | S | DESIGN RULE + AUDIT | [L-009](LESSONS.md#l-009) |
-| PC-21 | Gates verify their own inputs: shared fixture/schema corpora are pinned from a single source of truth bumped atomically across all consumers; every consumer runs the full corpus or names its exclusions in the job | S | NOT YET ENFORCED — pin-consistency check plannable in CI | [L-010](LESSONS.md#l-010) |
-| PC-22 | No live production credentials in working trees: prod keys and admin credentials live in a secret manager; local dev uses scoped non-prod credentials; gitignore is never the only control | S, I, X | AUDIT (periodic disk sweep) | standing hygiene rule |
-| PC-23 | AI-review gate injection hardening: reviewers read governance files from the base branch, never the PR tree; write-capable jobs never check out untrusted code; gate status comes from local artifacts, not posted comments; the PR's build config is never installed/executed by the reviewer | S | HARD where review gates exist — port with each rollout | harvest: SDK fleet review workflows |
-| PC-24 | Docs-freshness automation: merges in source repos dispatch drift checks against a source-file→doc-page map; stale docs become tracked issues, not surprises | S | HARD in one pipeline — port pending | harvest: docs pipeline + agentic freshness auditor |
-| PC-25 | Dangerous-change-class gates: destructive or non-compliant change classes (locking/destructive migrations, regulated identifiers) are blocked by default via lint/grep gates, with auditable inline override annotations | S, I | HARD where implemented — pattern portable per domain | harvest: migration-hazard test; privacy grep-gate |
-| PC-26 | Meta-CI: workflow files are themselves linted (actionlint + parse check) on any change to CI config | S, I | HARD in two repos — port pending | harvest: workflow-sanity checks |
-| PC-27 | Executable examples and artifacts as gates: demos run in CI against the public API; release binaries/packages are built and driven end-to-end before publish | S | HARD in two repos — port pending | harvest: demo smoke + binary smoke |
-| PC-28 | Trusted publishing: OIDC-based registry publishing with provenance (no long-lived tokens); SBOM + signing for Tier S releases | S | HARD where publishing exists | harvest: fleet publish workflows |
-| PC-29 | Dry-run as an additive deny-mutations overlay: agent/ops tools compose a deny-all-writes policy layer when in dry-run, rather than relying on code paths to remember | S, I | PATTERN — adopt per tool | harvest: replication-agent contracts |
-| PC-30 | Justified allowlists: every entry in a sandbox/network/mount allowlist carries an inline justification; unjustified entries are review findings | S, I | SEMI (review lens; lintable) | harvest: scanner sandbox policy |
-| PC-31 | Suppression expiry: every suppressed finding (CVE ignore, disabled lint at a boundary, advisory-only scan) carries a recheck date; the audit flags expired suppressions | S, I | AUDIT | harvest: fleet CVE-ignore rot |
+| ID | Rule | What it prevents | Tier | Enforced | Origin |
+|---|---|---|---|---|---|
+| PC-01 | CI scans the **full git history** for secrets, using planted-secret test cases | A key that was committed once and "fixed" is still in history for anyone who clones | S, I | HARD in 1 repo — port pending | [L-003](LESSONS.md#l-003) |
+| PC-02 | Test suites that need an environment (DB, browser) must **prove they ran**; missing env = red, never skip | "All green" when the important tests silently didn't run | S, I | HARD in 3 repos — port pending | [L-006](LESSONS.md#l-006) |
+| PC-03 | A threat model exists: what we protect, where attacks come in, which test covers each defense, what risks we accept. One page is fine for Tier I | Security that lives in someone's head; new attack classes nobody wrote down | S, I | AUDIT | [L-001](LESSONS.md#l-001), [L-005](LESSONS.md#l-005) |
+| PC-04 | Every promise word in user-facing docs (never/always/cannot/only) must point to the code that enforces it and a test that would catch its removal | Docs promising protection the code doesn't deliver — wrong docs ship farther than wrong code | S | SEMI (review grep; CI-able) | [L-005](LESSONS.md#l-005) |
+| PC-05 | Exact dependency pins, committed lockfile, frozen installs in CI, actions pinned by SHA, new deps must be ≥7 days old (15 for anything that publishes or reaches the network) | A hijacked package version shipping into my build the day it's published | S, I | HARD — inconsistent, standardization pending | ecosystem practice |
+| PC-06 | Known gaps are written down in a machine-readable list, not hidden | Shipping with secret known-broken parts; forgetting what we chose to accept | S | AUDIT | [L-007](LESSONS.md#l-007) |
+| PC-07 | Decisions at trust boundaries are **allowlists** (name what's permitted), never blocklists (name what's forbidden) | The bug that started all this: a null slipped past a blocklist and became a confirmed fact | S, I | SEMI (critic + review lens) | [L-001](LESSONS.md#l-001), [L-002](LESSONS.md#l-002) |
+| PC-08 | A PR that changes code requires the frozen acceptance tests to already exist | Code written before anyone defined "done" independently | S, I | HARD (process-guard) | [L-001](LESSONS.md#l-001) |
+| PC-09 | Acceptance test files are hash-frozen; any edit turns CI red | The coder weakening or deleting the test that would catch its bug | S, I | HARD (process-guard) | [L-001](LESSONS.md#l-001) |
+| PC-10 | One PR can't change both the code and the acceptance tests, unless the contract changed too | One author quietly playing both sides | S, I | HARD (process-guard) | [L-001](LESSONS.md#l-001) |
+| PC-11 | CI exists in the repo and runs the full verify (types, tests, build) on every PR | "It worked on my machine" as the only quality gate | S, I | HARD (platform) | [L-004](LESSONS.md#l-004) |
+| PC-12 | Each repo declares its tier in one line; gaining logins/real data/publishing flags a promotion | An internal tool quietly becoming a product with experiment-level process | S, I, X | AUDIT | [L-008](LESSONS.md#l-008) |
+| PC-13 | The committer on acceptance tests differs from the committer on code | Same-author tests pretending to be independent | S, I | SEMI — forgeable by owner, audited | [L-001](LESSONS.md#l-001) |
+| PC-14 | Reviewers get the contract's promises + threat notes up front, in round 1 | Reviews that find wrong code but never missing code | S, I | PROMPT + AUDIT | [L-005](LESSONS.md#l-005) |
+| PC-15 | More than 3 review rounds on one PR is recorded as a process failure | Grinding through 16 rounds instead of fixing the stage that produced weak code | S, I | AUDIT | [L-005](LESSONS.md#l-005) |
+| PC-16 | The real end-to-end flow (real entry point, real stores, real client) runs in CI before anything is called done | Perfect units, broken product — wiring bugs are invisible to unit tests | S, I | HARD where suites exist | [L-004](LESSONS.md#l-004) |
+| PC-17 | Generative (property/fuzz) tests at parser and encoding boundaries | The input shape nobody hand-wrote a test for | S | NOT YET ENFORCED — backlog | [L-002](LESSONS.md#l-002) |
+| PC-18 | Mutation testing as a periodic report (never a CI gate): break the code on purpose, see if tests notice | Test suites that look thorough but assert nothing | S | NOT YET ENFORCED — backlog | [L-001](LESSONS.md#l-001) |
+| PC-19 | Docs describe only what exists; designs are labeled as designs | Docs describing a test harness that was never built (happened in my best repo) | S, I | AUDIT | [L-007](LESSONS.md#l-007) |
+| PC-20 | The agent-dispatching system holds no enforcement; it obeys the same walls | The factory approving its own work with corrupted records (happened) | S | DESIGN RULE + AUDIT | [L-009](LESSONS.md#l-009) |
+| PC-21 | Gates verify their own inputs: shared fixture sets pinned from ONE source, bumped everywhere at once; every consumer runs the full set or names what it skips | Three SDKs "passing parity" against different fixture versions (happened) | S | NOT YET ENFORCED — check plannable | [L-010](LESSONS.md#l-010) |
+| PC-22 | Production keys and admin credentials live in a secret manager, never in working trees; local dev uses scoped non-prod credentials | One `.gitignore` mistake away from leaking prod | S, I, X | AUDIT | standing hygiene rule |
+| PC-23 | AI reviewers read their instructions from the base branch, never from the PR; write-capable CI jobs never check out untrusted code; verdicts come from local files, not posted comments | A malicious PR rewriting its own reviewer's rules or faking a pass | S | HARD where review gates exist | harvest: SDK review workflows |
+| PC-24 | Code merges trigger a docs-drift check against a source→docs map | Docs rotting silently until a user follows a stale guide | S | HARD in 1 pipeline — port pending | harvest: docs pipeline |
+| PC-25 | Dangerous change classes (destructive migrations, regulated identifiers) are blocked by a lint with an inline, auditable override note | A table-locking migration taking down prod because nobody remembered it was dangerous | S, I | HARD where implemented | harvest: migration-hazard gate |
+| PC-26 | CI config itself is linted on every change to it | A broken workflow silently skipping the checks it was supposed to run | S, I | HARD in 2 repos — port pending | harvest: workflow-sanity checks |
+| PC-27 | Examples run in CI; release artifacts are built and driven end-to-end before publishing | READMEs that don't work; binaries that crash on `--help` | S | HARD in 2 repos — port pending | harvest: demo + binary smoke |
+| PC-28 | Publishing uses short-lived OIDC credentials with provenance; SBOM + signing for Tier S | A stolen long-lived registry token publishing malware as me | S | HARD where publishing exists | harvest: fleet publish workflows |
+| PC-29 | Dry-run mode is a deny-all-writes policy layer, not a code path that must remember to be careful | One forgotten `if dry_run` guard doing a real write | S, I | PATTERN — adopt per tool | harvest: replication-agent |
+| PC-30 | Every allowlist entry (network, mounts, commands) carries an inline reason | Allowlists that grow forever because nobody remembers why entries exist | S, I | SEMI (review lens) | harvest: scanner sandbox policy |
+| PC-31 | Every suppressed warning (ignored CVE, disabled lint) carries a recheck date; expired ones get flagged | Ignores that outlive their excuse — the patch shipped a year ago and we're still ignoring the CVE | S, I | AUDIT | harvest: CVE-ignore rot |
 
-## Enforcement legend
+## How enforcement labels read
 
-- **HARD** — required status check or platform rule; no agent, harness, or human merges around it.
-- **SEMI** — mechanically checked but forgeable by the repo owner, or partially mechanized; residual is named and audited.
-- **AUDIT** — verified by the scheduled audit run after the fact; drift is detected within one cycle, not prevented.
-- **PROMPT** — enforced only through generated prompts; weakest tier, listed so the gap is visible.
-- **NOT YET ENFORCED** — declared intent with a backlog entry; counts as a named gap in every audit until it lands.
+- **HARD** — a required check. Nobody merges around it, no matter the tool.
+- **SEMI** — checked, but the repo owner could fool it, or it's only partly mechanical. The gap is named and audited.
+- **AUDIT** — caught by the scheduled audit after the fact. Detected within a month, not prevented.
+- **PROMPT** — only enforced through generated prompts. Weakest level; listed so the gap is visible.
+- **NOT YET ENFORCED** — declared intent with a backlog entry. Counts as a named gap in every audit.
 
 ## Adding an item
 
-New items have exactly two legitimate origins: a `LESSONS.md` entry (an incident), or
-a **harvested practice** — a mechanism already proven in one of the fleet's repos,
-named in the Origin column (the 2026-07-09 founding harvest audited every repo in the
-fleet and seeded PC-23 through PC-31 this way). Each item must name: the check, its
-tier applicability, its current and target enforcement layer, and its origin. Items
-without an origin story are suspect — checklist growth without incident pressure is
-how process theater starts.
+Two legitimate origins only: a real incident (`LESSONS.md`) or a practice already
+proven in one of my repos (name it). Every item must state what failure it prevents.
+No origin, no entry — checklists that grow without pain behind them turn into theater.

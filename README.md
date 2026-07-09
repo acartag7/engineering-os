@@ -1,76 +1,61 @@
 # Engineering OS
 
-**Agents skip process. Documents don't stop them. Required checks do.**
+**How I ship software with AI agents — without trusting them to follow rules.**
 
-This repository is my engineering operating system: how I ship software with fleets of
-AI coding agents across heterogeneous harnesses — safely, fast, and consistently across
-every project I run. It is public because a process that evolves in the open, with its
-own failures recorded and converted into checks, is more trustworthy than one described
-in a pitch.
+## The story that started this
 
-It is versioned and evolving. Changes to my own process arrive here as PRs. Every rule
-is tagged with where it is enforced — and a rule that is not yet a check is explicitly
-labeled *not yet enforced*, never assumed to bind anyone.
+I gave the same feature spec to four AI models, in parallel. All four came back green:
+tests passing, self-review says APPROVE. One of them had a serious bug — it treated
+unverified user claims as confirmed facts. Its tests didn't catch that, because **it
+wrote its own tests**, and nobody writes a test for the mistake they just made. Only
+an independent review by a different model caught it.
 
-## The one-line version
+Around the same time I noticed something else: rules I had written down in docs kept
+getting ignored — by agents, and sometimes by me. Even my most careful repo had docs
+describing a test harness that was never built. Written rules decay. Nobody notices.
 
-Process became files → files became required checks → checks became the only path to
-merge. Every stage of work emits a committed artifact, and CI refuses the next stage
-until the previous artifact exists and is intact.
+Both problems have the same fix:
 
-## Why this exists
+> **A rule doesn't count until a machine checks it. Everything else is a wish.**
 
-Running multiple independent AI implementations of the same spec taught me two things
-the hard way:
+## How it works, in short
 
-1. **A defective implementation can ship a green, self-authored test suite.** The worst
-   of four parallel implementations of one spec contained a real trust-boundary bug —
-   with 100+ passing tests it wrote itself. Every implementation returned "APPROVE."
-   The defect was caught only by independent adversarial review.
-2. **Lessons written as prose decay, even under discipline.** The same documentation
-   defect class recurred in the same repo after being flagged and fixed. Verification
-   docs drifted from the code they described. Only lessons that became executable
-   checks held without attention.
+Every step of work leaves a file behind: a spec, a critique, a test suite, a hash
+manifest. CI checks that the previous step's file exists and is untouched before the
+next step can merge. Skip a step, and the merge button turns red. GitHub can't tell
+one AI from another — or from me — and that's the point: the rules hold no matter
+which tool did the work.
 
-The conclusions: test authorship must be split from implementation authorship, and
-every process rule must drain downward until it is a check no agent — and no harness —
-can route around.
+The two rules that matter most:
 
-## What's here
+1. **The tests that define "done" are written by a different AI than the one that
+   writes the code** — from the spec, before any code exists.
+   *Why: an agent that grades its own homework will pass itself. That's not a maybe —
+   I watched it happen.*
+2. **Those tests are frozen.** Every test file's hash is committed. If the coder edits
+   a test, CI goes red. It can switch tests ON as it finishes a phase — it can never
+   change what they check.
+   *Why: "don't touch the tests" as an instruction is ignorable. A hash check isn't.*
 
-| Path | What it is |
-|---|---|
-| [`OS.md`](OS.md) | The operating system: the four enforcement layers, the artifact-chain pipeline, project tiers, and the two-plane rule for orchestrators |
-| [`BASELINE.md`](BASELINE.md) | The process conformance baseline — numbered, checkable items every repo is audited against, each traceable to a real incident |
-| [`LESSONS.md`](LESSONS.md) | The incident ledger. Every defect caught anywhere becomes an entry; every entry becomes or updates a check |
-| [`POLICY.md`](POLICY.md) | Speed vs. safety policy: change tiers, model routing, verification depth, and when redundant implementations are worth it |
-| [`prompts/`](prompts/) | Versioned prompt templates for the pipeline seats: critique, acceptance author, implementer, reviewer |
-| [`process-guard/`](process-guard/) | The shared CI action that hard-enforces the artifact chain: freeze-hash, mixed-diff, and stage-artifact checks |
+## What's in this repo
 
-## The pipeline at a glance
+| File | What it is | Read it when |
+|---|---|---|
+| [`OS.md`](OS.md) | The rules of the system: 3 principles, 4 enforcement layers, the step-by-step pipeline, project tiers | You want to understand or change how work flows |
+| [`BASELINE.md`](BASELINE.md) | The checklist every repo is audited against. Each item says what it prevents and where it came from | You're onboarding a repo or reviewing an audit |
+| [`LESSONS.md`](LESSONS.md) | Every real defect that taught me something, and the check it turned into | You want to know *why* a rule exists |
+| [`POLICY.md`](POLICY.md) | How much process each kind of change gets — a doc tweak and an auth change are not the same | You're starting a piece of work and deciding its tier |
+| [`ONBOARDING.md`](ONBOARDING.md) | How to put an existing repo under these rules, and what only a human can decide | You're adding a repo |
+| [`prompts/`](prompts/) | Ready-to-use prompts for each seat: critic, test author, coder, reviewer | You're dispatching agents |
+| [`process-guard/`](process-guard/) | The small CI action that does the actual enforcing | You're wiring up CI |
 
-```
-1. Define      →  specs/<feature>.md
-2. Contract    →  contracts.md §n (+ threat rows for trust-boundary work)
-3. Critique    →  specs/<feature>.critique.md          [independent agent]
-4. Acceptance  →  test/acceptance/<phase>/ + manifest  [different author than implementer]
-5. Implement   →  src/** PR — cannot edit acceptance tests (hash-enforced)
-6. Review      →  findings-first, parallel lenses, review marker on head SHA
-7. Merge       →  branch protection: all required checks + review. No other path.
-```
+## The loop that keeps it alive
 
-Stages 3–4 are mandatory for trust-boundary changes and default-on for features
-(see [`POLICY.md`](POLICY.md)). The implementer inherits a frozen acceptance suite it
-cannot weaken: every test body is hashed into a committed manifest, and CI recomputes
-the hashes on every PR.
-
-## The loop that makes it evolve
-
-```
-defect caught anywhere → LESSONS.md entry → new/updated baseline item + check
-   → process-guard version bump → every repo, one sweep → monthly audit verifies
-```
+When a bug slips through anywhere, it becomes a short entry in `LESSONS.md`. The entry
+becomes a new check. The check ships to every repo at once. That's the whole
+maintenance model: **failures become checks, checks spread everywhere, and nothing
+depends on me remembering.**
 
 ## License
 
-Apache-2.0. If you fork the process, I'd genuinely like to hear what broke first.
+Apache-2.0. If you copy this process, I'd genuinely like to hear what broke first.
