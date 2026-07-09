@@ -140,21 +140,7 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Became:** PC-21 — gates must verify their own inputs (corpus version consistency,
   coverage breadth, atomic pin bumps).
 
-## L-011 — Live production credentials in local working trees <a name="l-011"></a>
-
-- **What:** Fleet sweep found plaintext production credentials — service API keys, a
-  production admin password, a cloud-account key — in gitignored dotfiles across three
-  unrelated working trees, including a demo repo, at permissive file modes. None were
-  tracked or in git history, but `.gitignore` was the only control and rotation state
-  was unknown.
-- **Where:** a demo repo, an experiment repo, an IaC directory.
-- **Caught by:** fleet harvest audit (2026-07-09).
-- **Class:** gitignore is not secret management; production and demo/dev credential
-  domains were not separated.
-- **Became:** PC-22; immediate rotation directive; fleet-wide PC-01 sweep moved to the
-  top of the propagation queue.
-
-## L-012 — The before-picture: twin libraries, parity by memory <a name="l-012"></a>
+## L-011 — The before-picture: twin libraries, parity by memory <a name="l-011"></a>
 
 - **What:** An early pair of sibling libraries (same API, two languages, both
   published to public registries) built five months before this OS: no specs, no
