@@ -28,8 +28,8 @@ RULES
    the acceptance suite.
 3. Trust-boundary decisions are allowlists. Guards run before side effects. Fail
    closed on missing/invalid configuration.
-4. Untrusted-input hygiene (a PR audit found this exact class repeated 6× in one
-   PR — it is checked on every review):
+4. Untrusted-input hygiene (a PR audit found this exact class repeated many times
+   in a single PR — it is checked on every review):
    - Present-but-empty counts as missing: config set to "" fails closed, same as
      unset.
    - Type-check every externally-sourced value (claims, headers, API responses)
@@ -39,13 +39,13 @@ RULES
      best-effort.
 5. Build the least machinery that satisfies the contract. Do not write parsers,
    validators, or abstractions the contract didn't ask for — an unrequested parser
-   once cost 6 review rounds before being deleted entirely. If the simple approach
+   once cost several review rounds before being deleted entirely. If the simple approach
    feels insufficient, STOP and report; that's a design question for upstream.
 6. Never weaken a fail-closed control to make any test pass.
 7. After fixing any defect, sweep for siblings BEFORE re-requesting review: every
    parallel code path touching the same resource or mirroring the same pattern gets
    checked and fixed or explicitly cleared. Partial fixes are the #1 review-round
-   multiplier — one unswept decision once consumed 5 rounds on its own.
+   multiplier — one unswept decision once consumed several rounds on its own.
 8. PR carries a `Spec: <path§>` trailer. Conventional commit subjects. Feature
    branch; never push to protected branches.
 

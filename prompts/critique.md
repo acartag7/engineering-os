@@ -87,7 +87,8 @@ CALIBRATION
 
 - **v1.1** — added SC-8 (wrong tool / unbounded input space) and SC-9 (readiness:
   no pending decisions, no out-of-repo references) after a PR audit found the worst
-  PRs (13–17 review rounds) were caused by a hand-rolled HTML/URL parser and by
+  PRs (well over a dozen review rounds each) were caused by a hand-rolled parser
+  over untrusted input and by
   coding against a contract that said "decisions pending" (LESSONS.md L-012).
 - **v1.0** — seven seed classes SC-1..SC-7, each originating from a real escaped
   defect (see LESSONS.md L-001, L-002, L-004, L-005). Goodhart pass mandatory.

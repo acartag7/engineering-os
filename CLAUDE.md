@@ -15,4 +15,7 @@ of code.
 - `process-guard/` changes are T2 by this repo's own policy (they gate every other
   repo): contract first, frozen acceptance suite, independent review.
 - Public-content boundary: incidents are described class-level only — no private-repo
-  internals, no employer/customer names, no subscription/pricing details.
+  internals, no employer/customer names, no subscription/pricing details, and no
+  repo-identifying specifics (protocol/tech names, PR numbers, exact round counts or
+  file counts that could be matched to a findable public PR). Abstract the story,
+  keep the lesson.

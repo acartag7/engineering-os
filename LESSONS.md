@@ -32,7 +32,7 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   is a single token; a composite entry re-split at verification time and could widen a
   granted ceiling (resurrecting prior grants). A sibling input path (deployer-supplied
   catalog) had the same shape and was initially left unvalidated.
-- **Where:** OAuth/token layer, security-critical OSS.
+- **Where:** an authorization/token layer in a security-critical service.
 - **Caught by:** independent review (P1 finding); hand-written test cases had missed it.
 - **Class:** representation/round-trip invariant unstated; sibling instance nearly
   forgotten after the fix.
@@ -54,9 +54,9 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 
 - **What:** Several defects — an auth branch that never created its state directory,
   startup routed to the wrong flow, a config value silently dropped — shipped through
-  a ~3,700-line, unit-heavy suite. All were wiring-level: each component was correct,
+  a large, unit-heavy suite. All were wiring-level: each component was correct,
   their composition wasn't.
-- **Where:** security-critical OSS, entry/startup layer.
+- **Where:** a security-critical service, startup and wiring layer.
 - **Caught by:** independent review and human inspection; later closed with real
   end-to-end integration tests (full flow through the real entry point, real spawn).
 - **Class:** integration depth; unit tests cannot see composition.
@@ -69,7 +69,7 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   recurred in the same repo one release later. Root cause of the survivor: reviewers
   were scoped to code defects and never handed the claims to check, so reviews found
   wrong code but not missing code.
-- **Where:** security-critical OSS, docs/README surface.
+- **Where:** a security-critical project's user-facing docs.
 - **Caught by:** independent review, second time only via an explicit claims pass.
 - **Class:** docs are security surface; absences only surface in invariant-driven
   review; prose lessons decay.
@@ -148,25 +148,25 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   changed validation behavior with nothing to detect it, unpinned runtime deps with no
   lockfile on the package that parses untrusted input, and a same-day three-major
   dependency bump.
-- **Where:** early published OSS pair (retrospective).
+- **Where:** an early project pair (retrospective).
 - **Caught by:** fleet harvest audit — kept as the dated "before" evidence.
 - **Class:** none of the baseline was innate; every item was learned. This entry is
   the evolution axis the ledger measures against.
 - **Became:** validation of PC-05, PC-08, PC-21; the founding-harvest origin note in
   BASELINE.md.
 
-## L-012 — Review used as spec discovery: 17 rounds on one small PR <a name="l-012"></a>
+## L-012 — Review used as spec discovery: one small PR, over a dozen rounds <a name="l-012"></a>
 
-- **What:** A PR audit found the worst PRs took 13–17 review rounds. Almost none of
+- **What:** A PR audit found the worst PRs took well over a dozen review rounds. Almost none of
   it was sloppy code: ~43% of findings were edge cases in a hand-rolled HTML/URL
   parser (each fix revealed the next broken input), ~28% were behavior the contract
   never specified (coding started while the design said "decisions pending" and
   pointed at a file in /tmp), ~24% were missing guards. The review bot's false-positive
   rate was ~0 — the reviewer was fine; the inputs to coding were not. ~93% of all
   findings were preventable before review. Round count tracked the subsystem
-  (parsing, redaction), not the diff size: an 8-file PR took 17 rounds while one
-  three times larger merged in 3.
-- **Where:** two security-critical OSS repos, parser/egress subsystems.
+  (parsing, redaction), not the diff size: a small PR took the most rounds of all
+  while one several times larger merged in a few.
+- **Where:** two security-critical projects, parsing and network-egress code.
 - **Caught by:** PR-history audit (2026-07-09), prompted by the operator noticing the
   review-round burn (and its real cost: a shared review quota).
 - **Class:** review verifying → review discovering. Wrong tool chosen at design time;
@@ -179,15 +179,15 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 ## L-013 — The prompt already said it — and the code shipped wrong anyway <a name="l-013"></a>
 
 - **What:** A PR audit in the most process-mature repo found three review findings
-  whose rule was stated **verbatim in the implementation prompt** (key identities by
-  issuer+subject, enforce PKCE S256, validate the token hash) — and the code violated
-  all three. In the same repo, a natural experiment: a large PR whose spec section was
-  locked in the contract beforehand merged in **1 review round**; a similar-sized PR
-  with a spec gap took **~19**. Two further round-multipliers: fixes that didn't sweep
-  sibling code paths (one decision alone consumed 5 rounds as siblings resurfaced),
-  and an implementer that **built a parser nobody asked for** and defended it for 6
+  whose rule was stated **verbatim in the implementation prompt** (how identities
+  must be keyed, a mandatory security mode, a required token validation) — and the
+  code violated all three. In the same repo, a natural experiment: a large PR whose
+  spec section was locked in the contract beforehand merged in **one review round**;
+  a comparable PR with a spec gap took **nearly twenty**. Two further round-multipliers: fixes that didn't sweep
+  sibling code paths (one decision alone consumed several rounds as siblings resurfaced),
+  and an implementer that **built a parser nobody asked for** and defended it for several
   rounds before the owner deleted it.
-- **Where:** OAuth/identity layer, security-critical OSS.
+- **Where:** an identity/login layer in a security-critical service.
 - **Caught by:** PR-history audit (2026-07-09).
 - **Class:** prompts are guidance, not enforcement — even correct, explicit prompts
   get ignored under implementation pressure. Only a red test binds. ~85–90% of the
@@ -195,6 +195,6 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Became:** confirmation that the acceptance-split is the only reliable carrier of
   stated requirements (a rule the prompt states must ALSO be a frozen test);
   implementer prompt v1.1 (standing fail-closed hygiene checklist — the same
-  guard-class mistake repeated ~6× in one PR); sibling-sweep required before
+  guard-class mistake repeated many times in one PR); sibling-sweep required before
   re-requesting review; SC-8 validated from the opposite direction (unnecessary
   hand-rolled parser, not just a risky one).
