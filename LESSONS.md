@@ -125,3 +125,46 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   rebuild with orchestration and enforcement as separate planes.
 - **Class:** enforcement inside an LLM-driven system is not enforcement.
 - **Became:** PC-20, the two-plane rule (OS §4).
+
+## L-010 — Shared fixture-corpus pins diverged across consumers <a name="l-010"></a>
+
+- **What:** Three SDKs enforce cross-implementation parity via one shared fixture
+  corpus, each CI pinning the corpus by commit. The pins drifted: the reference SDK
+  pinned one commit, the other two a different one — so "all parity checks green"
+  proved agreement against different corpora. Separately, one SDK's parity job ran
+  only a subset of fixture classes under the same job name as the full run.
+- **Where:** multi-SDK product fleet — the repos where "parity by fixture" was invented.
+- **Caught by:** fleet harvest audit (2026-07-09).
+- **Class:** the parity mechanism itself had no conformance check; job names implied
+  coverage they didn't deliver.
+- **Became:** PC-21 — gates must verify their own inputs (corpus version consistency,
+  coverage breadth, atomic pin bumps).
+
+## L-011 — Live production credentials in local working trees <a name="l-011"></a>
+
+- **What:** Fleet sweep found plaintext production credentials — service API keys, a
+  production admin password, a cloud-account key — in gitignored dotfiles across three
+  unrelated working trees, including a demo repo, at permissive file modes. None were
+  tracked or in git history, but `.gitignore` was the only control and rotation state
+  was unknown.
+- **Where:** a demo repo, an experiment repo, an IaC directory.
+- **Caught by:** fleet harvest audit (2026-07-09).
+- **Class:** gitignore is not secret management; production and demo/dev credential
+  domains were not separated.
+- **Became:** PC-22; immediate rotation directive; fleet-wide PC-01 sweep moved to the
+  top of the propagation queue.
+
+## L-012 — The before-picture: twin libraries, parity by memory <a name="l-012"></a>
+
+- **What:** An early pair of sibling libraries (same API, two languages, both
+  published to public registries) built five months before this OS: no specs, no
+  shared fixtures between the twins, a port written in about seventy minutes that
+  changed validation behavior with nothing to detect it, unpinned runtime deps with no
+  lockfile on the package that parses untrusted input, and a same-day three-major
+  dependency bump.
+- **Where:** early published OSS pair (retrospective).
+- **Caught by:** fleet harvest audit — kept as the dated "before" evidence.
+- **Class:** none of the baseline was innate; every item was learned. This entry is
+  the evolution axis the ledger measures against.
+- **Became:** validation of PC-05, PC-08, PC-21; the founding-harvest origin note in
+  BASELINE.md.

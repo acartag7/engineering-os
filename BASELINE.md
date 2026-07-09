@@ -30,6 +30,17 @@ kept with each repo — they are not maintained by hand in this file.
 | PC-18 | Mutation testing as periodic audit of test-suite honesty — scheduled report, never a CI gate | S | NOT YET ENFORCED — backlog | [L-001](LESSONS.md#l-001) |
 | PC-19 | Prose honesty: process/verification docs describe only what exists; aspirational designs are explicitly marked as such | S, I | AUDIT | [L-007](LESSONS.md#l-007) |
 | PC-20 | Orchestrator holds no enforcement: any agent-dispatching system is governed by the same enforcement plane it dispatches into | S | DESIGN RULE + AUDIT | [L-009](LESSONS.md#l-009) |
+| PC-21 | Gates verify their own inputs: shared fixture/schema corpora are pinned from a single source of truth bumped atomically across all consumers; every consumer runs the full corpus or names its exclusions in the job | S | NOT YET ENFORCED — pin-consistency check plannable in CI | [L-010](LESSONS.md#l-010) |
+| PC-22 | No live production credentials in working trees: prod keys and admin credentials live in a secret manager; local dev uses scoped non-prod credentials; gitignore is never the only control | S, I, X | AUDIT (periodic disk sweep) | [L-011](LESSONS.md#l-011) |
+| PC-23 | AI-review gate injection hardening: reviewers read governance files from the base branch, never the PR tree; write-capable jobs never check out untrusted code; gate status comes from local artifacts, not posted comments; the PR's build config is never installed/executed by the reviewer | S | HARD where review gates exist — port with each rollout | harvest: SDK fleet review workflows |
+| PC-24 | Docs-freshness automation: merges in source repos dispatch drift checks against a source-file→doc-page map; stale docs become tracked issues, not surprises | S | HARD in one pipeline — port pending | harvest: docs pipeline + agentic freshness auditor |
+| PC-25 | Dangerous-change-class gates: destructive or non-compliant change classes (locking/destructive migrations, regulated identifiers) are blocked by default via lint/grep gates, with auditable inline override annotations | S, I | HARD where implemented — pattern portable per domain | harvest: migration-hazard test; privacy grep-gate |
+| PC-26 | Meta-CI: workflow files are themselves linted (actionlint + parse check) on any change to CI config | S, I | HARD in two repos — port pending | harvest: workflow-sanity checks |
+| PC-27 | Executable examples and artifacts as gates: demos run in CI against the public API; release binaries/packages are built and driven end-to-end before publish | S | HARD in two repos — port pending | harvest: demo smoke + binary smoke |
+| PC-28 | Trusted publishing: OIDC-based registry publishing with provenance (no long-lived tokens); SBOM + signing for Tier S releases | S | HARD where publishing exists | harvest: fleet publish workflows |
+| PC-29 | Dry-run as an additive deny-mutations overlay: agent/ops tools compose a deny-all-writes policy layer when in dry-run, rather than relying on code paths to remember | S, I | PATTERN — adopt per tool | harvest: replication-agent contracts |
+| PC-30 | Justified allowlists: every entry in a sandbox/network/mount allowlist carries an inline justification; unjustified entries are review findings | S, I | SEMI (review lens; lintable) | harvest: scanner sandbox policy |
+| PC-31 | Suppression expiry: every suppressed finding (CVE ignore, disabled lint at a boundary, advisory-only scan) carries a recheck date; the audit flags expired suppressions | S, I | AUDIT | harvest: fleet CVE-ignore rot |
 
 ## Enforcement legend
 
@@ -41,7 +52,10 @@ kept with each repo — they are not maintained by hand in this file.
 
 ## Adding an item
 
-New items come only from `LESSONS.md` entries. Each must name: the check, its tier
-applicability, its current and target enforcement layer, and the lesson that created
-it. Items without an origin story are suspect — checklist growth without incident
-pressure is how process theater starts.
+New items have exactly two legitimate origins: a `LESSONS.md` entry (an incident), or
+a **harvested practice** — a mechanism already proven in one of the fleet's repos,
+named in the Origin column (the 2026-07-09 founding harvest audited every repo in the
+fleet and seeded PC-23 through PC-31 this way). Each item must name: the check, its
+tier applicability, its current and target enforcement layer, and its origin. Items
+without an origin story are suspect — checklist growth without incident pressure is
+how process theater starts.
