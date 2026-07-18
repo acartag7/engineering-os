@@ -1,0 +1,9 @@
+{
+  "name": "engineering-os",
+  "description": "The engineering-os pipeline as a Claude Code plugin: the /pipeline driver skill, five routed seat agents (reference cross-family routing), four eos-* routing-free panel seats, and vendored prompt templates + manifest generator. Layer-2 advisory; process-guard CI and branch protection remain the walls.",
+  "version": "0.2.0",
+  "author": { "name": "acartag7" },
+  "homepage": "https://github.com/acartag7/engineering-os",
+  "repository": "https://github.com/acartag7/engineering-os",
+  "license": "Apache-2.0"
+}

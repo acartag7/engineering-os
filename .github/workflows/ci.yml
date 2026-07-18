@@ -1,0 +1,62 @@
+name: ci
+
+# engineering-os governs itself: the repo that defines the walls runs them on its
+# own PRs. Two required jobs — validate (plugin/manifest/prompt integrity) and
+# process-guard (the artifact-chain action, dogfooded on this repo).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Manifests are valid JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('plugins/engineering-os/.claude-plugin/plugin.json','utf8'))"
+
+      - name: Agent and skill frontmatter present
+        run: |
+          set -euo pipefail
+          for f in plugins/engineering-os/agents/*.md plugins/engineering-os/skills/*/SKILL.md; do
+            head -1 "$f" | grep -qx -- '---' || { echo "::error file=$f::missing YAML frontmatter"; exit 1; }
+            grep -q '^name:' "$f"        || { echo "::error file=$f::missing name:"; exit 1; }
+            grep -q '^description:' "$f" || { echo "::error file=$f::missing description:"; exit 1; }
+          done
+          echo "frontmatter ok for all agents + skills"
+
+      - name: Vendored prompts match repo originals (drift guard)
+        run: |
+          set -euo pipefail
+          for f in plugins/engineering-os/prompts/*.md; do
+            base="$(basename "$f")"
+            # line 1 is the vendored-source header; the rest must equal prompts/<base>
+            if ! tail -n +2 "$f" | diff -q - "prompts/$base" >/dev/null; then
+              echo "::error file=$f::vendored copy has drifted from prompts/$base — re-vendor"
+              exit 1
+            fi
+          done
+          echo "vendored prompts in sync with prompts/"
+
+  process-guard:
+    name: process-guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Fetch base branch
+        run: git fetch origin "${{ github.event.pull_request.base.ref || 'main' }}:refs/remotes/origin/${{ github.event.pull_request.base.ref || 'main' }}" || git fetch origin main
+      - name: Run the artifact-chain guard on this repo
+        uses: ./process-guard
+        with:
+          base-ref: origin/${{ github.event.pull_request.base.ref || 'main' }}
