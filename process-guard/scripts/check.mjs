@@ -38,9 +38,12 @@ const touchesContract = changed.some((f) => CONTRACTS.includes(f));
 if (touchesSrc) {
   const onBase = git("ls-tree", "-r", "--name-only", mergeBase).split("\n");
   if (onBase.includes(MANIFEST)) {
-    pass("stage-artifact", `manifest present on base (${MANIFEST})`);
-  } else if (existsSync(".process-guard-exempt")) {
-    pass("stage-artifact", "repo not yet onboarded (exempt marker present)");
+    pass("stage-artifact", `manifest present on base (${MANIFEST}) — global check; ` +
+      "per-feature coverage is not gated here, it is audited monthly (R-2)");
+  } else if (onBase.includes(".process-guard-exempt")) {
+    // PG-H1: the exemption is decided from the base tree, never the working tree —
+    // a PR cannot add the marker in its own diff to exempt itself.
+    pass("stage-artifact", "repo not yet onboarded (exempt marker present on base)");
   } else {
     fail("stage-artifact", `src/** changed but ${MANIFEST} missing on base branch — ` +
       "author and merge the acceptance suite first (pipeline stage 4)");
@@ -62,26 +65,39 @@ if (touchesSrc && (touchesAcceptance || touchesManifest)) {
 // --- freeze-hash: recompute and compare every hash in the manifest ---
 if (existsSync(MANIFEST)) {
   const manifest = JSON.parse(readFileSync(MANIFEST, "utf8"));
-  const mismatches = [];
+  const mismatches = new Set();
+  const listed = new Set(Object.keys(manifest.files));
   for (const [rel, expected] of Object.entries(manifest.files)) {
     const p = join(ACC_DIR, rel);
-    if (!existsSync(p)) { mismatches.push(`${rel} (deleted)`); continue; }
+    if (!existsSync(p)) { mismatches.add(`${rel} (deleted)`); continue; }
     const actual = createHash("sha256").update(readFileSync(p)).digest("hex");
-    if (actual !== expected) mismatches.push(rel);
+    if (actual !== expected) mismatches.add(rel);
   }
-  // new acceptance files not in the manifest are also a freeze violation
-  const listed = new Set(Object.keys(manifest.files));
+  // new acceptance files not in the manifest are a freeze violation
   for (const f of changed) {
     if (!f.startsWith(ACC_DIR + "/") || f === MANIFEST || f === ACTIVATION) continue;
     const rel = f.slice(ACC_DIR.length + 1);
-    if (!listed.has(rel) && existsSync(f)) mismatches.push(`${rel} (unlisted)`);
+    if (!listed.has(rel) && existsSync(f)) mismatches.add(`${rel} (unlisted)`);
   }
-  if (mismatches.length === 0) {
-    pass("freeze-hash", `${Object.keys(manifest.files).length} file(s) intact`);
+  // PG-H2: the manifest must enumerate EVERY acceptance file on the base tree.
+  // An unlisted base file — and therefore its deletion — is a freeze violation,
+  // so the freeze is an allowlist over the directory, not a per-named-file check.
+  const baseAcc = git("ls-tree", "-r", "--name-only", mergeBase, "--", ACC_DIR)
+    .split("\n").filter(Boolean);
+  for (const f of baseAcc) {
+    if (f === MANIFEST || f === ACTIVATION) continue;
+    const rel = f.slice(ACC_DIR.length + 1);
+    if (!listed.has(rel)) mismatches.add(`${rel} (unlisted on base)`);
+  }
+  if (mismatches.size === 0) {
+    pass("freeze-hash", `${listed.size} file(s) intact; manifest covers the acceptance tree`);
   } else if (touchesManifest && touchesContract) {
-    pass("freeze-hash", `manifest updated alongside contract change (${mismatches.length} file(s) re-frozen)`);
+    // NOTE: contract-unlock is still coarse (PG-H3, deferred — see contracts.md):
+    // any contract touch unlocks a re-freeze. The re-freeze invariant needs a
+    // redesign; until then R-2 audits acceptance changes vs contract changes.
+    pass("freeze-hash", `manifest updated alongside contract change (${mismatches.size} re-frozen)`);
   } else {
-    fail("freeze-hash", `acceptance content diverges from manifest: ${mismatches.join(", ")} — ` +
+    fail("freeze-hash", `acceptance content diverges from manifest: ${[...mismatches].join(", ")} — ` +
       "tests are frozen; changing them requires a contract change in the same PR");
   }
 } else if (touchesAcceptance) {
