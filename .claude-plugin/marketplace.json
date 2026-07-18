@@ -1,0 +1,11 @@
+{
+  "name": "engineering-os",
+  "owner": { "name": "acartag7" },
+  "plugins": [
+    {
+      "name": "engineering-os",
+      "source": "./plugins/engineering-os",
+      "description": "The engineering-os pipeline as a plugin: /pipeline driver skill, routed + routing-free seat agents, vendored templates. Layer-2 advisory; process-guard CI stays the wall."
+    }
+  ]
+}
