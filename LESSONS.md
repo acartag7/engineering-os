@@ -198,3 +198,28 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   guard-class mistake repeated many times in one PR); sibling-sweep required before
   re-requesting review; SC-8 validated from the opposite direction (unnecessary
   hand-rolled parser, not just a risky one).
+
+## L-014 — The freeze-gate shipped a fail-open, and a green suite hid more <a name="l-014"></a>
+
+- **What:** A first hardening pass on the artifact-chain freeze-gate left a fail-open:
+  deleting the manifest that *defines* the freeze read as "no suite, pass" — dissolving
+  the freeze by removing the file that enforces it. A pinned consumer carried that
+  released version. A re-derivation under contract-first discipline then produced a
+  guard that passed its own frozen acceptance suite green — while cross-family
+  adversarial review reproduced several more exit-0 bypasses the suite never exercised:
+  an empty manifest that permanently satisfied the gate with no test; an unlisted
+  test-shaped symlink read as intact; a Unicode-normalization collision that silently
+  dropped a path; a non-canonical config value that selected an empty scope and
+  disabled the freeze.
+- **Where:** the shared CI freeze-gate that governs every repo (this OS's own tooling).
+- **Caught by:** contract-first critique caught the shipped fail-open *before* code;
+  cross-family adversarial review caught the rest *after* a green suite had laundered
+  them — the same shape as [[l-001]] (self-passing tests cannot indict their own code).
+- **Class:** fail-open at a trust boundary; working-tree state trusted for a freeze
+  decision; a green suite is necessary, not sufficient. Every guard input is
+  attacker-influenced and must be read from the base tree and hashed from git bytes.
+- **Became:** a re-derived guard (base-tree sourcing, git-blob hashing, fail-closed
+  config/git/schema/symlink/collision handling, empty-suite rejection) with its own
+  frozen acceptance suite carrying a regression row per reproduced bypass; the guard
+  now gates its own code via a base-materialized trusted-bootstrap job; strengthens
+  PC-08, PC-09, PC-10, PC-23.

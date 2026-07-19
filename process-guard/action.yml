@@ -17,6 +17,10 @@ inputs:
   contract-paths:
     description: Comma-separated files whose change unlocks acceptance edits
     default: contracts.md,docs/contracts.md
+# The freeze boundary is a FIXED basename predicate (Decision A), defined once in
+# scripts/freeze-set.mjs — deliberately NOT a configurable input: a PR-tunable
+# freeze pattern is itself a bypass. All PG_* below are validated fail-closed by
+# check.mjs (a blank value => `process-guard: config-invalid`, exit 1).
 runs:
   using: composite
   steps:
