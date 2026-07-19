@@ -1,8 +1,10 @@
 name: ci
 
 # engineering-os governs itself: the repo that defines the walls runs them on its
-# own PRs. Two required jobs — validate (plugin/manifest/prompt integrity) and
-# process-guard (the artifact-chain action, dogfooded on this repo).
+# own PRs. Required jobs: validate (plugin/manifest/prompt/script integrity),
+# acceptance (the process-guard frozen suite), process-guard (the artifact-chain
+# action, dogfooded), and process-guard-trusted (the SAME guard materialized from the
+# base ref so a tampered HEAD check.mjs cannot clear its own gate — PG-H8).
 
 on:
   pull_request:
@@ -47,6 +49,29 @@ jobs:
           done
           echo "vendored prompts in sync with prompts/"
 
+      - name: Vendored scripts match repo originals (drift guard)
+        run: |
+          set -euo pipefail
+          # A10: the vendored process-guard scripts must stay byte-identical to the
+          # originals (modulo their single `// vendored from …` header line, wherever
+          # it sits relative to a shebang). grep -v removes only that header line.
+          for f in plugins/engineering-os/scripts/*.mjs; do
+            base="process-guard/scripts/$(basename "$f")"
+            if ! grep -v '^// vendored from ' "$f" | diff -q - "$base" >/dev/null; then
+              echo "::error file=$f::vendored script has drifted from $base — re-vendor"
+              exit 1
+            fi
+          done
+          echo "vendored scripts in sync with process-guard/scripts/"
+
+  acceptance:
+    name: acceptance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Run the process-guard frozen acceptance suite
+        run: node --test test/acceptance/process-guard/guard.test.mjs
+
   process-guard:
     name: process-guard
     runs-on: ubuntu-latest
@@ -60,3 +85,33 @@ jobs:
         uses: ./process-guard
         with:
           base-ref: origin/${{ github.event.pull_request.base.ref || 'main' }}
+          # PG-H8: the guard gates its OWN code — a change under process-guard/scripts/
+          # is a src change under stage-artifact / mixed-diff / freeze.
+          src-paths: src/,process-guard/scripts/
+
+  process-guard-trusted:
+    name: process-guard-trusted
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Fetch base branch
+        run: git fetch origin "${{ github.event.pull_request.base.ref || 'main' }}:refs/remotes/origin/${{ github.event.pull_request.base.ref || 'main' }}" || git fetch origin main
+      - name: Materialize the guard from the BASE ref (untrusted HEAD cannot self-pass)
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/pg-trusted"
+          mkdir -p "$RUNNER_TEMP/pg-trusted"
+          git archive "origin/${{ github.event.pull_request.base.ref || 'main' }}" process-guard/scripts | tar -x -C "$RUNNER_TEMP/pg-trusted"
+      - name: Run the base-ref guard against the PR checkout
+        env:
+          PG_BASE_REF: origin/${{ github.event.pull_request.base.ref || 'main' }}
+          PG_SRC_PATHS: src/,process-guard/scripts/
+          PG_ACCEPTANCE_DIR: test/acceptance
+          PG_CONTRACT_PATHS: contracts.md,docs/contracts.md
+        # cwd is the PR checkout, so the trusted guard evaluates HEAD; the check.mjs it
+        # runs is the base ref's, not the PR's. NOTE (PG-H8 named residual): this job
+        # definition still lives in the PR-controlled workflow; fully closing
+        # workflow-definition tampering needs a repository ruleset-required workflow.
+        run: node "$RUNNER_TEMP/pg-trusted/process-guard/scripts/check.mjs"

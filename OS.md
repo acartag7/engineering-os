@@ -110,6 +110,11 @@ of surprises.
   self-sabotaging owner. The monthly audit watches it.
 - **"Prompts come from the templates" can't be machine-enforced.** It's the one habit
   that stays on me. The audit reads merged history to catch drift after the fact.
+- **The freeze-gate is global, not per-feature.** `process-guard`'s stage-artifact
+  check confirms a frozen acceptance suite exists on the base branch before code lands;
+  it does not verify that every feature has its own coverage. That gap is named in the
+  guard's own pass message and reviewed by the monthly audit — it is not mechanized in
+  CI, and it is not what the review-burn routine (R-2) measures.
 
 ## The evolution loop
 
