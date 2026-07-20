@@ -44,7 +44,7 @@ process-guard:
   steps:
     - uses: actions/checkout@<sha>
       with: { fetch-depth: 0 }        # merge-base needs history
-    - uses: acartag7/engineering-os/process-guard@<pinned-sha>
+    - uses: acartag7/engineering-os/process-guard@<sha> # v0.1.0
       with:
         base-ref: origin/${{ github.base_ref }}
         # gate the guard's own code (or any extra implementation roots):
@@ -77,6 +77,13 @@ test turn the required check red.
 
 ## Versioning
 
-Consumers pin by commit SHA. New checks arrive as minor versions and propagate by a
-batched SHA-bump sweep across all repos ([`OS.md`](../OS.md) §6). A check is never
-weakened to make a repo green; the repo changes, or the exemption is named.
+Releases are tagged (`vX.Y.Z`). Consumers pin the **commit SHA** with a `# vX.Y.Z`
+comment — the SHA is the immutable, supply-chain-safe ref (never a moving tag), and the
+comment lets an updater track the version. **Automate the bumps** rather than hand-pin:
+point Renovate or Dependabot's `github-actions` ecosystem at this action and it opens
+the re-pin PR on each release. Exempt this first-party action from any release-age floor
+with a *scoped* rule (e.g. Renovate `matchPackageNames: ["/^acartag7\/engineering-os/"]`,
+`minimumReleaseAge: "0"`) so hardening fixes propagate immediately — never a blanket
+disable. This turns the batched SHA-bump sweep ([`OS.md`](../OS.md) §6) from a chore into
+automation. A check is never weakened to make a repo green; the repo changes, or the
+exemption is named.
