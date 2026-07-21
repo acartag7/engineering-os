@@ -51,6 +51,10 @@ The two rules that matter most:
 | [`prompts/`](prompts/) | Ready-to-use prompts for each seat: critic, test author, coder, reviewer | You're dispatching agents |
 | [`process-guard/`](process-guard/) | The small CI action that does the actual enforcing | You're wiring up CI |
 
+This repository no longer distributes an agent-orchestration plugin. It owns
+the public process contract and its enforcement wall; orchestration integrations
+are maintained separately so the orchestrator never becomes its own guard.
+
 ## The loop that keeps it alive
 
 When a bug slips through anywhere, it becomes a short entry in `LESSONS.md`. The entry

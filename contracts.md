@@ -33,9 +33,10 @@ a bypass — a PR points its workflow at a no-match pattern and unfreezes everyt
   and the `.spec.` equivalents. `SUFFIXES.some(s => name.endsWith(s))` — no glob, no
   regex, no parser. Subdir-agnostic (basename only). Not PR-configurable.
 - **Single source (a shared MODULE).** The predicate + suffix set live in ONE new
-  module `process-guard/scripts/freeze-set.mjs`, imported by `check.mjs`,
-  `generate-manifest.mjs`, and the vendored plugin copy. A shared function, not a
-  shared string.
+  module `process-guard/scripts/freeze-set.mjs`, imported by `check.mjs` and
+  `generate-manifest.mjs`. A shared function, not a shared string. External
+  consumers pin a source commit and carry their own provenance checks; they are
+  outside this public enforcement contract.
 - **Opt-in freeze.** A non-matching file MAY be listed; the guard hash-checks every
   listed key. The predicate defines the *mandatory* set; the manifest may be a
   superset. `acceptance.manifest.json` and `phases.json` are NEVER valid keys.
@@ -388,13 +389,12 @@ These tighten the clauses above; each gets a fixed-only regression row.
   (`[\x00-\x1f\x7f]`).
 - **A8 — internal errors labeled honestly.** D4: an unexpected non-git throw aborts
   `✗ process-guard: internal` + exit 1 (fail-closed); `git-error` is git failures only.
-- **A9 — generator filesystem trust.** Deliverables: the generator rejects a symlinked
+- **A9 — generator filesystem trust.** The generator rejects a symlinked
   acceptance directory or any symlinked ancestor of the manifest output path (not only
   the final component); `headManifestKeys` aborts on any git/decode/schema error (never
-  silently drops opt-in keys). Mirror in the vendored copy.
-- **A10 — CI enforces the mirror + suite + self-gating.** PG-H8/Deliverables: the CI
-  drift guard compares vendored `scripts/*.mjs` against originals (not only prompts);
-  CI runs the acceptance suite; `src-paths` + trusted-bootstrap wired (guard PR).
+  silently drops opt-in keys).
+- **A10 — CI enforces the suite + self-gating.** PG-H8/Deliverables: CI runs the
+  acceptance suite; `src-paths` + trusted-bootstrap are wired in the guard PR.
 - **A11 — a structurally-corrupt BASE is recoverable, not a wedge** (round-2 review).
   The A2/A3/D3 base-side checks must not permanently wedge the repo. HEAD structural
   checks stay UNCONDITIONAL (a PR can never commit a symlink, NFC collision, or empty
@@ -411,14 +411,12 @@ These tighten the clauses above; each gets a fixed-only regression row.
 ### Deliverables (mirror + surface)
 
 - `process-guard/scripts/freeze-set.mjs` (predicate + suffix set), imported by
-  `check.mjs`, `generate-manifest.mjs`, and the vendored plugin copy.
+  `check.mjs` and `generate-manifest.mjs`.
 - `generate-manifest.mjs`: hash only mandatory-matched regular blobs (staged index
   blob) by default; preserve pre-existing opt-in keys read from the **HEAD** manifest
   (abort, don't silently drop, if an opt-in target is missing/non-regular); reject
   symlinks; NFC keys with collision check; write the manifest no-follow/atomically
   (reject a symlinked output path).
-- Vendored mirror `plugins/engineering-os/scripts/generate-manifest.mjs` re-vendored in
-  lockstep (CI vendored-drift guard stays green).
 - `action.yml`: no new freeze input (predicate fixed); document it. `README`: rewrite
   checks table + onboarding order (exempt-from-base), freeze predicate, base sourcing,
   fail-closed errors, and the engineering-os `src-paths` dogfood example.

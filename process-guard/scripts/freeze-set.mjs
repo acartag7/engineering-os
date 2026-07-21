@@ -1,6 +1,6 @@
 // Single source of the freeze boundary (Decision A): a FIXED basename predicate,
-// not a configurable glob. Imported by check.mjs, generate-manifest.mjs, and the
-// vendored plugin copy so guard and generator can never disagree on what is frozen.
+// not a configurable glob. Imported by check.mjs and generate-manifest.mjs so the
+// guard and generator can never disagree on what is frozen.
 // No glob, no regex, no parser over untrusted filenames.
 
 export const SUFFIXES = [
