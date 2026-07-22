@@ -524,3 +524,76 @@ None blocking. The contract does not need to enumerate exact README prose before
 ### Round-3 verdict
 
 READY
+
+---
+
+## Round 4 — Focus B supplied-binding-claim scope critique
+
+**Date:** 2025-07-22
+**Contract version reviewed:** LANG-4
+**Focused scope:** whether LANG-4 unambiguously requires (a) full supplied binding
+contract claims review regardless of PR diff and (b) public docs/README claims changed
+by the PR, each mapped to enforcement and a test; whether the evaluation scenario is
+sufficient.
+
+### Contract language check
+
+**LANG-4 in `contracts.md`** states (emphasis added):
+> "…full supplied binding-claim review even when claims are unchanged, changed
+> public-claim review, and claim mapping to enforcement/tests."
+
+**Spec "Instructions that must not change"** states:
+> "Review checks every supplied binding contract claim, even when the claim was
+> already on the base branch. It also checks public claims changed by the PR. Each
+> claim maps to enforcement and a test."
+
+Both sources distinguish two scopes explicitly:
+
+| Scope | What is reviewed | Diff-dependent? |
+|-------|-----------------|----------------|
+| (a) Supplied binding contract claims | Every claim in the supplied claims list | No — reviewed even when unchanged |
+| (b) Public docs/README claims | Claims with guarantee verbs changed by the PR | Yes — only PR-touched claims |
+
+Each must map to enforcement (code or platform control) AND a test.
+
+Verdict on contract clarity: **unambiguous.** The two-scope distinction is stated in
+both the contract rule and the spec's preservation list with no qualifying language
+that could narrow scope (a) to diff-only.
+
+### Evaluation scenario check
+
+The spec's minimum scenario list includes:
+> "an unchanged binding `never`/`only` claim whose implementation omits enforcement
+> or tests."
+
+This directly exercises scope (a): the claim is unchanged (not in the PR diff), but
+the reviewer must still verify enforcement and test coverage for it. A model that
+restricts Focus B to "claims changed by the PR" would fail this scenario.
+
+Scope (b) is implicitly covered by the broader claims-enforcement scenarios (any
+changed public claim is a changed guarantee verb). No separate scenario is needed
+because (b) is a subset of the general Focus B review when the claim IS in the diff.
+
+Verdict on evaluation sufficiency: **sufficient.** The unchanged-claim scenario is the
+exact discriminator for the identified defect.
+
+### Implementation prompt status (not a contract gap)
+
+The current working `prompts/reviewer.md` v1.2, Focus B reads:
+> "For every `never`, `always`, `cannot`, `only`, or `enforced` claim **changed by
+> the PR**:"
+
+This narrows scope to diff-touched claims only, omitting scope (a). This is an
+implementation defect against LANG-4, not a contract ambiguity. The LANG-7 evaluation
+scenario (unchanged binding claim) would catch it mechanically.
+
+No contract sentence is missing. The fix belongs in the prompt implementation.
+
+### Findings
+
+No new blocking contract findings. The concern is confirmed real but is classified as
+an implementation non-compliance, not a contract gap.
+
+### Round-4 verdict
+
+READY

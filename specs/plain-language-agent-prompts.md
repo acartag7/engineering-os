@@ -7,7 +7,7 @@
   a trust boundary
 - **Required evidence:** contract critique, three-model old/new comparison, prompt
   vendor parity, existing CI and `process-guard`
-- **Acceptance-criteria version:** LANG-3
+- **Acceptance-criteria version:** LANG-4
 
 ## Problem
 
@@ -69,7 +69,9 @@ values, and ordering where they are load-bearing.
 - Agent prompts are loaded from their template files, never reconstructed from memory.
 - Acceptance tests do not depend on timing, network availability, or ordering luck.
 - Discovery code is not used as the delivery implementation.
-- Public claims must map to enforcement and a test.
+- Review checks every supplied binding contract claim, even when the claim was already
+  on the base branch. It also checks public claims changed by the PR. Each claim maps
+  to enforcement and a test.
 
 ## Files in this change
 
@@ -105,7 +107,9 @@ At minimum, scenarios cover:
 - black-box acceptance tests;
 - red proof versus infrastructure failure;
 - discovery code versus delivery code;
-- software verification versus production authorization.
+- software verification versus production authorization;
+- an unchanged binding `never`/`only` claim whose implementation omits enforcement or
+  tests.
 
 A safety rule is lost if any model fails to apply it with the new prompt. Model or tool
 failure is `unknown`, never a pass. Wording preference alone is not evidence. Any lost

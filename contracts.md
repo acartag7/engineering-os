@@ -8,7 +8,7 @@
 parity, existing CI and guard suite
 **Evidence links:** `specs/plain-language-agent-prompts.md`; critique and comparison
 reports added before implementation/review complete
-**Acceptance-criteria version:** LANG-3
+**Acceptance-criteria version:** LANG-4
 **Process-Skip: acceptance** — model wording has no deterministic product acceptance
 surface; behavior retention is checked through the same scenarios across three model
 families, while existing static and guard suites remain required.
@@ -38,8 +38,9 @@ families, while existing static and guard suites remain required.
   unrequested machinery, similar-path checks after a fix, never weakening a control,
   reviewers not silently editing, stale-review invalidation, regression tests for
   defects, template loading instead of reconstruction, read-only status, T2/T3 driver
-  refusal, deterministic acceptance tests, discovery not becoming delivery, and claims
-  mapping to enforcement/tests. When in doubt, preserve the behavior.
+  refusal, deterministic acceptance tests, discovery not becoming delivery, full
+  supplied binding-claim review even when claims are unchanged, changed public-claim
+  review, and claim mapping to enforcement/tests. When in doubt, preserve the behavior.
 - **LANG-5 — one authority rule.** Every prompt says plainly: binding contract rules
   are requirements; background cannot add requirements; discovery code is not the
   delivery implementation; and a disputed frozen test starts the correction process.
