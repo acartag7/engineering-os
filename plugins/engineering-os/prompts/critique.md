@@ -1,4 +1,4 @@
-<!-- vendored from engineering-os@075671d32e608addf13f56b24585c04b9128be9a — edit the repo original, re-vendor -->
+<!-- vendored from engineering-os@4705924212e269291542d22a59556405449631c0 — edit the repo original, re-vendor -->
 # Contract Critic Prompt — v1.3
 
 ## Purpose
