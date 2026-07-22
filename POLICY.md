@@ -52,7 +52,7 @@ Acceptance-criteria version: <AC-n | not applicable>
 
 This makes the selected process inspectable without making supporting rationale part
 of the binding contract. **Enforcement: PROMPT + AUDIT, not HARD.** The monthly audit
-flags missing records on T1+ changes; `process-guard` does not parse this header.
+flags missing records on all changes; `process-guard` does not parse this header.
 
 ### Discovery is a lane, not a delivery tier
 

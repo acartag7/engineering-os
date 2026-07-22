@@ -109,8 +109,8 @@ Run `git fetch origin <base>` before base-branch checks.
 
 Help the user draft `specs/<feature>.md` interactively (the one stage where
 the driver co-writes; the human owns it). If a decision needs an experiment first,
-record a bounded discovery question/owner/environment/prohibited-actions/exit decision
-and STOP delivery. Discovery code never becomes the delivery implementation; return to
+record a bounded discovery question/owner/time-or-scope bound/environment/
+prohibited-actions/exit decision and STOP delivery. Discovery code never becomes the delivery implementation; return to
 this stage after the decision is known.
 
 ## Stage 2 · contract — human + driver, no workflow
@@ -263,9 +263,9 @@ return { impl, check }
 ```
 
 BLOCKED ("a test is wrong") → stop implementation and run OS.md's versioned criteria
-correction: increment/supersede the criteria version, re-critique affected invariants,
-then merge an independently authored contract + acceptance + manifest PR before
-resuming. Never patch around disputed criteria. Both true → open PR `feat/<feature>`;
+correction: the contract owner commits the incremented/superseding contract and
+re-critiques affected invariants; the independent acceptance author then adds only the
+affected tests + manifest on that correction branch. Merge that PR before resuming. Never patch around disputed criteria. Both true → open PR `feat/<feature>`;
 process-guard runs on its own. Guard red → one fix pass with the exact failing output,
 then surface.
 

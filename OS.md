@@ -80,9 +80,11 @@ mistaken criterion permanent. When a criterion is wrong:
 2. Increment the contract's acceptance-criteria version and identify the version it
    supersedes plus the affected invariant IDs.
 3. Re-run critique for those invariants.
-4. A test author independent from the implementer changes the contract, affected
-   acceptance tests, and manifest in a contract+acceptance-only PR.
-5. Merge that reviewed PR before implementation resumes against the new version.
+4. The contract owner commits the versioned contract correction on a correction
+   branch. A test author independent from the implementer then changes only the
+   affected acceptance tests and manifest on that branch.
+5. Merge the reviewed contract+acceptance PR before implementation resumes against
+   the new version.
 
 The acceptance-criteria version is a domain label, not the manifest schema version.
 `process-guard` HARD-enforces only that frozen bytes change through a configured

@@ -51,8 +51,9 @@ DO NOT
 - Do not modify src/**, contracts, or specs. Your PR touches acceptance paths only.
 - Do not write tests for behavior the contract doesn't state — if you need a rule
   that isn't there, that's a contract change request, not a test.
-- In correction mode, change only the affected invariant tests and manifest alongside
-  the versioned contract correction. Name the superseded criteria version and reason;
+- In correction mode, the contract owner has already committed the versioned contract
+  correction on this branch. Do not edit it. Change only the affected invariant tests
+  and manifest; name the superseded/new criteria versions in the coverage map, and
   never let implementation resume before the correction PR merges.
 ```
 

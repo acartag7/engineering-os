@@ -23,8 +23,9 @@ they define exactly what to check. This prompt tells you how to execute.
   then per PR count review→push cycles from `gh pr view --json reviews,commits`.
   Cross-check every >3-round PR against LESSONS.md entries. Read routing records,
   critique/test/review artifacts, CI results, and new LESSONS entries to report stage
-  yield; use `unknown` when the catch stage is not evidenced. Check criteria-version
-  changes and discovery boundaries exactly as R-2 defines them.
+  yield; use `unknown` when the catch stage is not evidenced. Check coverage maps,
+  false-green/silent-skip incidents, criteria-version churn after coding began, and
+  discovery boundaries exactly as R-2 defines them.
 - **R-3 (drift):** compare rule PRESENCE, not exact wording. The canonical rule
   list is `templates/agent-context-block.md`. For pins: grep workflow files for
   the guard/fixture SHAs and compare across repos.
@@ -40,7 +41,8 @@ these sections:
    review-burn PR, escaped defects, drifted copies found.
 2. **R-1 table** — repo | tier | verdict | gaps (PC ids + exemption ages/dates).
 3. **R-2 table** — repo | merged PRs | median/worst rounds | skips | routing violations |
-   caught at critique/acceptance/CI/review | escaped/unknown | criteria/discovery violations.
+   caught at critique/acceptance/CI/review | escaped/unknown | false greens/silent skips |
+   criteria churn | criteria/coverage/discovery violations.
 4. **R-3 list** — each drifted file/pin, current vs canonical.
 5. **R-4 list** — each out-of-compliance ledger item + one-line proposed action.
 6. **Proposed sweeps** — batched fixes grouped by kind (one group = one review

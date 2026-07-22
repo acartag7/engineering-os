@@ -57,12 +57,14 @@ upstream.
    degraded mode on private repos — this is the honesty check for that mode).
 4. Acceptance-suite changes: every change to `test/acceptance/**` or its manifest
    happened in a PR that also changed the contract. Anything else = guard bypass,
-   investigate immediately. For a criterion correction, record the superseded/new
-   criteria versions and whether implementation stopped until the correction merged.
+   investigate immediately. Verify the coverage map includes every normative invariant
+   and critique `acceptance-test` disposition. For a criterion correction, record the
+   superseded/new criteria versions and whether implementation stopped until the
+   correction merged.
 5. Author identity: committer on acceptance paths differed from committer on src
    paths for each slice (PC-13's semi-check).
-6. Routing honesty: each T1+ PR has route, reason, required evidence, and final
-   evidence links; flag a lower route than the changed boundary required.
+6. Routing honesty: each PR has route, reason, required evidence, and final evidence
+   links; flag a lower route than the changed boundary required.
 7. Stage yield: count defects or unsafe ambiguities caught by critique, acceptance
    red proof, CI, and review; separately count escaped defects from new `LESSONS.md`
    entries plus false-green/silent-skip incidents. Unknown catch stage is reported as
@@ -75,8 +77,9 @@ Artifact/file/test counts are conformance facts, not success metrics. A large su
 many review comments is not scored as process value by itself.
 
 **Output:** table per repo: PRs, median/worst rounds, skips, routing violations,
-stage-yield counts (critique / acceptance / CI / review / escaped / unknown), and
-criteria/discovery violations.
+stage-yield counts (critique / acceptance / CI / review / escaped / unknown),
+false-green/silent-skip count, criteria churn after coding began, and
+criteria/coverage-map/discovery violations.
 
 ## R-3 · Drift sync check — monthly
 

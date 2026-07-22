@@ -48,8 +48,14 @@ seats — the test author must NOT be the coder's model/harness.
 |---|---|---|---|---|
 | 1 | Critic | `prompts/critique.md` | contract section + threat notes + tier | `specs/<feature>.critique.md` |
 | 2 | Test author (different harness than coder) | `prompts/acceptance-author.md` | contract + critique findings | `test/acceptance/<phase>/` + manifest, merged as its own PR |
-| 3 | Coder | `prompts/implementer.md` | contract + pointer to frozen suite | the implementation PR |
-| 4 | Reviewer (different family than coder) | `prompts/reviewer.md` | the PR + the contract's claims list + threat notes | structured verdict |
+| 3 | Coder(s) | `prompts/implementer.md` | contract + pointer to frozen suite | one T2 implementation or 2–3 independent T3 candidates |
+| 4 | Reviewer(s), different family from coder(s) | `prompts/reviewer.md` | the PR/candidates + contract claims + threat notes | T2 verdict or T3 blind ranking + verdicts |
+
+T2 uses one implementation and a different-family review with parallel lenses. **T3
+escalates the table:** dispatch 2–3 strongest implementers with identical inputs in
+separate worktrees; let the frozen suite score first; blind-rank surviving candidates;
+then run two reviewer families with the parallel security/claims/wiring lenses. Graft
+runner-up ideas only deliberately, never from memory.
 
 Rules of thumb:
 - Don't dispatch step 3 until step 2's PR is merged (CI enforces this anyway).
@@ -60,10 +66,11 @@ Rules of thumb:
 
 ### If a frozen criterion is wrong
 
-Stop the implementation. Increment the contract's acceptance-criteria version, name
-the superseded version and affected invariant IDs, re-run critique for those
-invariants, then have an independent acceptance author submit the contract + affected
-tests + manifest. Merge that reviewed correction before implementation resumes. The
+Stop the implementation. The contract owner increments the acceptance-criteria
+version, names the superseded version and affected invariant IDs, and re-runs critique
+for those invariants on a correction branch. The independent acceptance author then
+adds only the affected tests + manifest to that same branch without editing the
+contract. Merge the reviewed contract+acceptance PR before implementation resumes. The
 mechanical freeze is HARD; the semantic/version/authorship checks are **PROMPT +
 AUDIT**. See [`OS.md`](OS.md#correcting-frozen-acceptance-criteria).
 

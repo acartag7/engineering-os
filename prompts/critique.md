@@ -2,8 +2,8 @@
 
 Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
 suite is authored. The critic's findings are structurally consumed by stage 4: every
-`acceptance-test` disposition must map to a test ID in the suite, or the suite PR
-fails. A critique is judged by what it forces into existence, not by its prose.
+`acceptance-test` disposition must map to a test ID in the suite; the pipeline driver
+checks this before opening the suite PR and R-2 audits it afterward. A critique is judged by what it forces into existence, not by its prose.
 
 **Versioning:** the silence-class list below is the compressed history of real
 escaped defects. When a defect escapes to review or production, the post-mortem asks:
