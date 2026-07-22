@@ -2,13 +2,13 @@
 
 ## Plain-language agent instructions (T1)
 
-**Route:** T1  
-**Reason:** prompt wording can change agent behavior  
+**Route:** T1
+**Reason:** prompt wording can change agent behavior
 **Required evidence:** independent critique, three-model old/new comparison, vendor
-parity, existing CI and guard suite  
+parity, existing CI and guard suite
 **Evidence links:** `specs/plain-language-agent-prompts.md`; critique and comparison
-reports added before implementation/review complete  
-**Acceptance-criteria version:** LANG-2  
+reports added before implementation/review complete
+**Acceptance-criteria version:** LANG-2
 **Process-Skip: acceptance** — model wording has no deterministic product acceptance
 surface; behavior retention is checked through the same scenarios across three model
 families, while existing static and guard suites remain required.

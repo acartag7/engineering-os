@@ -1,10 +1,10 @@
 # Plain-language agent instructions — Contract Critique
 
-**Spec:** `specs/plain-language-agent-prompts.md`  
-**Contract section:** `contracts.md § Plain-language agent instructions (T1)`  
-**Acceptance-criteria version:** LANG-1  
-**Route:** T1 (no trust boundary; behavior-only change via prompt rewording)  
-**Critique prompt version:** v1.2  
+**Spec:** `specs/plain-language-agent-prompts.md`
+**Contract section:** `contracts.md § Plain-language agent instructions (T1)`
+**Acceptance-criteria version:** LANG-1
+**Route:** T1 (no trust boundary; behavior-only change via prompt rewording)
+**Critique prompt version:** v1.2
 **Date:** 2025-07-21
 
 ---
@@ -452,8 +452,8 @@ without risk of shipping a compliant-but-defective rewrite.
 
 ## Round 2 — LANG-2 contract critique
 
-**Date:** 2026-07-22  
-**Contract version reviewed:** LANG-2  
+**Date:** 2026-07-22
+**Contract version reviewed:** LANG-2
 **Files checked:** `contracts.md`, `specs/plain-language-agent-prompts.md`, current
 repo prompts, vendored prompt copies, `plugins/engineering-os/skills/pipeline/SKILL.md`,
 `templates/agent-context-block.md`, and `DISPATCH.md`.
