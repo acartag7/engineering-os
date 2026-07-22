@@ -1,5 +1,5 @@
-<!-- vendored from engineering-os@075671d32e608addf13f56b24585c04b9128be9a — edit the repo original, re-vendor -->
-# Reviewer Prompt — v1.2
+<!-- vendored from engineering-os@4705924212e269291542d22a59556405449631c0 — edit the repo original, re-vendor -->
+# Reviewer Prompt — v1.3
 
 ## Purpose
 
@@ -51,9 +51,16 @@ Check for:
 
 Every finding names the violated threat row or binding rule.
 
-## Focus B — public claims versus enforcement
+## Focus B — contract and public claims versus enforcement
 
-For every `never`, `always`, `cannot`, `only`, or `enforced` claim changed by the PR:
+Review two claim sets:
+
+1. **All supplied binding contract claims**, even when they were already on the base
+   branch and were not changed by this PR.
+2. **Public documentation claims changed by this PR**, including `never`, `always`,
+   `cannot`, `only`, and `enforced`.
+
+For every claim in both sets:
 
 1. Point to the code or platform control that enforces it.
 2. Point to the test that would fail if that control were removed.
@@ -124,6 +131,9 @@ P1 and P2 findings block. P3 findings are recorded and may ship with a ledger no
 
 ## Changelog
 
+- **v1.3** — restored review of the full supplied binding-claims list, including claims
+  unchanged by the implementation PR; changed public documentation claims remain a
+  second review set (PR #7 review finding, LANG-4).
 - **v1.2** — replaced metaphors and narrative with direct steps, separate focus areas,
   STOP conditions, an exact output shape, and completion checks while preserving review
   behavior (`LANG-1..LANG-8`).
