@@ -1,63 +1,91 @@
 # Engineering OS
 
-**How I ship software with AI agents — without trusting them to follow rules.**
+**Ship software with AI agents—without trusting them to follow rules.**
 
-## The story that started this
+This repository contains a risk-based delivery process, agent prompts, onboarding
+templates, and a CI guard for AI-assisted software development. When its status checks
+are required by branch protection, GitHub—not the agent that produced the work—holds
+the merge boundary.
 
-I gave the same feature spec to four AI models, in parallel. All four came back green:
-tests passing, self-review says APPROVE. One of them had a serious bug — it treated
-unverified user claims as confirmed facts. Its tests didn't catch that, because **it
-wrote its own tests**, and nobody writes a test for the mistake they just made. Only
-an independent review by a different model caught it.
+<p align="center">
+  <img src="docs/engineering-os-overview.svg" alt="The shared T2 and T3 trust-boundary path: contract, independent critique, separately authored acceptance tests, and a hash freeze. T2 then uses one implementation and a different-family review. T3 branches to two or three parallel implementations, frozen-suite scoring, and blind two-family review before required CI checks." />
+</p>
 
-Around the same time I noticed something else: rules I had written down in docs kept
-getting ignored — by agents, and sometimes by me. Even my most careful repo had docs
-describing a test harness that was never built. Written rules decay. Nobody notices.
+<p align="center"><a href="docs/engineering-os-overview.svg">Open the full-size diagram</a></p>
 
-Both problems have the same fix:
+> The diagram shows the shared **T2/T3 path and its T3 escalation**. T3 requires 2–3
+> parallel candidates, frozen-suite judging, blind two-family review, and stronger
+> verification. T0, T1, and documentation changes take lighter routes defined in
+> [`POLICY.md`](POLICY.md).
 
-> **A rule doesn't count until a machine checks it. Everything else is a wish.**
+## Three principles
 
-## How it works, in short
+- **Rules become checks, or they do not count.** Important instructions should not
+  decay into optional prose.
+- **The orchestrator never guards itself.** An AI-driven system should not approve its
+  own evidence.
+- **Every gate checks its inputs.** A green result from missing, wrong, or silently
+  skipped evidence proves nothing.
 
-Every step of work leaves a file behind: a spec, a critique, a test suite, a hash
-manifest. CI checks that the previous step's file exists and is untouched before the
-next step can merge. Skip a step, and the merge button turns red. GitHub can't tell
-one AI from another — or from me — and that's the point: the rules hold no matter
-which tool did the work.
+For T2/T3 work, policy separates the acceptance-test author from the implementer.
+`process-guard` then checks the available artifact and freeze invariants from Git
+history rather than trusting the pull request’s working tree.
 
-The two rules that matter most:
+## Process follows risk
 
-1. **The tests that define "done" are written by a different AI than the one that
-   writes the code** — from the spec, before any code exists.
-   *Why: an agent that grades its own homework will pass itself. That's not a maybe —
-   I watched it happen.*
-2. **Those tests are frozen.** Every test file's hash is committed. If the coder edits
-   a test, CI goes red. It can switch tests ON as it finishes a phase — it can never
-   change what they check.
-   *Why: "don't touch the tests" as an instruction is ignorable. A hash check isn't.*
+[`POLICY.md`](POLICY.md) classifies the **change**, not the diff size:
 
-## What's in this repo
+| Change | Route |
+|---|---|
+| **T0 — mechanical** | Normal pull request + CI floor |
+| **T1 — behavior, no trust boundary** | Pipeline default-on; explicit audited skip possible |
+| **T2 — trust boundary** | Critique → frozen independent acceptance → implementation → cross-family review |
+| **T3 — novel or critical boundary** | T2 controls + 2–3 candidates + frozen-suite judging + blind two-family review |
+| **Docs** | Claims-vs-enforcement pass + guarantee-verb grep |
 
-| File | What it is | Read it when |
-|---|---|---|
-| [`OS.md`](OS.md) | The rules of the system: 3 principles, 4 enforcement layers, the step-by-step pipeline, project tiers | You want to understand or change how work flows |
-| [`BASELINE.md`](BASELINE.md) | The checklist every repo is audited against. Each item says what it prevents and where it came from | You're onboarding a repo or reviewing an audit |
-| [`LESSONS.md`](LESSONS.md) | Every real defect that taught me something, and the check it turned into | You want to know *why* a rule exists |
-| [`POLICY.md`](POLICY.md) | How much process each kind of change gets — a doc tweak and an auth change are not the same | You're starting a piece of work and deciding its tier |
-| [`ONBOARDING.md`](ONBOARDING.md) | How to put an existing repo under these rules, and what only a human can decide | You're adding a repo |
-| [`DISPATCH.md`](DISPATCH.md) | The one-page cheat sheet: decide the tier, fire the four seats in order, what to do when review drags | You're starting a piece of work |
-| [`templates/`](templates/) | The copy-paste context block for each repo's CLAUDE.md / AGENTS.md | You're onboarding a repo |
-| [`prompts/`](prompts/) | Ready-to-use prompts for each seat: critic, test author, coder, reviewer | You're dispatching agents |
-| [`process-guard/`](process-guard/) | The small CI action that does the actual enforcing | You're wiring up CI |
+The friction is deliberate where a mistake can leak credentials, widen permission,
+corrupt evidence, or write unsafe state. A rename should not behave like an
+authorization change.
 
-## The loop that keeps it alive
+## Try it in one repository
 
-When a bug slips through anywhere, it becomes a short entry in `LESSONS.md`. The entry
-becomes a new check. The check ships to every repo at once. That's the whole
-maintenance model: **failures become checks, checks spread everywhere, and nothing
-depends on me remembering.**
+1. Use [`ONBOARDING.md`](ONBOARDING.md) to declare the repository tier and add the
+   [`agent context`](templates/agent-context-block.md).
+2. Introduce the acceptance-suite manifest or the temporary onboarding exemption in
+   the order described there.
+3. Add [`process-guard`](process-guard/) to CI and make the repository’s verification
+   jobs required status checks in branch protection. For a T2 surface that can edit
+   its own guard, also require the [base-ref materialized guard](process-guard/README.md#usage);
+   fully closing workflow-definition tampering needs a ruleset-required workflow.
+4. Start work from [`DISPATCH.md`](DISPATCH.md), or install the optional
+   [Claude Code plugin](plugins/engineering-os/) to make the compliant path easier.
+
+The plugin is orchestration convenience at prompt layer 2. It does not replace CI or
+branch protection.
+
+## Where to go next
+
+| I want to… | Read |
+|---|---|
+| Understand the authoritative system | [`OS.md`](OS.md) |
+| Start a change | [`DISPATCH.md`](DISPATCH.md) |
+| Choose verification depth | [`POLICY.md`](POLICY.md) |
+| Onboard a repository | [`ONBOARDING.md`](ONBOARDING.md) |
+| See every control and its origin | [`BASELINE.md`](BASELINE.md) + [`LESSONS.md`](LESSONS.md) |
+| Inspect the enforcement | [`process-guard/`](process-guard/) |
+| Reuse the four agent seats | [`prompts/`](prompts/) |
+| Understand changes to this OS itself | [`contracts.md`](contracts.md) |
+
+## Honest limits
+
+Engineering OS reduces correlated mistakes; it does not prove that a contract is
+correct or that every feature has its own acceptance coverage. The current freeze gate
+is global rather than per-feature, and any configured contract-path change opens its
+coarse re-freeze path. Required in-repo status checks do not fully close workflow-file
+tampering; that needs a trusted ruleset-required workflow. Author separation is also
+owner-forgeable and audited rather than a hard identity boundary. Full accepted risks and incomplete controls are named
+in [`OS.md`](OS.md), [`BASELINE.md`](BASELINE.md), and [`contracts.md`](contracts.md).
 
 ## License
 
-Apache-2.0. If you copy this process, I'd genuinely like to hear what broke first.
+Apache-2.0. If you copy this process, I would genuinely like to hear what broke first.

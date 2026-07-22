@@ -41,9 +41,11 @@ check waiting to be built.
 
 ## The pipeline — how one piece of work flows
 
-Each step leaves a file behind. CI refuses the next step until the previous file
-exists and is intact. Skip a step → red merge button. This works the same for every
-AI tool and for me.
+Each step leaves a file behind. `process-guard` HARD-enforces the global base-manifest,
+freeze-hash, and mixed-diff mechanics; the driver and monthly audit check that the
+artifacts belong to this specific feature and appear in sequence. CI does **not**
+currently prove per-feature coverage. This division works the same for every AI tool
+and for me, and the global-not-per-feature residual remains named below.
 
 | Step | Who | Leaves behind | Why the next gate needs it |
 |---|---|---|---|
@@ -56,6 +58,11 @@ AI tool and for me.
 | 7. Merge | GitHub | — | Only path in. All checks green + review present. |
 
 Key mechanics, plainly:
+- **Compact contract surface:** new or changed contracts give normative promises
+  stable invariant IDs and mark supporting rationale as non-normative. The routing
+  record names tier, reason, required evidence, and acceptance-criteria version.
+  **Enforcement: PROMPT + AUDIT, not HARD.** This keeps the binding surface reviewable
+  without deleting the reasoning behind it.
 - **Freeze:** the test author commits a list of file hashes. CI recomputes them on
   every PR. Any edited test → red. The coder can *activate* finished test phases via
   a separate small file — it can never change test content.
@@ -63,7 +70,29 @@ Key mechanics, plainly:
   unless the contract changed too, which I review. Prevents one author from playing
   both sides.
 - **Never weaken a safety check to make a test pass.** If a test and a fail-closed
-  rule disagree, the rule wins and the test changes — with the reason written down.
+  rule disagree, the rule wins and the acceptance criteria are corrected through the
+  replacement path below.
+
+### Correcting frozen acceptance criteria
+
+Frozen means an implementation cannot silently rewrite its judge; it does not make a
+mistaken criterion permanent. When a criterion is wrong:
+
+1. Stop implementation and record why the current criteria are wrong.
+2. Increment the contract's acceptance-criteria version and identify the version it
+   supersedes plus the affected invariant IDs.
+3. Re-run critique for those invariants.
+4. The contract owner commits the versioned contract correction on a correction
+   branch. A test author independent from the implementer then changes only the
+   affected acceptance tests and manifest on that branch.
+5. Merge the reviewed contract+acceptance PR before implementation resumes against
+   the new version.
+
+The acceptance-criteria version is a domain label, not the manifest schema version.
+`process-guard` HARD-enforces only that frozen bytes change through a configured
+contract-path change and that the new manifest is self-consistent. The correction
+reason, semantic version link, affected invariants, independent authorship, and review
+are **PROMPT + AUDIT** checks; the current contract unlock remains coarse.
 
 ## Project tiers — not every repo needs the full treatment
 

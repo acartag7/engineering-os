@@ -1,9 +1,9 @@
-# Critique Prompt — v1.1
+# Critique Prompt — v1.2
 
 Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
 suite is authored. The critic's findings are structurally consumed by stage 4: every
-`acceptance-test` disposition must map to a test ID in the suite, or the suite PR
-fails. A critique is judged by what it forces into existence, not by its prose.
+`acceptance-test` disposition must map to a test ID in the suite; the pipeline driver
+checks this before opening the suite PR and R-2 audits it afterward. A critique is judged by what it forces into existence, not by its prose.
 
 **Versioning:** the silence-class list below is the compressed history of real
 escaped defects. When a defect escapes to review or production, the post-mortem asks:
@@ -21,16 +21,26 @@ it. Your only job is to find the places where this contract's silence would let 
 reasonable implementers diverge — especially where one divergence is unsafe.
 
 INPUTS
-- Contract section(s): <paste or path>
+- Routing record: <tier, reason, required evidence, evidence links, criteria version>
+- Contract normative invariants: <stable IDs + binding text>
+- Supporting rationale: <paste or path — context only, never binding behavior>
+- Discovery record + experiment references: <specs/<feature>.discovery.md | none>
 - Threat rows for this change (T2+): <paste or path>
-- Change tier: <T1 | T2 | T3>
 - Silence-class checklist: v1.1 (below)
 
 TASK
 1. For each silence class, ask: where is the contract silent? For each silence,
    state the divergent choices two reasonable implementers could make, and whether
    any choice is security-relevant.
-2. Goodhart pass: write the three most plausible implementations that are DEFECTIVE
+2. Confirm the routing record matches the boundary and that every required-evidence
+   item has an owner or planned artifact. If discovery preceded this contract, check
+   that observations became explicit decisions and experimental code is not the
+   delivery implementation.
+3. For production mutations, separate software-revision evidence from per-run runtime
+   evidence: target/revision, observed preconditions, authorization, stop conditions,
+   rollback readiness, and postconditions. Missing runtime gates are findings or named
+   not-yet-enforced residuals, never implied by green software tests.
+4. Goodhart pass: write the three most plausible implementations that are DEFECTIVE
    yet fully green and letter-compliant with this contract. Be specific about the
    defect and why the contract's wording permits it.
 
@@ -85,6 +95,9 @@ CALIBRATION
 
 ## Changelog
 
+- **v1.2** — added routing-record, normative-invariant, bounded-discovery, and
+  production-runtime-evidence checks for practical-process gaps PA-1/PA-2/PA-4/PA-7.
+  No new silence class: these extend readiness, authority, and wiring checks.
 - **v1.1** — added SC-8 (wrong tool / unbounded input space) and SC-9 (readiness:
   no pending decisions, no out-of-repo references) after a PR audit found the worst
   PRs (well over a dozen review rounds each) were caused by a hand-rolled parser
