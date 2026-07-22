@@ -58,9 +58,9 @@ upstream.
 4. Acceptance-suite changes: every change to `test/acceptance/**` or its manifest
    happened in a PR that also changed the contract. Anything else = guard bypass,
    investigate immediately. Verify the coverage map includes every normative invariant
-   and critique `acceptance-test` disposition. For a criterion correction, record the
-   superseded/new criteria versions and whether implementation stopped until the
-   correction merged.
+   and critique `acceptance-test` disposition. For a criterion correction, verify the
+   correction reason, superseded/new versions, affected invariant IDs, re-critique,
+   correction-specific review, and that implementation stopped until it merged.
 5. Author identity: committer on acceptance paths differed from committer on src
    paths for each slice (PC-13's semi-check).
 6. Routing honesty: each PR has route, reason, required evidence, and final evidence
@@ -69,9 +69,13 @@ upstream.
    red proof, CI, and review; separately count escaped defects from new `LESSONS.md`
    entries plus false-green/silent-skip incidents. Unknown catch stage is reported as
    unknown, never guessed.
-8. Discovery boundary: flag any experiment merged or deployed as delivery, any use
-   of production mutation/credentials, or any delivery started without returning to
-   the contract stage.
+8. Discovery boundary: verify each discovery record has question, owner, time-or-scope
+   bound, permitted environment, prohibited actions, and exit decision. Flag any
+   experiment merged or deployed as delivery, production mutation/credentials, or
+   delivery started without returning to the contract stage.
+9. Contract shape: new or changed contracts have stable normative invariant IDs,
+   supporting rationale is explicitly non-normative, and the criteria version matches
+   the routing record.
 
 Artifact/file/test counts are conformance facts, not success metrics. A large suite or
 many review comments is not scored as process value by itself.
@@ -79,7 +83,7 @@ many review comments is not scored as process value by itself.
 **Output:** table per repo: PRs, median/worst rounds, skips, routing violations,
 stage-yield counts (critique / acceptance / CI / review / escaped / unknown),
 false-green/silent-skip count, criteria churn after coding began, and
-criteria/coverage-map/discovery violations.
+criteria/coverage-map/discovery/contract-shape violations.
 
 ## R-3 · Drift sync check — monthly
 

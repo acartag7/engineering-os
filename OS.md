@@ -41,9 +41,11 @@ check waiting to be built.
 
 ## The pipeline — how one piece of work flows
 
-Each step leaves a file behind. CI refuses the next step until the previous file
-exists and is intact. Skip a step → red merge button. This works the same for every
-AI tool and for me.
+Each step leaves a file behind. `process-guard` HARD-enforces the global base-manifest,
+freeze-hash, and mixed-diff mechanics; the driver and monthly audit check that the
+artifacts belong to this specific feature and appear in sequence. CI does **not**
+currently prove per-feature coverage. This division works the same for every AI tool
+and for me, and the global-not-per-feature residual remains named below.
 
 | Step | Who | Leaves behind | Why the next gate needs it |
 |---|---|---|---|

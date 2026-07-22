@@ -58,7 +58,8 @@ then run two reviewer families with the parallel security/claims/wiring lenses. 
 runner-up ideas only deliberately, never from memory.
 
 Rules of thumb:
-- Don't dispatch step 3 until step 2's PR is merged (CI enforces this anyway).
+- Don't dispatch step 3 until step 2's PR is merged. The driver checks per-feature
+  sequencing; `process-guard` only proves a global manifest exists on base.
 - If the critic returns "pending decisions" (SC-9): stop, decide, update the
   contract, re-run. Never code through it.
 - If review goes past 3 rounds: stop pushing fixes. Write down what the spec was
