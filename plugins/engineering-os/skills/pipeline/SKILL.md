@@ -13,8 +13,9 @@ argument-hint: "<feature> [stage|status]"
 arguments: [feature, stage]
 ---
 
-<!-- v3.0.0 · rewritten against CONTRACT.md after the 2026-07-18 53-finding
-     critique; changelog in git. Versioned per this repo's prompt policy. -->
+<!-- v3.1.0 · adds visible routing, compact invariant contracts, bounded discovery,
+     versioned criteria correction, and runtime-evidence separation (PA-1..PA-7).
+     v3.0.0 · workflow rewrite after the 2026-07-18 contract critique. -->
 
 # Pipeline driver (workflow edition)
 
@@ -37,6 +38,9 @@ mistakes early and makes the compliant path the lazy path.
      help with are the two HUMAN stages (1 spec, 2 contract — you co-write,
      nothing is dispatched); from stage 3 on, every seat including the critic
      is dispatched per DISPATCH.md outside this process.
+   Before continuing, write the POLICY routing record (tier, reason, required
+   evidence, eventual evidence links, acceptance-criteria version) into the spec or
+   PR body. This driver records it; `process-guard` does not enforce it.
 2. **Templates.** Resolve template dir: `<plugin>/prompts/` first (vendored,
    with source SHA header), else the engineering-os repo's `prompts/` if the
    user has it. Neither → stop: "templates unavailable; reinstall the plugin."
@@ -104,14 +108,19 @@ Run `git fetch origin <base>` before base-branch checks.
 ## Stage 1 · spec — human, no workflow
 
 Help the user draft `specs/<feature>.md` interactively (the one stage where
-the driver co-writes; the human owns it).
+the driver co-writes; the human owns it). If a decision needs an experiment first,
+record a bounded discovery question/owner/environment/prohibited-actions/exit decision
+and STOP delivery. Discovery code never becomes the delivery implementation; return to
+this stage after the decision is known.
 
 ## Stage 2 · contract — human + driver, no workflow
 
-Draft the `contracts.md` section WITH the user from the spec: concrete
-behavior, closed sets, failure paths; threat rows for T2+ (which you'll have
-refused to orchestrate further anyway — the contract is still worth writing
-here). The critic needs something concrete to attack; the spec is not it.
+Draft the `contracts.md` section WITH the user from the spec. Start with the routing
+record and acceptance-criteria version, then stable-ID normative invariants: concrete
+behavior, closed sets, and failure paths. Put explanation and alternatives under an
+explicitly non-normative rationale heading; threat rows for T2+ (which you'll have
+refused to orchestrate further anyway — the contract is still worth writing here).
+The critic needs a compact binding surface to attack; the spec and rationale are not it.
 
 ## Stage 3 · critique — workflow
 
@@ -253,9 +262,12 @@ const check = await agent(
 return { impl, check }
 ```
 
-BLOCKED ("a test is wrong") → user decides; never a patch. Both true → open
-PR `feat/<feature>`; process-guard runs on its own. Guard red → one fix pass
-with the exact failing output, then surface.
+BLOCKED ("a test is wrong") → stop implementation and run OS.md's versioned criteria
+correction: increment/supersede the criteria version, re-critique affected invariants,
+then merge an independently authored contract + acceptance + manifest PR before
+resuming. Never patch around disputed criteria. Both true → open PR `feat/<feature>`;
+process-guard runs on its own. Guard red → one fix pass with the exact failing output,
+then surface.
 
 ## Stage 6 · review — workflow (template-faithful verdicts, bounded rounds)
 
@@ -346,8 +358,10 @@ Returns:
 
 ## Stage 7 · merge — human
 
-Present verdict summary, rounds, P3 ledger, degradations. The user merges.
-Never you.
+Present verdict summary, rounds, P3 ledger, degradations. For production mutations,
+report software-revision verification separately from the repository's per-run target,
+precondition, authorization, stop, rollback, and postcondition evidence; never imply
+that this pipeline authorizes a live action. The user merges. Never you.
 
 ## After an escape
 

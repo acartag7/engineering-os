@@ -1,5 +1,55 @@
 # Contracts
 
+## Practical process amendments (T1)
+
+**Routing record**
+
+- **Route:** T1 — process behavior changes without a trust-boundary change
+- **Reason:** make routing, contracts, discovery, acceptance correction, exemptions,
+  operational evidence, and process outcomes explicit
+- **Required evidence:** claims-vs-enforcement review, prompt/vendor parity, link and
+  SVG validation, existing acceptance suite, and `process-guard`
+- **Evidence links:** PR #6 checks and review threads
+- **Acceptance-criteria version:** PA-1
+- **Process-Skip: acceptance** — these changes alter policy and prompts but add no
+  executable product behavior; existing guard acceptance and drift checks remain the
+  mechanical verification.
+
+**Normative invariants**
+
+- **PA-1 — visible routing.** Each change records its tier/route, reason, required
+  evidence, and final evidence links in its spec or PR body. Enforcement: **PROMPT +
+  AUDIT**, not HARD.
+- **PA-2 — compact contract surface.** New or changed contracts identify stable
+  normative invariant IDs and keep supporting rationale explicitly non-normative.
+  Enforcement: **PROMPT + AUDIT**, not HARD.
+- **PA-3 — corrected acceptance criteria.** Changing frozen criteria stops
+  implementation, increments the criteria version, identifies the superseded version
+  and reason, re-critiques affected invariants, and uses an independently authored
+  contract+acceptance PR before implementation resumes. `process-guard` enforces only
+  the contract-path and hash mechanics; semantics and authorship remain **PROMPT +
+  AUDIT**.
+- **PA-4 — bounded discovery.** Discovery records a question, owner, boundary,
+  prohibited actions, and exit decision. It cannot use production mutation or be
+  presented as delivery. Enforcement: **PROMPT + AUDIT**, not HARD.
+- **PA-5 — exemption lifecycle.** An onboarding exemption records owner, reason,
+  review date, and removal condition. Marker presence is Layer 1; metadata is
+  **AUDIT**.
+- **PA-6 — outcome measurement.** Audits report where defects were caught, escapes,
+  false greens, criteria churn, skips, exemptions, and review burn. Artifact count is
+  not a success metric. Enforcement: **AUDIT**.
+- **PA-7 — operational evidence boundary.** Passing software checks does not prove
+  that one production mutation is safe. Production-changing systems define per-run
+  preconditions, authorization, stop conditions, rollback readiness, and observed
+  postconditions outside the agent orchestrator. Enforcement: **NOT YET ENFORCED
+  fleetwide**; Layer 2–3 guidance until repo-specific runtime gates exist.
+
+**Supporting rationale (non-normative)**
+
+These amendments reduce ambiguity and false confidence without applying maximum
+process to every change. They extend existing tiering, freeze, audit, and two-plane
+mechanics; they do not add a new baseline control or modify `process-guard`.
+
 ## process-guard hardening (T2)
 
 Origin: a rushed hardening attempt was found by cross-family review to slip

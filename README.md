@@ -31,23 +31,6 @@ For T2/T3 work, policy separates the acceptance-test author from the implementer
 `process-guard` then checks the available artifact and freeze invariants from Git
 history rather than trusting the pull request’s working tree.
 
-## Why this is not vibe coding
-
-| Vibe-driven delivery | Engineering OS |
-|---|---|
-| Code discovers the requirements | A contract fixes the promises first |
-| The coder defines its own grading criteria | A separate seat authors acceptance evidence |
-| Tests move when implementation struggles | A hash manifest exposes changed test bytes |
-| The agent reports success | Required external checks evaluate repository artifacts |
-| A failure becomes another instruction | A failure can become a reusable check |
-
-This does not make AI output automatically correct. It creates independent points of
-disagreement instead of deriving the contract, tests, code, review, and verdict from
-one generation.
-
-**[Read the balanced rationale](RATIONALE.md)** for where this process earns its
-weight, where it can become too heavy, and how to avoid “vibe governance.”
-
 ## Process follows risk
 
 [`POLICY.md`](POLICY.md) classifies the **change**, not the diff size:

@@ -25,6 +25,20 @@ redaction, network egress, data writebacks, parsers over untrusted input.)
 - Docs that make promises to users → run the claims check (every "never/always/
   cannot" must point at enforcing code).
 
+Record the route before dispatching:
+
+```text
+Route: <T0 | T1 | T2 | T3 | Docs>
+Reason: <why>
+Required evidence: <stages, tests, review, runtime evidence>
+Evidence links: <fill before merge>
+Acceptance-criteria version: <AC-n | not applicable>
+```
+
+This record is **PROMPT + AUDIT**, not a `process-guard` check. If the route cannot be
+decided without an experiment, use [`POLICY.md`](POLICY.md)'s bounded discovery lane;
+do not let experimental code become the delivery implementation.
+
 ## 2. T2/T3: the four dispatches, in order
 
 Each seat gets its template with the blanks filled. Different tools for different
@@ -43,6 +57,20 @@ Rules of thumb:
   contract, re-run. Never code through it.
 - If review goes past 3 rounds: stop pushing fixes. Write down what the spec was
   missing (`LESSONS.md`), fix the contract or suite, then continue.
+
+### If a frozen criterion is wrong
+
+Stop the implementation. Increment the contract's acceptance-criteria version, name
+the superseded version and affected invariant IDs, re-run critique for those
+invariants, then have an independent acceptance author submit the contract + affected
+tests + manifest. Merge that reviewed correction before implementation resumes. The
+mechanical freeze is HARD; the semantic/version/authorship checks are **PROMPT +
+AUDIT**. See [`OS.md`](OS.md#correcting-frozen-acceptance-criteria).
+
+For production mutations, also fill the runtime-evidence overlay from
+[`POLICY.md`](POLICY.md#production-mutation-overlay). It is **NOT YET ENFORCED
+fleetwide** and must not be presented as a HARD gate until the target repository wires
+it outside the orchestrator.
 
 ## 3. Where the prompts go, per tool
 

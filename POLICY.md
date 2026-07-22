@@ -37,6 +37,36 @@ monthly audit; a rising skip rate is a process finding, not a convenience.
 doubt between two tiers, take the higher one — misclassifying down is how boundary
 code ships on implementer-authored tests.
 
+### Change routing record
+
+Every change records this compact header in its spec, or in the PR body when no spec
+is needed:
+
+```text
+Route: <T0 | T1 | T2 | T3 | Docs>
+Reason: <why this route fits>
+Required evidence: <stages, tests, review, runtime evidence>
+Evidence links: <filled before merge>
+Acceptance-criteria version: <AC-n | not applicable>
+```
+
+This makes the selected process inspectable without making supporting rationale part
+of the binding contract. **Enforcement: PROMPT + AUDIT, not HARD.** The monthly audit
+flags missing records on T1+ changes; `process-guard` does not parse this header.
+
+### Discovery is a lane, not a delivery tier
+
+Discovery is allowed when a decision cannot be made honestly without an experiment.
+Its record states: the question, owner, time or scope bound, permitted environment,
+prohibited actions, and exit decision. Discovery has no production credentials or
+mutations, produces observations rather than completion claims, and cannot be merged
+or deployed as the delivery implementation. Once the unknown is resolved, delivery
+starts at the normal contract stage; experimental code is discarded or re-authored
+against that contract.
+
+**Enforcement: PROMPT + AUDIT, not HARD.** Repository-specific sandbox or credential
+denies may make parts HARD, but no fleet-wide isolation gate is claimed.
+
 ## Model routing (quality-based defaults)
 
 Routing is decided by measured quality on real slices, wall-clock, and fit — re-baked
@@ -95,6 +125,19 @@ and future review of the same capacity. So:
   review."
 - Round burn is tracked per repo by the audit, like cost. A repo trending up is a
   signal its contracts or upstream gates are weakening.
+
+## Production-mutation overlay
+
+Passing the artifact chain proves properties of a software revision; it does not prove
+that one production action is safe. For a system that changes live state, the change
+contract names the runtime evidence needed before and after each mutation: target and
+deployed revision, observed preconditions, accountable authorization, stop conditions,
+rollback readiness, and postcondition evidence. Approval/evidence state belongs outside
+the AI orchestrator.
+
+**Enforcement: NOT YET ENFORCED fleetwide (Layers 2–3).** Each operational repository
+must push these items into runtime gates before claiming HARD enforcement; until then,
+the gap is named in its threat model or accepted risks.
 
 ## Verification floor (all tiers, every repo — see BASELINE.md)
 

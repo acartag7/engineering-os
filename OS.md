@@ -56,6 +56,11 @@ AI tool and for me.
 | 7. Merge | GitHub | — | Only path in. All checks green + review present. |
 
 Key mechanics, plainly:
+- **Compact contract surface:** new or changed contracts give normative promises
+  stable invariant IDs and mark supporting rationale as non-normative. The routing
+  record names tier, reason, required evidence, and acceptance-criteria version.
+  **Enforcement: PROMPT + AUDIT, not HARD.** This keeps the binding surface reviewable
+  without deleting the reasoning behind it.
 - **Freeze:** the test author commits a list of file hashes. CI recomputes them on
   every PR. Any edited test → red. The coder can *activate* finished test phases via
   a separate small file — it can never change test content.
@@ -63,7 +68,27 @@ Key mechanics, plainly:
   unless the contract changed too, which I review. Prevents one author from playing
   both sides.
 - **Never weaken a safety check to make a test pass.** If a test and a fail-closed
-  rule disagree, the rule wins and the test changes — with the reason written down.
+  rule disagree, the rule wins and the acceptance criteria are corrected through the
+  replacement path below.
+
+### Correcting frozen acceptance criteria
+
+Frozen means an implementation cannot silently rewrite its judge; it does not make a
+mistaken criterion permanent. When a criterion is wrong:
+
+1. Stop implementation and record why the current criteria are wrong.
+2. Increment the contract's acceptance-criteria version and identify the version it
+   supersedes plus the affected invariant IDs.
+3. Re-run critique for those invariants.
+4. A test author independent from the implementer changes the contract, affected
+   acceptance tests, and manifest in a contract+acceptance-only PR.
+5. Merge that reviewed PR before implementation resumes against the new version.
+
+The acceptance-criteria version is a domain label, not the manifest schema version.
+`process-guard` HARD-enforces only that frozen bytes change through a configured
+contract-path change and that the new manifest is self-consistent. The correction
+reason, semantic version link, affected invariants, independent authorship, and review
+are **PROMPT + AUDIT** checks; the current contract unlock remains coarse.
 
 ## Project tiers — not every repo needs the full treatment
 
