@@ -1,10 +1,9 @@
 ---
 name: pipeline
 description: >
-  Drive one feature through the engineering-os pipeline (spec → contract →
-  critique → frozen acceptance tests → implement → review → merge) as Workflow
-  orchestrations over the seat agents — no manual prompt pasting. Detects the
-  current stage from repo artifacts and stops at every human gate.
+  Run one feature through spec, contract, critique, frozen acceptance tests,
+  implementation, review, and merge. Detect the current stage from repository
+  artifacts, dispatch the required roles, and stop at every human decision.
 when_to_use: >
   "run the pipeline for <feature>", "dispatch the critic / tests / coder /
   reviewer", "next stage", or any request to advance a governed feature
@@ -13,78 +12,96 @@ argument-hint: "<feature> [stage|status]"
 arguments: [feature, stage]
 ---
 
-<!-- v3.1.1 · keeps status invocations read-only (PR #6 review finding).
-     v3.1.0 · adds visible routing, compact invariant contracts, bounded discovery,
-     versioned criteria correction, and runtime-evidence separation (PA-1..PA-7).
+<!-- v3.2.0 · rewrites agent-facing prose in plain language while preserving workflow
+     code and gates (LANG-1..LANG-8).
+     v3.1.1 · keeps status invocations read-only (PR #6 review finding).
+     v3.1.0 · adds routing, contract rules, bounded discovery, criteria correction,
+     and production-evidence separation (PA-1..PA-7).
      v3.0.0 · workflow rewrite after the 2026-07-18 contract critique. -->
 
-# Pipeline driver (workflow edition)
+# Pipeline Helper
 
-You are the Layer-2 driver for the engineering-os pipeline. You detect the
-current stage from artifacts, then launch ONE Workflow per stage segment. You
-are advisory by design: the walls are process-guard in CI and branch
-protection — never you or the workflow. Nothing below enforces; it catches
-mistakes early and makes the compliant path the lazy path.
+## Purpose
 
-## Stage 0 — every invocation, before anything
+Detect the current stage and run one Workflow for the next stage. Follow every
+instruction below. This helper coordinates the work; `process-guard`, required CI, and
+branch protection enforce the hard repository checks.
 
-**Read-only status fast path.** If the requested stage is `status`, skip every
-stage-advancing instruction below: do not create/update a routing record, spec,
-pipeline log, PR body, branch, or any working-tree file. Run only stage detection,
-print the found/missing table, and stop. A status invocation may inspect Git/remotes;
-it never changes delivery artifacts or metadata.
+## Before running a stage
 
-1. **Tier.** Ask/confirm: does this change touch a trust boundary (logins,
-   tokens, tenancy, redaction, egress, parsers over untrusted input)?
-   - T0 mechanical → say "pipeline is overkill, normal PR" and stop.
-   - T1 → proceed. A stage may be skipped only with a `Process-Skip:` trailer
-     on the relevant commit; record the skip in the log line.
-   - **T2/T3 → refuse every dispatch and point at DISPATCH.md §2.** Seats
-     inside one Claude Code process do not satisfy T2/T3 harness separation;
-     there is no override flag and no partial mode. The only stages you may
-     help with are the two HUMAN stages (1 spec, 2 contract — you co-write,
-     nothing is dispatched); from stage 3 on, every seat including the critic
-     is dispatched per DISPATCH.md outside this process.
-   Before continuing, write the POLICY routing record (tier, reason, required
-   evidence, eventual evidence links, acceptance-criteria version) into the spec or
-   PR body. This driver records it; `process-guard` does not enforce it.
-2. **Templates.** Resolve template dir: `<plugin>/prompts/` first (vendored,
-   with source SHA header), else the engineering-os repo's `prompts/` if the
-   user has it. Neither → stop: "templates unavailable; reinstall the plugin."
-   Never improvise a seat prompt from memory (O-5).
-3. **Seats.** Resolve the seat map once and echo it in your first status line:
-   - **Routed mode** — the routed seats' models resolve in this session
-     (gateway up + authenticated; if unsure, ask):
-     `{critic: spec-critic, author: acceptance-author, coder: implementer,
-       fixer: implementer, checker: general-purpose,
-       reviewers: [independent-reviewer
-       (+ integration-reviewer when wiring-heavy)]}`
-   - **Panel mode** — otherwise:
-     `{critic: eos-spec-critic, author: eos-acceptance-author,
-       coder: eos-implementer, fixer: eos-implementer,
-       checker: general-purpose,
-       reviewers: [eos-reviewer × lens A, B, C]}`
-     (`checker` runs the mechanical verify/red steps — it is deliberately a
-     plain harness agent, not a seat; shadowable like any name.)
-     Lenses are the template's own A/B/C set; add a second pass of lens C for
-     wiring-heavy changes. Panel size note: POLICY.md asks one independent
-     reviewer for T1 — the A/B/C panel EXCEEDS that on purpose because
-     same-family review needs the lens spread to de-correlate; a driver
-     choice, recorded, not a POLICY requirement.
-     All seats share the session model: fresh context is real, family
-     diversity is NOT — log `mode: panel (same-family, lens-diverse)`.
-   - Users may shadow any seat name with their own agent file (project/user
-     agents beat plugin agents); dispatch by NAME, never set `model` in
-     scripts. If the user's shadow puts reviewer and coder in one family,
-     note it in the log line when you know it — recorded, never blocking.
-4. **Log.** Append one line per dispatch to `docs/pipeline-log.md`
-   (create with a header if missing): `date · feature · stage · seat →
-   agent · mode · verdict · artifact`. Do this yourself after each workflow
-   returns — workflows don't write the log.
+### Read-only status
 
-## Stage detection (first missing artifact = current stage)
+**STOP — status request:** Run only stage detection, print the found/missing table, and
+stop. Do not change a routing record, spec, log, PR body, branch, or working-tree file.
+A status request may inspect Git and remotes.
 
-Run `git fetch origin <base>` before base-branch checks.
+### 1. Confirm the route
+
+Ask whether the change touches login, tokens, tenancy, redaction, network access, data
+writes, or parsing untrusted input.
+
+- **T0:** Tell the user to use a normal PR and CI, then stop.
+- **T1:** Continue. A skipped stage requires an exact `Process-Skip:` commit-message
+  entry; record the skip in the pipeline log.
+- **T2/T3:** You may help the human write the spec and contract. **STOP before stage 3.**
+  Do not dispatch critic, test author, implementer, or reviewer roles from this Claude
+  Code session. Use `DISPATCH.md`; there is no override or partial mode.
+
+Before continuing, write the route, reason, required evidence, evidence links, and
+acceptance-criteria version in the spec or PR body. `process-guard` does not check this
+record.
+
+### 2. Load templates
+
+Use `<plugin>/prompts/` first. If unavailable, use the engineering-os repository's
+`prompts/` directory. **STOP if neither exists:** ask the user to reinstall the plugin.
+Always load prompt files; never reconstruct them from memory.
+
+### 3. Resolve the role map
+
+The workflow code uses the field name `seats`; it contains this role map.
+
+**Multi-model mode** — use when the configured role models are available:
+
+```text
+{critic: spec-critic, author: acceptance-author, coder: implementer,
+ fixer: implementer, checker: general-purpose,
+ reviewers: [independent-reviewer
+ (+ integration-reviewer when wiring-heavy)]}
+```
+
+**Single-model, multiple-focus review mode** — use otherwise:
+
+```text
+{critic: eos-spec-critic, author: eos-acceptance-author,
+ coder: eos-implementer, fixer: eos-implementer,
+ checker: general-purpose,
+ reviewers: [eos-reviewer × focus A, B, C]}
+```
+
+`checker` runs mechanical red/verification steps. Add a second wiring review for a
+wiring-heavy change. In single-model mode, every role uses the same model but fresh
+contexts and separate review focus areas; log
+`mode: panel (same-family, lens-diverse)` for compatibility with existing logs.
+
+Project or user agent files may replace a named role. Dispatch by role name; never set
+a model in workflow code. If reviewer and implementer resolve to one model family,
+record it in the log.
+
+### 4. Record dispatches
+
+After each Workflow returns, append one line to `docs/pipeline-log.md`:
+
+```text
+date · feature · stage · role → agent · mode · verdict · artifact
+```
+
+Create the file header when needed. Workflows do not write this log.
+
+## Find the current stage
+
+Run `git fetch origin <base>` before checking the base branch. The first missing
+artifact is the current stage.
 
 | # | Stage | Artifact proving it happened |
 |---|---|---|
@@ -98,12 +115,14 @@ Run `git fetch origin <base>` before base-branch checks.
 
 `/pipeline <feature> status` prints this table with found/missing and stops.
 
-## The args contract (every workflow below receives exactly this)
+## Workflow inputs
 
-| args field | Filled by you with |
+Every Workflow below receives exactly these fields:
+
+| Field | Value |
 |---|---|
-| `seats` | the resolved seat map from stage 0 |
-| `filledTemplate` | the stage's template with its declared blanks filled (routing record + contract invariants/rationale + discovery record or `none` + tier/threat rows; never the raw spec alone) |
+| `seats` | the role map resolved above (field name retained for code compatibility) |
+| `filledTemplate` | the loaded prompt with route, binding rules, background, discovery record or `none`, tier, and threat rows; never the raw spec alone |
 | `base` | the base branch name |
 | `headSha` | current PR head (stage 6 only) |
 | `reviewers` | `[{agentType, lens, template}]` per the mode (stage 6 only) |
@@ -112,31 +131,28 @@ Run `git fetch origin <base>` before base-branch checks.
 | `branch` | the PR branch under review (stage 6 only) |
 | `pluginDir` | absolute path of this plugin's install dir (where scripts/ and prompts/ live) — resolve it when you resolve the template dir |
 
-## Stage 1 · spec — human, no workflow
+## Stage 1 · spec — human, no Workflow
 
-Help the user draft `specs/<feature>.md` interactively (the one stage where
-the driver co-writes; the human owns it). If a decision needs an experiment first,
-write `specs/<feature>.discovery.md` with question/owner/time-or-scope bound/
-environment/prohibited-actions/experiment references/observations/exit decision and
-STOP delivery. Discovery code never becomes the delivery implementation; return to
-this stage after the decision is known.
+Help the human write `specs/<feature>.md`. The human owns product decisions.
 
-## Stage 2 · contract — human + driver, no workflow
+**STOP — experiment needed:** Write `specs/<feature>.discovery.md` with the question,
+owner, time/scope limit, environment, prohibited actions, experiment references,
+observations, and exit decision. Do not continue delivery until the decision is known.
+Discovery code is not the delivery implementation.
 
-Draft the `contracts.md` section WITH the user from the spec. Start with the routing
-record and acceptance-criteria version, then stable-ID normative invariants: concrete
-behavior, closed sets, and failure paths. Put explanation and alternatives under an
-explicitly non-normative rationale heading; threat rows for T2+ (which you'll have
-refused to orchestrate further anyway — the contract is still worth writing here).
-The critic needs a compact binding surface to attack; the spec and rationale are not it.
+## Stage 2 · contract — human + helper, no Workflow
 
-## Stage 3 · critique — workflow
+Write the contract with the human. Start with the routing record and criteria version.
+Then write binding rules with stable IDs, including allowed values and failure paths.
+Put explanations and alternatives under `Background (not binding)`. Add threat rows for
+T2/T3. The critic reviews binding rules, not the raw spec or background.
 
-Fill `critique.md` from the template dir with the routing record, contract normative
-invariants and rationale, tier/threat rows, and `specs/<feature>.discovery.md` (or
-explicit `none`). Schema mirrors the template's output contract verbatim — dispositions are
-`contract-sentence | acceptance-test | accepted-residual`, and the Goodhart
-pass is mandatory:
+## Stage 3 · contract critique — Workflow
+
+Load `critique.md`. Fill it with the route, binding rules, background, tier/threat rows,
+and `specs/<feature>.discovery.md` or explicit `none`. The required output values remain
+`contract-sentence | acceptance-test | accepted-residual`, and the `goodhart` field
+must contain exactly three broken-but-contract-compliant examples:
 
 ```js
 export const meta = {
@@ -172,17 +188,19 @@ return await agent(args.filledTemplate,
   { agentType: args.seats.critic, label: 'critic', schema: CRITIQUE_SCHEMA })
 ```
 
-Write `specs/<feature>.critique.md` from the result, ENDING with the verdict
-line (`READY` / `NOT_READY`) — stage detection reads it. `pending_decisions`
-non-empty or NOT_READY → present the decisions, STOP; the user updates the
-CONTRACT, re-run. `contract-sentence` dispositions → apply them to
-contracts.md with the user before proceeding. A T2/T3 critique with zero
-acceptance-test dispositions is presumptively lazy (template rule) — say so.
+Save the result as `specs/<feature>.critique.md`. Its last line must be `READY` or
+`NOT_READY`; stage detection reads that line.
 
-## Stage 4 · acceptance tests — workflow (worktree)
+- **STOP — `NOT_READY` or pending decisions:** Show the decisions to the human. Update
+  the binding contract rules and run critique again.
+- Apply every `contract-sentence` finding with the human before continuing.
+- For T2/T3, if there are no `acceptance-test` findings, require the critic's explicit
+  checklist evidence from the prompt. Do not accept an unexplained zero.
 
-Gate: critique READY. Fill `acceptance-author.md` with the contract + the
-critique's acceptance-test dispositions (every one must map to a test ID):
+## Stage 4 · acceptance tests — Workflow in a worktree
+
+Start only when critique ends in `READY`. Load `acceptance-author.md` with the binding
+rules and critique findings. Every `acceptance-test` finding must map to a test ID:
 
 ```js
 export const meta = {
@@ -228,17 +246,21 @@ const red = await agent(
 return { authored, red }
 ```
 
-`red.status === 'red'` AND `scope_clean` AND every acceptance-test disposition
-has a matching test ID (diff the two lists YOURSELF — no CI check does this;
-the template's coverage rule is driver-checked, Layer 2) → open the suite PR
-(`test/<feature>`), tell the user to merge it, STOP. BLOCKED → contract gap,
-back to the user.
+Open the `test/<feature>` PR only when all three checks pass:
 
-## Stage 5 · implement — workflow
+1. `red.status === 'red'`;
+2. `scope_clean === true`;
+3. every critique `acceptance-test` finding has a matching test ID.
 
-Gate: this feature's tests + manifest on base (stage-detection row 4 — CI's
-stage-artifact only checks that A manifest exists; the per-feature check is
-yours). Fill `implementer.md` with the contract + frozen-suite pointer:
+Compare the finding/test-ID lists yourself; CI does not perform that per-feature check.
+Tell the human to merge the test PR, then stop. If authoring is `BLOCKED`, return to the
+contract.
+
+## Stage 5 · implementation — Workflow
+
+Start only when this feature's tests and manifest are on the base branch. The global
+`stage-artifact` check does not prove feature-specific coverage. Load `implementer.md`
+with the binding rules and frozen-suite path:
 
 ```js
 export const meta = {
@@ -273,19 +295,21 @@ const check = await agent(
 return { impl, check }
 ```
 
-BLOCKED ("a test is wrong") → stop implementation and run OS.md's versioned criteria
-correction: the contract owner commits the incremented/superseding contract and
-re-critiques affected invariants; the independent acceptance author then adds only the
-affected tests + manifest on that correction branch. Merge that PR before resuming. Never patch around disputed criteria. Both true → open PR `feat/<feature>`;
-process-guard runs on its own. Guard red → one fix pass with the exact failing output,
-then surface.
+- **STOP — implementer reports a wrong test:** Start the versioned correction process.
+  The contract owner commits the corrected rule and runs critique again. The independent
+  test author adds only affected tests and the manifest. Merge that PR before resuming.
+  Never patch around disputed criteria.
+- Open `feat/<feature>` only when `verify_green` and `scope_clean` are both true.
+- If `process-guard` fails, give the exact output to one fix pass. If it still fails,
+  show the failure to the human.
 
-## Stage 6 · review — workflow (template-faithful verdicts, bounded rounds)
+## Stage 6 · review — Workflow, maximum three rounds
 
-Gate: PR open, CI green. Build `args.reviewers` per the mode (lens A/B/C from
-the template in panel mode; front-load = contract promises + threat rows,
-round 1, PC-14). Verdicts follow the TEMPLATE: `pass | warn | fail`, P1/P2
-block, P3 may ship recorded; `CLEAN` list required:
+Start only when the PR is open and CI is green. Build `args.reviewers` from the chosen
+mode. In single-model mode, run separate security, claims, and wiring focus areas (the
+code retains the field name `lens`). Give every reviewer the binding claims and threat
+rows in round 1. Required verdicts are `pass | warn | fail`; P1/P2 block, P3 may be
+recorded, and `CLEAN` is required:
 
 ```js
 export const meta = {
@@ -357,25 +381,25 @@ for (let round = 1; round <= 3; round++) {
 }
 ```
 
-Returns:
-- `pass` → write `specs/<feature>.review.md`: verdicts, `CLEAN` lists,
-  `REVIEWED: <final sha>` as the last line (stage detection compares it to
-  the PR head — any later push makes the review stale by construction), plus
-  the P3 ledger. Push fixes; go to stage 7.
-- `spec-gap` → PC-15: draft the LESSONS.md entry, route to stage 2/3. Never
-  round 4.
-- `contradiction` / `stale-review` / `reviewer-lost` → fail closed, show the
-  user exactly what disagreed.
+Handle the Workflow result:
 
-## Stage 7 · merge — human
+- **`pass`:** Write `specs/<feature>.review.md` with verdicts, `CLEAN` lists, P3 ledger,
+  and `REVIEWED: <final sha>` as the last line. Push any fixes and continue. A later
+  push makes this review stale.
+- **`spec-gap`:** Draft the five-field `LESSONS.md` entry and return to contract or
+  critique. There is no fourth review round.
+- **`contradiction`, `stale-review`, or `reviewer-lost`:** Reject the result and show
+  the exact disagreement to the human. Do not continue with partial evidence.
 
-Present verdict summary, rounds, P3 ledger, degradations. For production mutations,
-report software-revision verification separately from the repository's per-run target,
-precondition, authorization, stop, rollback, and postcondition evidence; never imply
-that this pipeline authorizes a live action. The user merges. Never you.
+## Stage 7 · merge — human only
 
-## After an escape
+Show the verdict, number of rounds, P3 ledger, and degraded checks. For a production
+change, report software verification separately from target, preconditions,
+authorization, stop conditions, rollback, and observed results. This pipeline does not
+authorize a live action. The human decides whether to merge.
 
-Bug shipped through the pipeline → draft the five-line LESSONS.md entry
-(What/Where/Caught by/Class/Became) and propose the enforcement layer for the
-new check. The human decides.
+## After a defect escapes
+
+Draft a `LESSONS.md` entry with `What`, `Where`, `Caught by`, `Class`, and `Became`.
+Propose which guard, baseline check, or critic question should change. The human
+approves the lesson and enforcement level.
