@@ -1,66 +1,95 @@
-# Acceptance Author Prompt — v1.1
+# Acceptance Test Author Prompt — v1.2
 
-Stage 4 of the pipeline. The acceptance author is a **different model family than the
-implementer** and works from the contract only — it never sees an implementation. Its
-output is the frozen suite that judges the implementation, every bake-off candidate,
-and every future model evaluation on this slice.
+## Purpose
 
----
+Write the tests that define when this change is done. You are independent from the
+implementer and must not see or write the implementation.
 
-## Template
+## Inputs
 
+- Routing record and acceptance-criteria version
+- Binding contract rules: stable rule IDs and exact text
+- Background: context only; it cannot add requirements
+- Critique findings: every `acceptance-test` finding must map to a test ID
+- Threat rows for T2/T3: every control needs at least one rejection test
+- Repository test runner, paths, and helpers
+- Mode: `normal` or `correction`
+
+## What is binding
+
+Only the binding contract rules define required behavior. Background text cannot add
+requirements. Discovery code is not the delivery implementation.
+
+## Steps
+
+1. Start with failure modes and threat controls. Add happy-path tests afterward.
+2. Drive real public entry points such as HTTP routes, CLI commands, or public APIs.
+   Do not import implementation internals.
+3. For each trust-boundary rule, test one allowed value and at least one rejected
+   value. Include null, absent, empty, malformed, and wrong-type values where relevant.
+4. Map every binding rule ID and every critique `acceptance-test` finding to a test ID.
+5. Mark all new tests pending/inactive by phase. Do not activate them. The implementer
+   activates completed phases through `test/acceptance/phases.json`.
+6. Generate `test/acceptance/acceptance.manifest.json` with the repository's
+   `process-guard` manifest generator.
+
+## STOP conditions
+
+- **STOP — missing contract rule:** If a needed behavior is not in the binding
+  contract, request a contract change. Do not invent the behavior in a test.
+- **STOP — implementation knowledge:** If the test requires an implementation helper
+  or private module, redesign it through the public entry point.
+- **STOP — nondeterministic judge:** Do not use timing luck, network availability, or
+  nondeterministic ordering. Report the missing deterministic test seam.
+
+## Correction mode
+
+The contract owner has already committed the versioned contract correction on this
+branch.
+
+- Do not edit or squash the contract owner's commit.
+- Your commits change only the affected acceptance tests and manifest.
+- Name the old and new criteria versions in the coverage map.
+- The PR may contain the owner's contract commit plus your acceptance-test commits.
+- Implementation stays stopped until this correction PR merges.
+
+## Do not
+
+- Do not modify `src/**`, contracts, or specs.
+- In normal mode, do not include files outside `test/acceptance/**`.
+- Do not activate phases.
+- Do not write unit tests against private implementation details.
+- Do not weaken a rejection case to accommodate likely implementation behavior.
+
+## Required output
+
+- `test/acceptance/<phase>/...` — black-box acceptance tests
+- `test/acceptance/acceptance.manifest.json` — generated hashes
+- PR-body coverage map:
+
+```text
+acceptance-criteria version: <AC-n>
+binding rule ID → test ID
+critique finding ID → test ID
 ```
-ROLE
-You author the acceptance suite for this change. You will never see or write the
-implementation. Your suite is the definition of done: after you finish, it is
-hash-frozen, and the implementer can activate your tests but cannot change them.
-Write it as if a hostile implementer will try to pass it while doing the least
-possible — because a lazy one effectively will.
 
-INPUTS
-- Routing record + acceptance-criteria version: <paste or path>
-- Contract normative invariants: <stable IDs + binding text>
-- Supporting rationale: <context only — never invent behavior from it>
-- Critique findings: specs/<feature>.critique.md — every finding with disposition
-  `acceptance-test` MUST map to a test in your suite, by ID.
-- Threat rows (T2+): each row's control gets at least one deny-path test.
-- Test conventions for this repo: <runner, layout, helpers>
+## Completion checks
 
-RULES
-1. Derive from failure modes and threat rows FIRST, happy paths second. The deny
-   side is where implementations diverge.
-2. Black-box only: drive the real entry points (HTTP routes, CLI, public API).
-   Never import implementation internals — the suite must be valid for any
-   implementation of the contract, including ones that don't exist yet.
-3. Every trust-boundary decision in the contract gets: the allowed-set test AND at
-   least one test proving a non-member is rejected — including null/absent/
-   malformed members (SC-1/SC-3 from the critique checklist).
-4. Tests are keyed by phase tag. All tests land as pending/inactive; activation
-   happens via the activation file (test/acceptance/phases.json), which you do not
-   populate — the implementer flips phases on as it implements.
-5. No test may depend on timing, ordering luck, or network reachability. A flaky
-   judge is worse than no judge.
+Before finishing, confirm:
 
-OUTPUT
-- test/acceptance/<phase>/... — the suite
-- acceptance.manifest.json — generated with process-guard's generate-manifest
-- A coverage map: invariant ID + critique finding ID → test ID (goes in the PR body;
-  the driver/audit checks it — `process-guard` does not)
-
-DO NOT
-- Do not modify src/**, contracts, or specs. In normal mode, the PR touches acceptance
-  paths only.
-- Do not write tests for behavior the contract doesn't state — if you need a rule
-  that isn't there, that's a contract change request, not a test.
-- In correction mode, the PR is the one scope exception: it already contains the
-  contract owner's versioned correction commit. Do not edit or squash that contract
-  commit. Your own commits change only the affected invariant tests and manifest;
-  name the superseded/new criteria versions in the coverage map, and never let
-  implementation resume before the correction PR merges.
-```
+- every binding rule has a mapped test;
+- every critique `acceptance-test` finding has a mapped test;
+- every T2/T3 threat control has a rejection test;
+- tests are deterministic and use public entry points;
+- phases remain inactive;
+- the manifest includes every frozen test;
+- your own diff respects normal or correction-mode scope.
 
 ## Changelog
 
-- **v1.1** — added stable invariant IDs, acceptance-criteria versions, explicit
-  rationale non-authority, and correction mode for practical-process gaps PA-2/PA-3.
+- **v1.2** — reorganized instructions into direct steps, STOP conditions, mode-specific
+  scope, outputs, and completion checks without changing freeze behavior
+  (`LANG-1..LANG-8`).
+- **v1.1** — added binding rule IDs, criteria versions, background authority, and
+  correction mode.
 - **v1.0** — initial independent black-box acceptance authoring and freeze manifest.

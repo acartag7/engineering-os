@@ -1,105 +1,124 @@
-# Dispatch Cheat Sheet
+# Start and Route Work
 
-How to actually use this when starting a piece of work. One page, no theory.
+Use this page when starting a change. See [`ONBOARDING.md`](ONBOARDING.md) for
+repository setup.
 
-## 0. Once per repo (setup — see ONBOARDING.md for the full list)
+## 1. Set up each repository once
 
-1. Copy the block from `templates/agent-context-block.md` into the repo's
-   `CLAUDE.md` and `AGENTS.md`, set the tier.
-2. Wire `process-guard` into CI and make it a required check.
-3. Commit a `.githooks/pre-commit` that runs the guard locally; setup runs
+1. Copy `templates/agent-context-block.md` into both `CLAUDE.md` and `AGENTS.md`.
+2. Add `process-guard` to CI and make it a required check.
+3. Add a pre-commit hook that runs the same guard, then configure
    `git config core.hooksPath .githooks`.
 
-After this, every agent in every tool hits the same walls, whether or not it reads
-anything.
+CI and branch protection remain active even when an agent misses its instructions.
 
-## 1. Every piece of work: decide the tier first
+## 2. Choose the change route
 
-Ask one question: **does this touch a trust boundary?** (logins, tokens, tenancy,
-redaction, network egress, data writebacks, parsers over untrusted input.)
+Ask: **Does this change make a decision at a trust boundary?** Examples include login,
+tokens, tenancy, redaction, network access, data writes, and parsing untrusted input.
 
-- No, and it's mechanical (rename, dep bump) → **T0**: just do it. Normal PR + CI.
-- No, but behavior changes → **T1**: pipeline is default-on; you may skip stages
-  with a `Process-Skip:` trailer (the audit counts skips).
-- Yes → **T2**. Parser over untrusted input, or a brand-new boundary → **T3**.
-- Docs that make promises to users → run the claims check (every "never/always/
-  cannot" must point at enforcing code).
+- **T0:** mechanical change with no behavior change. Use a normal PR and CI.
+- **T1:** behavior change outside a trust boundary. Use the pipeline by default. A
+  skipped stage requires an exact `Process-Skip:` commit-message entry; audits count
+  skips.
+- **T2:** change at a trust boundary. Use the independent roles below.
+- **T3:** new or critical trust-boundary parser/state machine. Use multiple independent
+  implementations and reviewers.
+- **Docs:** for every promise such as `never`, `always`, or `cannot`, identify the
+  enforcing control and a test.
 
-Record the route before dispatching:
+Record the route:
 
 ```text
 Route: <T0 | T1 | T2 | T3 | Docs>
-Reason: <why>
-Required evidence: <stages, tests, review, runtime evidence>
+Reason: <why this route applies>
+Required evidence: <stages, tests, review, production evidence>
 Evidence links: <fill before merge>
 Acceptance-criteria version: <AC-n | not applicable>
 ```
 
-This record is **PROMPT + AUDIT**, not a `process-guard` check. If the route cannot be
-decided without an experiment, use [`POLICY.md`](POLICY.md)'s bounded discovery lane,
-write `specs/<feature>.discovery.md`, and pass it to the critic when delivery resumes;
-do not let experimental code become the delivery implementation.
+Prompts and the monthly audit check this record; `process-guard` does not.
 
-## 2. T2/T3: the four dispatches, in order
+### When an experiment is needed
 
-Each seat gets its template with the blanks filled. Different tools for different
-seats — the test author must NOT be the coder's model/harness.
+Write `specs/<feature>.discovery.md` with the question, owner, time/scope limit,
+permitted environment, prohibited actions, experiment references, observations, and
+exit decision. Do not use production credentials or mutations. Do not ship the
+experimental code. Return to the contract stage after the decision is known, and pass
+the discovery record to the critic.
 
-| Order | Seat | Template | Give it | It produces |
+## 3. Run T2/T3 roles in order
+
+Do not run the acceptance-test author and implementer in the same model/harness.
+
+| Order | Role | Template | Input | Output |
 |---|---|---|---|---|
-| 1 | Critic | `prompts/critique.md` | contract section + threat notes + tier | `specs/<feature>.critique.md` |
-| 2 | Test author (different harness than coder) | `prompts/acceptance-author.md` | contract + critique findings | `test/acceptance/<phase>/` + manifest, merged as its own PR |
-| 3 | Coder(s) | `prompts/implementer.md` | contract + pointer to frozen suite | one T2 implementation or 2–3 independent T3 candidates |
-| 4 | Reviewer(s), different family from coder(s) | `prompts/reviewer.md` | the PR/candidates + contract claims + threat notes | T2 verdict or T3 blind ranking + verdicts |
+| 1 | Contract critic | `prompts/critique.md` | route, binding rules, background, discovery, threats | `specs/<feature>.critique.md` |
+| 2 | Acceptance-test author, separate from implementer | `prompts/acceptance-author.md` | binding rules + critique | tests + manifest in their own PR |
+| 3 | Implementer(s) | `prompts/implementer.md` | binding rules + frozen suite | one T2 implementation or 2–3 T3 candidates |
+| 4 | Reviewer(s), different family from implementer(s) | `prompts/reviewer.md` | PR/candidates + rules + threats | verdict or blind T3 ranking |
 
-T2 uses one implementation and a different-family review with parallel lenses. **T3
-escalates the table:** dispatch 2–3 strongest implementers with identical inputs in
-separate worktrees; let the frozen suite score first; blind-rank surviving candidates;
-then run two reviewer families with the parallel security/claims/wiring lenses. Graft
-runner-up ideas only deliberately, never from memory.
+### T2
 
-Rules of thumb:
-- Don't dispatch step 3 until step 2's PR is merged. The driver checks per-feature
-  sequencing; `process-guard` only proves a global manifest exists on base.
-- If the critic returns "pending decisions" (SC-9): stop, decide, update the
-  contract, re-run. Never code through it.
-- If review goes past 3 rounds: stop pushing fixes. Write down what the spec was
-  missing (`LESSONS.md`), fix the contract or suite, then continue.
+Use one strong implementation. Run separate security, public-claims, and wiring reviews
+with a different model family.
 
-### If a frozen criterion is wrong
+### T3
 
-Stop the implementation. The contract owner increments the acceptance-criteria
-version, names the superseded version and affected invariant IDs, and re-runs critique
-for those invariants on a correction branch. The independent acceptance author then
-adds only the affected tests + manifest to that same branch without editing the
-contract. Merge the reviewed contract+acceptance PR before implementation resumes. The
-mechanical freeze is HARD; the semantic/version/authorship checks are **PROMPT +
-AUDIT**. See [`OS.md`](OS.md#correcting-frozen-acceptance-criteria).
+1. Give identical inputs to 2–3 strong implementers in separate worktrees.
+2. Run the frozen suite against every candidate.
+3. Blind-rank the candidates that pass.
+4. Run two reviewer families across the security, claims, and wiring focus areas.
+5. If a runner-up contains a useful idea, add it deliberately; do not reconstruct it
+   from memory.
 
-For production mutations, also fill the runtime-evidence overlay from
-[`POLICY.md`](POLICY.md#production-mutation-overlay). It is **NOT YET ENFORCED
-fleetwide** and must not be presented as a HARD gate until the target repository wires
-it outside the orchestrator.
+### Required stops
 
-## 3. Where the prompts go, per tool
+- **STOP — acceptance PR not merged:** Do not start implementation. The pipeline checks
+  feature-specific sequencing; `process-guard` checks only that a global manifest
+  exists on the base branch.
+- **STOP — critic reports pending decisions:** The human decides, updates the contract,
+  and runs critique again. Do not code through the gap.
+- **STOP — review reaches three rounds:** Record what the contract or tests missed,
+  repair that earlier stage, and continue from there. There is no fourth round.
 
-- **Claude Code**: paste the filled template as the task message (repo CLAUDE.md
-  carries the standing block).
-- **Codex**: same, as the task prompt; AGENTS.md carries the standing block.
-- **OpenCode / GLM**: same, as the session prompt.
+## 4. Correct a frozen test rule
 
-The template text is the source of truth — never retype the rules from memory.
-If you notice yourself writing a task prompt from scratch, stop and start from the
-template; improvised prompts are how stated rules get dropped.
+If a frozen test rule is wrong:
 
-## 4. When something goes wrong anyway
+1. Stop implementation.
+2. The contract owner records the reason, old/new criteria versions, and affected rule
+   IDs on a correction branch.
+3. Run critique again for those rules.
+4. An acceptance-test author who is independent from the implementer adds only the
+   affected tests and manifest on the same branch.
+5. Merge the reviewed contract-and-test PR before implementation resumes.
 
-A bug escaped, a review dragged, a gate was skipped:
+`process-guard` checks the changed contract path and test hashes. Prompts and audits
+check the reason, versions, authorship, and review. See
+[`OS.md`](OS.md#correcting-frozen-acceptance-criteria).
 
-1. Five lines in `LESSONS.md` (abstract — no identifying details).
-2. Decide what it becomes: a guard check, a baseline item, or a new critique
-   question. Bump the version of whatever changed.
-3. Sweep the new check across repos in one batch.
+## 5. Separate software checks from production approval
 
-That's the whole loop. The process gets smarter every time it fails; nothing
-depends on anyone remembering.
+For production-changing systems, record the target, deployed revision, observed
+preconditions, human authorization, stop conditions, rollback readiness, and observed
+results. Keep this evidence outside the AI orchestrator. These checks are not yet
+hard-enforced across every repository; each operational repository must add its own
+runtime gates. See [`POLICY.md`](POLICY.md#production-mutation-overlay).
+
+## 6. Use the prompt templates
+
+- Claude Code: use the filled template as the task message.
+- Codex: use the same template; `AGENTS.md` carries standing rules.
+- Other tools: use the same versioned template.
+
+Always load the template file. Never reconstruct the instructions from memory.
+
+## 7. Learn from failures
+
+When a defect escapes, review drags, or a gate is skipped:
+
+1. Add the five abstract fields to `LESSONS.md`: What, Where, Caught by, Class, Became.
+2. Turn the lesson into a guard check, baseline item, or critic question. Bump the
+   changed version.
+3. Apply the new check to governed repositories in one batch.
