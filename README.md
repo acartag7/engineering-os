@@ -54,7 +54,9 @@ authorization change.
 2. Introduce the acceptance-suite manifest or the temporary onboarding exemption in
    the order described there.
 3. Add [`process-guard`](process-guard/) to CI and make the repository’s verification
-   jobs required status checks in branch protection.
+   jobs required status checks in branch protection. For a T2 surface that can edit
+   its own guard, also require the [base-ref materialized guard](process-guard/README.md#usage);
+   fully closing workflow-definition tampering needs a ruleset-required workflow.
 4. Start work from [`DISPATCH.md`](DISPATCH.md), or install the optional
    [Claude Code plugin](plugins/engineering-os/) to make the compliant path easier.
 
@@ -79,8 +81,9 @@ branch protection.
 Engineering OS reduces correlated mistakes; it does not prove that a contract is
 correct or that every feature has its own acceptance coverage. The current freeze gate
 is global rather than per-feature, and any configured contract-path change opens its
-coarse re-freeze path. Author separation is also owner-forgeable and audited rather
-than a hard identity boundary. Full accepted risks and incomplete controls are named
+coarse re-freeze path. Required in-repo status checks do not fully close workflow-file
+tampering; that needs a trusted ruleset-required workflow. Author separation is also
+owner-forgeable and audited rather than a hard identity boundary. Full accepted risks and incomplete controls are named
 in [`OS.md`](OS.md), [`BASELINE.md`](BASELINE.md), and [`contracts.md`](contracts.md).
 
 ## License

@@ -36,7 +36,8 @@ Acceptance-criteria version: <AC-n | not applicable>
 ```
 
 This record is **PROMPT + AUDIT**, not a `process-guard` check. If the route cannot be
-decided without an experiment, use [`POLICY.md`](POLICY.md)'s bounded discovery lane;
+decided without an experiment, use [`POLICY.md`](POLICY.md)'s bounded discovery lane,
+write `specs/<feature>.discovery.md`, and pass it to the critic when delivery resumes;
 do not let experimental code become the delivery implementation.
 
 ## 2. T2/T3: the four dispatches, in order

@@ -70,7 +70,8 @@ upstream.
    entries plus false-green/silent-skip incidents. Unknown catch stage is reported as
    unknown, never guessed.
 8. Discovery boundary: verify each discovery record has question, owner, time-or-scope
-   bound, permitted environment, prohibited actions, and exit decision. Flag any
+   bound, permitted environment, prohibited actions, experiment references,
+   observations, and exit decision. Flag any
    experiment merged or deployed as delivery, production mutation/credentials, or
    delivery started without returning to the contract stage.
 9. Contract shape: new or changed contracts have stable normative invariant IDs,

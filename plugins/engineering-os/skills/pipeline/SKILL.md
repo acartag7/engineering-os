@@ -96,7 +96,7 @@ Run `git fetch origin <base>` before base-branch checks.
 | args field | Filled by you with |
 |---|---|
 | `seats` | the resolved seat map from stage 0 |
-| `filledTemplate` | the stage's template with its declared blanks filled (contract section — never the raw spec — plus tier/threat rows) |
+| `filledTemplate` | the stage's template with its declared blanks filled (routing record + contract invariants/rationale + discovery record or `none` + tier/threat rows; never the raw spec alone) |
 | `base` | the base branch name |
 | `headSha` | current PR head (stage 6 only) |
 | `reviewers` | `[{agentType, lens, template}]` per the mode (stage 6 only) |
@@ -109,8 +109,9 @@ Run `git fetch origin <base>` before base-branch checks.
 
 Help the user draft `specs/<feature>.md` interactively (the one stage where
 the driver co-writes; the human owns it). If a decision needs an experiment first,
-record a bounded discovery question/owner/time-or-scope bound/environment/
-prohibited-actions/exit decision and STOP delivery. Discovery code never becomes the delivery implementation; return to
+write `specs/<feature>.discovery.md` with question/owner/time-or-scope bound/
+environment/prohibited-actions/experiment references/observations/exit decision and
+STOP delivery. Discovery code never becomes the delivery implementation; return to
 this stage after the decision is known.
 
 ## Stage 2 · contract — human + driver, no workflow
@@ -124,8 +125,9 @@ The critic needs a compact binding surface to attack; the spec and rationale are
 
 ## Stage 3 · critique — workflow
 
-Fill `critique.md` from the template dir with the CONTRACT section + tier.
-Schema mirrors the template's output contract verbatim — dispositions are
+Fill `critique.md` from the template dir with the routing record, contract normative
+invariants and rationale, tier/threat rows, and `specs/<feature>.discovery.md` (or
+explicit `none`). Schema mirrors the template's output contract verbatim — dispositions are
 `contract-sentence | acceptance-test | accepted-residual`, and the Goodhart
 pass is mandatory:
 
@@ -206,8 +208,10 @@ const red = await agent(
    author's local worktree is gone; never trust a stale local branch). Run the test suite with activation forced on
    for the new suite against UNCHANGED src. Red requires >=1 executed FAILING
    test — a crash, import error, or zero executed tests is failed_infra,
-   never red. Also verify the diff vs origin/${args.base} touches only
-   test/acceptance/** (the manifest included). Clean up the worktree. Report exactly.`,
+   never red. Scope-check the diff vs origin/${args.base}: normal mode touches only
+   test/acceptance/**; correction mode may also contain the contract owner's earlier
+   contract commit, but the acceptance author's commits must touch only acceptance
+   paths. Clean up the worktree. Report exactly.`,
   { agentType: args.seats.checker, label: 'red-check',
     schema: { type:'object', required:['status','executed','failing','scope_clean'],
       properties: { status:{type:'string',enum:['red','green','failed_infra']},

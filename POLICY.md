@@ -57,8 +57,9 @@ flags missing records on all changes; `process-guard` does not parse this header
 ### Discovery is a lane, not a delivery tier
 
 Discovery is allowed when a decision cannot be made honestly without an experiment.
-Its record states: the question, owner, time or scope bound, permitted environment,
-prohibited actions, and exit decision. Discovery has no production credentials or
+Its record lives at `specs/<feature>.discovery.md` and states: the question, owner,
+time or scope bound, permitted environment, prohibited actions, experiment references,
+observations, and exit decision. Discovery has no production credentials or
 mutations, produces observations rather than completion claims, and cannot be merged
 or deployed as the delivery implementation. Once the unknown is resolved, delivery
 starts at the normal contract stage; experimental code is discarded or re-authored

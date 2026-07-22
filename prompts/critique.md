@@ -24,6 +24,7 @@ INPUTS
 - Routing record: <tier, reason, required evidence, evidence links, criteria version>
 - Contract normative invariants: <stable IDs + binding text>
 - Supporting rationale: <paste or path — context only, never binding behavior>
+- Discovery record + experiment references: <specs/<feature>.discovery.md | none>
 - Threat rows for this change (T2+): <paste or path>
 - Silence-class checklist: v1.1 (below)
 

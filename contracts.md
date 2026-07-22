@@ -25,12 +25,13 @@
   Enforcement: **PROMPT + AUDIT**, not HARD.
 - **PA-3 — corrected acceptance criteria.** Changing frozen criteria stops
   implementation, increments the criteria version, identifies the superseded version
-  and reason, re-critiques affected invariants, and uses an independently authored
-  contract+acceptance PR before implementation resumes. `process-guard` enforces only
+  and reason, and re-critiques affected invariants. The contract owner commits the
+  correction; the independent acceptance author adds only tests + manifest on that
+  branch before implementation resumes. `process-guard` enforces only
   the contract-path and hash mechanics; semantics and authorship remain **PROMPT +
   AUDIT**.
 - **PA-4 — bounded discovery.** Discovery records a question, owner, boundary,
-  prohibited actions, and exit decision. It cannot use production mutation or be
+  prohibited actions, experiment references, observations, and exit decision. It cannot use production mutation or be
   presented as delivery. Enforcement: **PROMPT + AUDIT**, not HARD.
 - **PA-5 — exemption lifecycle.** An onboarding exemption records owner, reason,
   review date, and removal condition. Marker presence is Layer 1; metadata is
