@@ -492,3 +492,35 @@ None.
 ### Round-2 verdict
 
 READY
+
+---
+
+## Round 3 — LANG-3 README scope critique
+
+**Date:** 2026-07-22
+**Contract version reviewed:** LANG-3
+**Focused scope:** new `LANG-9` and `LANG-10`, plus the current README `Honest limits` section. No README changes were made.
+
+### Findings/status
+
+- **LANG-9 human-decision purpose:** READY. The rule preserves the original purpose: AI critique is positioned at the contract stage to expose unclear requirements, missing cases, unsafe alternatives, and conflicting interpretations; the human decides the binding contract and accepted risks; tests and CI preserve/check that decision rather than deciding product correctness.
+- **LANG-10 owner/control mapping:** READY. The current README limits can each name a remaining owner/control without claiming more enforcement than exists:
+  - contract correctness not proven → human contract/risk owner decides;
+  - feature-specific acceptance coverage not guaranteed → per-feature pipeline/audit and human review own the gap;
+  - global freeze/coarse re-freeze path → per-feature audit/review remains the control, not a per-feature hard gate;
+  - workflow-file tampering not fully closed by in-repo checks → trusted ruleset-required workflow or equivalent platform control;
+  - owner-forgeable author separation → audit/human review unless a stronger identity/platform boundary is added.
+
+### Pending decisions
+
+None blocking. The contract does not need to enumerate exact README prose before implementation; `LANG-10` is concrete enough to evaluate each limit during review.
+
+### Claims-vs-enforcement risks to watch during README implementation
+
+- Do not phrase AI critique as guaranteed to find all unclear requirements or unsafe choices; it increases awareness and can surface issues, while humans retain correctness/risk ownership.
+- Do not call per-feature pipeline/audit or human review a hard enforcement layer unless the repo has an actual hard gate for that claim.
+- Name the stronger platform control for workflow tampering directly; avoid implying current in-repo checks already close that risk.
+
+### Round-3 verdict
+
+READY

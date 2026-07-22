@@ -27,9 +27,9 @@ the merge boundary.
 - **Every gate checks its inputs.** A green result from missing, wrong, or silently
   skipped evidence proves nothing.
 
-For T2/T3 work, policy separates the acceptance-test author from the implementer.
-`process-guard` then checks the available artifact and freeze invariants from Git
-history rather than trusting the pull request’s working tree.
+For T2/T3 work, the acceptance-test author is separate from the implementer.
+`process-guard` checks the frozen test files and hash manifest from Git history rather
+than trusting the pull request’s working tree.
 
 ## Process follows risk
 
@@ -43,9 +43,8 @@ history rather than trusting the pull request’s working tree.
 | **T3 — novel or critical boundary** | T2 controls + 2–3 candidates + frozen-suite judging + blind two-family review |
 | **Docs** | Claims-vs-enforcement pass + guarantee-verb grep |
 
-The friction is deliberate where a mistake can leak credentials, widen permission,
-corrupt evidence, or write unsafe state. A rename should not behave like an
-authorization change.
+High-risk changes get more checks. A rename should not use the same process as a change
+that can leak credentials, widen permissions, corrupt evidence, or write unsafe state.
 
 ## Try it in one repository
 
@@ -60,8 +59,7 @@ authorization change.
 4. Start work from [`DISPATCH.md`](DISPATCH.md), or install the optional
    [Claude Code plugin](plugins/engineering-os/) to make the compliant path easier.
 
-The plugin is orchestration convenience at prompt layer 2. It does not replace CI or
-branch protection.
+The plugin helps run the steps. It does not replace CI or branch protection.
 
 ## Where to go next
 
@@ -73,18 +71,45 @@ branch protection.
 | Onboard a repository | [`ONBOARDING.md`](ONBOARDING.md) |
 | See every control and its origin | [`BASELINE.md`](BASELINE.md) + [`LESSONS.md`](LESSONS.md) |
 | Inspect the enforcement | [`process-guard/`](process-guard/) |
-| Reuse the four agent seats | [`prompts/`](prompts/) |
+| Reuse the four agent roles | [`prompts/`](prompts/) |
 | Understand changes to this OS itself | [`contracts.md`](contracts.md) |
+
+## The human decides what is correct
+
+Before coding starts, the human decides what the software must do and which risks are
+acceptable.
+
+AI critics can help find:
+
+- unclear requirements;
+- missing cases;
+- unsafe alternatives;
+- rules that different implementers could understand differently.
+
+The human resolves those questions in the contract. Acceptance tests and CI then help
+keep the implementation aligned with that decision. They do not decide whether the
+contract itself is correct.
 
 ## Honest limits
 
-Engineering OS reduces correlated mistakes; it does not prove that a contract is
-correct or that every feature has its own acceptance coverage. The current freeze gate
-is global rather than per-feature, and any configured contract-path change opens its
-coarse re-freeze path. Required in-repo status checks do not fully close workflow-file
-tampering; that needs a trusted ruleset-required workflow. Author separation is also
-owner-forgeable and audited rather than a hard identity boundary. Full accepted risks and incomplete controls are named
-in [`OS.md`](OS.md), [`BASELINE.md`](BASELINE.md), and [`contracts.md`](contracts.md).
+- **Contract decisions:** AI critique can expose gaps, but the human remains responsible
+  for deciding what is correct and which risks to accept.
+- **Tests for each feature:** The pipeline, audit, and human review check
+  feature-specific coverage. The current CI freeze gate only proves that a global
+  frozen test suite exists.
+- **Changing frozen tests:** Any configured contract-file change opens the re-freeze
+  path for all listed tests, not only related tests. The guard checks files and hashes;
+  human review decides whether the contract change genuinely justifies each test
+  change.
+- **Protecting CI:** Checks stored in the repository cannot fully protect their own
+  workflow files. Stronger protection requires a trusted workflow enforced by a
+  repository ruleset.
+- **Different authors:** Separate authors reduce accidental blind spots, but they are
+  not a hard identity boundary. A repository owner can deliberately bypass this
+  separation. The monthly audit checks author separation.
+
+See [`OS.md`](OS.md), [`BASELINE.md`](BASELINE.md), and
+[`contracts.md`](contracts.md) for detailed controls and accepted risks.
 
 ## License
 

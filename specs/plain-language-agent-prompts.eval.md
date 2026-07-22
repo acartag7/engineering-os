@@ -1,7 +1,7 @@
 # Plain-language agent instructions — old/new evaluation
 
 **Contract:** `contracts.md § Plain-language agent instructions`
-**Criteria version:** LANG-2
+**Criteria version:** LANG-3
 **Date:** 2026-07-22
 **Old instructions:** `origin/main`
 **New instructions:** working tree on `docs/plain-language-agent-prompts`
@@ -66,6 +66,16 @@ The four JavaScript Workflow blocks in
 `plugins/engineering-os/skills/pipeline/SKILL.md` have the same SHA-256 hashes before
 and after the rewrite. Paths, schemas, commands, allowed values, and executable stage
 logic were not changed.
+
+## README extension
+
+LANG-3 adds the reader-facing human-decision and limits sections. It does not change an
+agent instruction or the 14 behavior scenarios. Round 3 of the contract critique
+checked that the wording keeps human ownership explicit and maps every limit to the
+remaining human, audit, review, or platform control. A final claims-vs-enforcement
+review checks the implemented README text. That review found no P0/P1 issues; its one
+P2 and two P3 completeness findings were fixed by naming human review, the coarse
+all-tests re-freeze scope, and the monthly author-separation audit.
 
 ## Verdict
 
