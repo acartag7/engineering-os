@@ -28,8 +28,10 @@ claude -p "$(cat engineering-os/routines/monthly-audit-prompt.md)"
    data handling (scan the month's merged diffs for these).
 2. CI exists and is required: protected branch requires the verify job and
    `process-guard`; the guard's pinned SHA is the current release.
-3. Exempt markers (`.process-guard-exempt`) still present → each is listed as a
-   named gap with its age. An exemption older than 2 audits gets escalated.
+3. Exempt markers (`.process-guard-exempt`) still present → validate `owner`,
+   `reason`, `created`, `review_by`, and `removal_condition`; list each as a named
+   gap with its age. Missing fields, passed review dates, or satisfied removal
+   conditions are findings. An exemption older than 2 audits gets escalated.
 4. Supply chain floor: lockfile committed, exact pins, frozen-lockfile install in
    CI, all GitHub Actions pinned by full SHA.
 5. Secret-history lint and anti-silent-skip present where the tier requires them
@@ -39,10 +41,11 @@ claude -p "$(cat engineering-os/routines/monthly-audit-prompt.md)"
 
 **Output:** one line per repo — `CONFORMANT` or `GAPS: PC-xx, PC-yy (ages)`.
 
-## R-2 · Review-burn report — monthly
+## R-2 · Delivery outcomes and review burn — monthly
 
-**Why:** review rounds are a paid, shared budget; rising burn means contracts or
-gates are weakening upstream (this is how we found the ~90%-preventable problem).
+**Why:** process value is defects caught before escape, not artifacts produced. Review
+rounds remain a paid, shared budget; rising burn means contracts or gates are weakening
+upstream.
 **Lookback:** PRs merged since last run.
 **Check exactly:**
 
@@ -54,11 +57,34 @@ gates are weakening upstream (this is how we found the ~90%-preventable problem)
    degraded mode on private repos — this is the honesty check for that mode).
 4. Acceptance-suite changes: every change to `test/acceptance/**` or its manifest
    happened in a PR that also changed the contract. Anything else = guard bypass,
-   investigate immediately.
+   investigate immediately. Verify the coverage map includes every normative invariant
+   and critique `acceptance-test` disposition. For a criterion correction, verify the
+   correction reason, superseded/new versions, affected invariant IDs, re-critique,
+   correction-specific review, and that implementation stopped until it merged.
 5. Author identity: committer on acceptance paths differed from committer on src
    paths for each slice (PC-13's semi-check).
+6. Routing honesty: each PR has route, reason, required evidence, and final evidence
+   links; flag a lower route than the changed boundary required.
+7. Stage yield: count defects or unsafe ambiguities caught by critique, acceptance
+   red proof, CI, and review; separately count escaped defects from new `LESSONS.md`
+   entries plus false-green/silent-skip incidents. Unknown catch stage is reported as
+   unknown, never guessed.
+8. Discovery boundary: verify each discovery record has question, owner, time-or-scope
+   bound, permitted environment, prohibited actions, experiment references,
+   observations, and exit decision. Flag any
+   experiment merged or deployed as delivery, production mutation/credentials, or
+   delivery started without returning to the contract stage.
+9. Contract shape: new or changed contracts have stable normative invariant IDs,
+   supporting rationale is explicitly non-normative, and the criteria version matches
+   the routing record.
 
-**Output:** table per repo: PRs, median rounds, worst PR, skips, violations.
+Artifact/file/test counts are conformance facts, not success metrics. A large suite or
+many review comments is not scored as process value by itself.
+
+**Output:** table per repo: PRs, median/worst rounds, skips, routing violations,
+stage-yield counts (critique / acceptance / CI / review / escaped / unknown),
+false-green/silent-skip count, criteria churn after coding began, and
+criteria/coverage-map/discovery/contract-shape violations.
 
 ## R-3 · Drift sync check — monthly
 

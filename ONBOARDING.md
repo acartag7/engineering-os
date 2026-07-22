@@ -24,12 +24,27 @@ plan or visibility changes.
 | # | Step |
 |---|---|
 | M-1 | `.github/workflows/ci.yml`: repo verify (typecheck, tests, build) + `process-guard` job, actions SHA-pinned, frozen-lockfile installs |
-| M-2 | `.process-guard-exempt` marker committed (repo predates the pipeline; stage-artifact stays quiet until the first suite lands) |
+| M-2 | `.process-guard-exempt` marker committed with lifecycle metadata (repo predates the pipeline; stage-artifact stays quiet until the first suite lands) |
 | M-3 | Branch protection / ruleset: require PR, required checks (verify + guard), required review — where O-2 allows |
 | M-4 | `.githooks/pre-commit` running the same guard checks locally; setup command runs `git config core.hooksPath .githooks` |
 | M-5 | Governed-repo block in the repo's agent context docs (`AGENTS.md` / `CLAUDE.md`): frozen acceptance tests, contract-first, PR-only — guidance so agents understand the walls, not enforcement |
 | M-6 | `test/acceptance/` location wired into the repo's test runner; `phases.json` activation convention |
 | M-7 | Harness-native deny rules where supported (e.g. pre-tool-use hooks blocking edits to acceptance paths and pushes to protected branches) |
+
+The marker is machine-readable YAML:
+
+```yaml
+owner: <accountable owner>
+reason: <why the first suite cannot land yet>
+created: <YYYY-MM-DD>
+review_by: <YYYY-MM-DD>
+removal_condition: <observable condition that removes the marker>
+```
+
+`process-guard` checks only that the marker exists on the base tree; that presence
+check is Layer 1. Field completeness, review dates, and removal conditions are
+**AUDIT-enforced** by R-1. An empty legacy marker remains an explicit audit gap rather
+than being silently treated as compliant.
 
 ## The ratchet (after onboarding)
 

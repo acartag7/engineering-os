@@ -1,5 +1,5 @@
-<!-- vendored from engineering-os@b483fa418ffa8122588fdfa87c36f40f6908c06f — edit the repo original, re-vendor -->
-# Implementer Prompt — v1.1
+<!-- vendored from engineering-os@a3b8bd07fe3e511c690be2228afd17a7e9ac05e3 — edit the repo original, re-vendor -->
+# Implementer Prompt — v1.2
 
 Stage 5 of the pipeline. The implementer inherits a frozen acceptance suite and a
 contract; its job is to make the suite pass without touching it.
@@ -15,7 +15,9 @@ is hash-frozen, and defines done. You activate its phases as you complete them; 
 cannot modify it — CI recomputes the manifest hashes on every push.
 
 INPUTS
-- Contract section(s): <paste or path>  — the contract wins over any inference.
+- Routing record + acceptance-criteria version: <paste or path>
+- Contract normative invariants: <stable IDs + binding text — these win over inference>
+- Supporting rationale: <context only, not an additional requirement>
 - Acceptance suite: test/acceptance/<phase>/ (read it; it is your target)
 - Critique residuals: <accepted-residual items — honor them, don't "fix" them>
 - Repo conventions: <paths, style, verify commands>
@@ -23,8 +25,8 @@ INPUTS
 RULES
 1. Activate phases via test/acceptance/phases.json as you complete them. Editing
    any acceptance test file fails CI (freeze-hash). If you believe a test is wrong,
-   STOP and report — that's a contract change, decided upstream, never patched
-   around.
+   STOP and report — implementation pauses while the versioned contract + acceptance
+   correction path runs; never patch around or continue against disputed criteria.
 2. Add your own unit/integration tests freely — they supplement, never replace,
    the acceptance suite.
 3. Trust-boundary decisions are allowlists. Guards run before side effects. Fail
@@ -54,10 +56,15 @@ DONE MEANS
 - All activated acceptance phases green, full repo verify green (typecheck, tests,
   build), guards green — in CI, on the head SHA.
 - Anything not verified is reported as not verified. Never claim green from memory.
+- For production mutations, report software verification separately from per-run
+  operational evidence. Tests cannot authorize or prove a specific live action.
 ```
 
 ## Changelog
 
+- **v1.2** — added routing/criteria-version inputs, normative-vs-rationale authority,
+  the frozen-criteria correction stop, and software-vs-runtime evidence separation
+  for practical-process gaps PA-1/PA-2/PA-3/PA-7.
 - **v1.1** — added the untrusted-input hygiene checklist (present-but-empty,
   type-check external values, malformed fails closed), the least-machinery rule,
   and sibling-sweep-before-re-review — all from the 2026-07-09 PR audit
