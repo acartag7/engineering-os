@@ -1,5 +1,5 @@
-<!-- vendored from engineering-os@b483fa418ffa8122588fdfa87c36f40f6908c06f — edit the repo original, re-vendor -->
-# Reviewer Prompt — v1.0
+<!-- vendored from engineering-os@8f2de15f8f293cf332893617f9f30d0d1bb7ace8 — edit the repo original, re-vendor -->
+# Reviewer Prompt — v1.1
 
 Stage 6 of the pipeline. Reviewers are a different model family than the implementer.
 Lenses run in parallel — each reviewer gets ONE lens plus the shared front-load — then
@@ -9,8 +9,11 @@ total rounds on a PR is itself a process finding.
 ## Shared front-load (every lens receives this)
 
 ```
-- The contract section(s) and their explicit claims list (every guarantee verb:
-  never / always / cannot / only / enforced)
+- The routing record (tier/reason/required evidence/final evidence links) and
+  acceptance-criteria version
+- The contract's stable normative invariant IDs and explicit claims list (every
+  guarantee verb: never / always / cannot / only / enforced); supporting rationale is
+  context, not binding behavior
 - Threat rows for this change (T2+)
 - The invariant checklist: guards-before-side-effects; closed positive sets at
   boundaries; fail-closed on missing config; sibling parity; no weakened controls
@@ -38,7 +41,8 @@ Every finding names the threat row or invariant it violates.
 ## Lens B — Claims vs. enforcement
 
 ```
-Take the claims list from the front-load. For every guarantee verb in the
+First verify the selected route matches the changed boundary and required evidence is
+linked. Then take the claims list from the front-load. For every guarantee verb in the
 contract, docs, or README touched by this PR: point to the code that enforces it
 AND the test that would catch its removal. A claim with neither is a finding —
 the fix is to add the guard, not to soften the sentence (enforce-or-don't-write).
@@ -55,6 +59,10 @@ value read, propagated, and used — or silently dropped somewhere in the middle
 Do startup/shutdown paths create and clean up what the new code assumes exists?
 Does the change behave under the real adapter/store matrix, not just the default
 one? Name any behavior only exercised by mocks — that is untested behavior.
+If discovery preceded delivery, verify experimental code was not promoted directly.
+For production mutations, keep revision evidence separate from per-run target,
+precondition, authorization, stop, rollback, and postcondition evidence; green tests
+must not be presented as authorization for a live action.
 ```
 
 ## Output contract (every lens)
@@ -76,6 +84,9 @@ CLEAN: explicit list of what was checked and found clean
 
 ## Changelog
 
+- **v1.1** — added routing/evidence verification, invariant and criteria-version
+  front-load, discovery boundary, and production runtime-evidence separation for
+  practical-process gaps PA-1/PA-2/PA-4/PA-7.
 - **v1.0** — three lenses (security/insecure-defaults, claims-vs-enforcement,
   wiring/integration), each seeded from a real escaped-defect class (LESSONS.md
   L-001, L-005, L-004 respectively). Structured verdicts mandatory.
