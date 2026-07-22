@@ -1,5 +1,70 @@
 # Contracts
 
+## Plain-language agent instructions (T1)
+
+**Route:** T1  
+**Reason:** prompt wording can change agent behavior  
+**Required evidence:** independent critique, three-model old/new comparison, vendor
+parity, existing CI and guard suite  
+**Evidence links:** `specs/plain-language-agent-prompts.md`; critique and comparison
+reports added before implementation/review complete  
+**Acceptance-criteria version:** LANG-2  
+**Process-Skip: acceptance** — model wording has no deterministic product acceptance
+surface; behavior retention is checked through the same scenarios across three model
+families, while existing static and guard suites remain required.
+
+### Binding rules
+
+- **LANG-1 — plain actions.** Replace internal metaphors with direct actions: `seat` →
+  `role`, `the walls` → the named CI/platform check, and `lazy path` → `default path`.
+  Keep exact paths, commands, schema fields, reason codes, Git terms, and named
+  checklist IDs. If a named technical term has no equally precise replacement, keep it
+  and define it in one clause on first use. A replacement must keep the original scope
+  and condition.
+- **LANG-2 — predictable structure.** Group each role prompt by purpose, inputs, what
+  is binding, ordered steps, stop conditions, forbidden actions, output, and completion
+  checks where those categories apply. These are content categories, not required
+  literal heading names. Preserve separate reviewer focus areas and role boundaries.
+- **LANG-3 — visible stops.** A stop instruction is at most two sentences: the
+  condition and the required action. Put needed background after the stop, never before
+  it. Keep different stop routes separate when they lead to different actions.
+- **LANG-4 — unchanged mechanics and safety behavior.** The following list is not
+  exhaustive. Preserve any instruction whose removal changes when an agent stops,
+  what it rejects, what it outputs, or what it may modify. This includes paths,
+  commands, schemas, allowed values, stage order, role/harness separation, frozen-test
+  activation and correction, remote worktree verification, valid red proof, review SHA
+  binding, severity gates, maximum review rounds, production-authorization boundaries,
+  empty-is-missing, external-value type checks, malformed-input rejection, no
+  unrequested machinery, similar-path checks after a fix, never weakening a control,
+  reviewers not silently editing, stale-review invalidation, regression tests for
+  defects, template loading instead of reconstruction, read-only status, T2/T3 driver
+  refusal, deterministic acceptance tests, discovery not becoming delivery, and claims
+  mapping to enforcement/tests. When in doubt, preserve the behavior.
+- **LANG-5 — one authority rule.** Every prompt says plainly: binding contract rules
+  are requirements; background cannot add requirements; discovery code is not the
+  delivery implementation; and a disputed frozen test starts the correction process.
+- **LANG-6 — history stays out of the task.** Move text that only explains why a rule
+  exists to the changelog or linked docs. Keep a short example only when removing it
+  makes the violation unclear. The old/new model comparison decides disputed cases: if
+  removal causes a model to misapply the rule, keep the example.
+- **LANG-7 — behavior comparison.** An independent evaluator provides at least one
+  scenario for each applicable LANG-4 behavior. GPT, Claude, and Kimi receive the same
+  old/new scenario. Record model, scenario ID, old result, new result, and rule
+  pass/fail in `specs/plain-language-agent-prompts.eval.md`. If any model loses a safety
+  rule, stop condition, or required output field, the rewrite fails. Tool/model failure
+  is `unknown`, never a pass.
+- **LANG-8 — workflow code stays stable.** Workflow JavaScript and schemas in
+  `SKILL.md` are mechanical artifacts: LANG-1..LANG-3 apply to comments and surrounding
+  prose, while code changes require a separate behavior contract. This change does not
+  restructure workflow code.
+
+### Background (not binding)
+
+Three model families independently preferred direct verbs, one instruction per
+sentence, explicit stop blocks, and a common prompt structure. All three warned that
+schemas, paths, ordering, role separation, red-proof semantics, and correction flow
+must remain exact.
+
 ## Practical process amendments (T1)
 
 **Routing record**
