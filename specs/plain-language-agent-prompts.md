@@ -7,7 +7,7 @@
   a trust boundary
 - **Required evidence:** contract critique, three-model old/new comparison, prompt
   vendor parity, existing CI and `process-guard`
-- **Acceptance-criteria version:** LANG-2
+- **Acceptance-criteria version:** LANG-3
 
 ## Problem
 
@@ -24,6 +24,9 @@ problems:
 ## Goal
 
 Make the AI-facing instructions easier to execute without weakening any safety rule.
+Also make the README state the central human role plainly: AI exposes unclear choices
+and risks at the contract stage; the human decides what is correct and acceptable;
+tests and CI preserve that decision afterward.
 
 Use the same top-level structure where it fits:
 
@@ -78,8 +81,9 @@ values, and ordering where they are load-bearing.
 - `templates/agent-context-block.md`
 - `DISPATCH.md`
 - matching vendored prompt copies
+- `README.md` human-decision and limits sections
 
-Human-facing documents outside this list will be simplified in later, smaller changes.
+Other human-facing documents will be simplified in later, smaller changes.
 
 ## Evaluation
 

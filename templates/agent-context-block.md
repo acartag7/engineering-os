@@ -14,9 +14,10 @@ and audit check the remaining process rules.
 
 - **Binding rules:** `contracts.md` defines required behavior. Background text cannot
   add requirements. Do not code through an open decision or an out-of-repo reference.
-- **Frozen acceptance tests:** Do not edit files under `test/acceptance/`. Activate a
-  completed phase only through `test/acceptance/phases.json`. If a test conflicts with
-  the contract, STOP and start the contract-and-test correction process.
+- **Frozen acceptance tests:** Do not edit frozen test files under
+  `test/acceptance/`. The only implementer edit allowed there is activating a completed
+  phase in `test/acceptance/phases.json`. If a test conflicts with the contract, STOP
+  and start the contract-and-test correction process.
 - **Trust boundaries:** Use explicit allowlists. Validate before side effects. Treat
   empty configuration as missing. Type-check external values. Reject malformed input;
   do not process it partially.

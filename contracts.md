@@ -8,7 +8,7 @@
 parity, existing CI and guard suite
 **Evidence links:** `specs/plain-language-agent-prompts.md`; critique and comparison
 reports added before implementation/review complete
-**Acceptance-criteria version:** LANG-2
+**Acceptance-criteria version:** LANG-3
 **Process-Skip: acceptance** — model wording has no deterministic product acceptance
 surface; behavior retention is checked through the same scenarios across three model
 families, while existing static and guard suites remain required.
@@ -57,6 +57,14 @@ families, while existing static and guard suites remain required.
   `SKILL.md` are mechanical artifacts: LANG-1..LANG-3 apply to comments and surrounding
   prose, while code changes require a separate behavior contract. This change does not
   restructure workflow code.
+- **LANG-9 — human decision comes first.** The README states plainly that AI critique
+  finds unclear requirements, missing cases, unsafe alternatives, and conflicting
+  interpretations. The human decides the binding contract and accepted risks. Tests
+  and CI preserve/check that decision; they do not decide product correctness.
+- **LANG-10 — limits name the owner.** Each README limit says what is not guaranteed
+  and who or what handles the remaining decision: the human, per-feature pipeline/audit,
+  human review, or a stronger platform control. Avoid abstract risk language when a
+  direct explanation works.
 
 ### Background (not binding)
 
