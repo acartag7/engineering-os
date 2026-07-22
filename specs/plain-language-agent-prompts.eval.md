@@ -1,9 +1,9 @@
 # Plain-language agent instructions — old/new evaluation
 
-**Contract:** `contracts.md § Plain-language agent instructions`  
-**Criteria version:** LANG-2  
-**Date:** 2026-07-22  
-**Old instructions:** `origin/main`  
+**Contract:** `contracts.md § Plain-language agent instructions`
+**Criteria version:** LANG-2
+**Date:** 2026-07-22
+**Old instructions:** `origin/main`
 **New instructions:** working tree on `docs/plain-language-agent-prompts`
 
 ## Method
@@ -52,6 +52,13 @@ All three also identified the same trade-off: explicit instructions add lines an
 repetition. They judged the new structure easier to execute despite that increase.
 Future edits should remove duplication only when the role still receives the complete
 rule in its own context.
+
+## Focused schema re-test
+
+After the full comparison, the reviewer output labels were changed from uppercase prose
+labels to the exact lowercase Workflow schema fields: `verdict`, `reviewed_sha`,
+`findings`, and `clean`. GPT, Claude, and Kimi repeated S06 against that final wording;
+all three returned PASS and confirmed exact schema alignment plus stale-SHA rejection.
 
 ## Mechanical checks
 
