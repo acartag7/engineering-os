@@ -1,4 +1,4 @@
-<!-- vendored from engineering-os@e557be47a4edff8e1943f685cca2e8609ce0463f — edit the repo original, re-vendor -->
+<!-- vendored from engineering-os@a3b8bd07fe3e511c690be2228afd17a7e9ac05e3 — edit the repo original, re-vendor -->
 # Critique Prompt — v1.2
 
 Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
@@ -25,6 +25,7 @@ INPUTS
 - Routing record: <tier, reason, required evidence, evidence links, criteria version>
 - Contract normative invariants: <stable IDs + binding text>
 - Supporting rationale: <paste or path — context only, never binding behavior>
+- Discovery record + experiment references: <specs/<feature>.discovery.md | none>
 - Threat rows for this change (T2+): <paste or path>
 - Silence-class checklist: v1.1 (below)
 

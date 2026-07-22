@@ -1,4 +1,4 @@
-<!-- vendored from engineering-os@e557be47a4edff8e1943f685cca2e8609ce0463f — edit the repo original, re-vendor -->
+<!-- vendored from engineering-os@a3b8bd07fe3e511c690be2228afd17a7e9ac05e3 — edit the repo original, re-vendor -->
 # Acceptance Author Prompt — v1.1
 
 Stage 4 of the pipeline. The acceptance author is a **different model family than the
@@ -49,13 +49,15 @@ OUTPUT
   the driver/audit checks it — `process-guard` does not)
 
 DO NOT
-- Do not modify src/**, contracts, or specs. Your PR touches acceptance paths only.
+- Do not modify src/**, contracts, or specs. In normal mode, the PR touches acceptance
+  paths only.
 - Do not write tests for behavior the contract doesn't state — if you need a rule
   that isn't there, that's a contract change request, not a test.
-- In correction mode, the contract owner has already committed the versioned contract
-  correction on this branch. Do not edit it. Change only the affected invariant tests
-  and manifest; name the superseded/new criteria versions in the coverage map, and
-  never let implementation resume before the correction PR merges.
+- In correction mode, the PR is the one scope exception: it already contains the
+  contract owner's versioned correction commit. Do not edit or squash that contract
+  commit. Your own commits change only the affected invariant tests and manifest;
+  name the superseded/new criteria versions in the coverage map, and never let
+  implementation resume before the correction PR merges.
 ```
 
 ## Changelog
