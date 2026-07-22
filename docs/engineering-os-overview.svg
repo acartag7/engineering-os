@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980" role="img" aria-labelledby="title desc">
-  <title id="title">Engineering OS: the full T2 and T3 trust-boundary path</title>
-  <desc id="desc">For T2 and T3 changes, work flows from contract through critique, separately authored acceptance tests, a hash freeze, implementation, independent review, and required status checks. Lighter tiers skip stages according to policy. Escaped failures feed reusable checks.</desc>
+  <title id="title">Engineering OS: shared T2 path with T3 escalation</title>
+  <desc id="desc">T2 and T3 share contract, critique, separately authored acceptance tests, and a hash freeze. T2 continues with one implementation and different-family review. T3 escalates to two or three parallel implementations, frozen-suite scoring, blind two-family review, and stronger verification before required status checks.</desc>
   <defs>
     <linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a1022"/><stop offset="0.55" stop-color="#101936"/><stop offset="1" stop-color="#111b30"/></linearGradient>
     <linearGradient id="agentCard" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#202d50"/><stop offset="1" stop-color="#17213d"/></linearGradient>
@@ -31,9 +31,9 @@
 
   <text x="80" y="78" class="section">ENGINEERING OS</text>
   <text x="80" y="132" class="title">From intent to independently enforced evidence</text>
-  <text x="80" y="170" class="subtitle">The full trust-boundary path; lighter changes skip stages according to policy.</text>
-  <g transform="translate(1270 58)"><rect width="250" height="42" rx="21" fill="#182443" stroke="#344a75"/><circle cx="25" cy="21" r="6" fill="#55d6be"/><text x="43" y="27" class="chip">FULL T2 / T3 PATH</text></g>
-  <text x="80" y="230" class="section">T2 / T3 ARTIFACT CHAIN</text>
+  <text x="80" y="170" class="subtitle">Shared T2 controls, with explicit T3 candidate and review escalation.</text>
+  <g transform="translate(1245 58)"><rect width="275" height="42" rx="21" fill="#182443" stroke="#344a75"/><circle cx="25" cy="21" r="6" fill="#55d6be"/><text x="43" y="27" class="chip">T2 CORE + T3 ESCALATION</text></g>
+  <text x="80" y="230" class="section">SHARED T2 / T3 ARTIFACT CHAIN</text>
 
   <g filter="url(#shadow)">
     <g transform="translate(80 260)"><rect width="330" height="170" rx="20" fill="url(#agentCard)" stroke="#354a78" stroke-width="2"/><text x="26" y="35" class="step">01 · HUMAN-OWNED</text><text x="26" y="75" class="cardTitle">Contract</text><text x="26" y="108" class="cardBody">Fix the promises, boundaries,</text><text x="26" y="132" class="cardBody">and unresolved decisions first.</text><rect x="230" y="22" width="74" height="28" rx="14" fill="#26375f"/><text x="246" y="41" class="chip">INTENT</text></g>
@@ -45,9 +45,9 @@
   <path d="M410 345 H450" stroke="#8aa4d6" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M795 345 H835" stroke="#8aa4d6" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M1180 345 H1220" stroke="#8aa4d6" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M1377 430 V475 H245 V510" stroke="#8aa4d6" stroke-width="3" fill="none" marker-end="url(#arrow)" opacity="0.85"/>
 
   <g filter="url(#shadow)">
-    <g transform="translate(80 520)"><rect width="430" height="165" rx="20" fill="url(#agentCard)" stroke="#354a78" stroke-width="2"/><text x="26" y="35" class="step">05 · ROUTED CODER</text><text x="26" y="75" class="cardTitle">Implement</text><text x="26" y="108" class="cardBody">Make production code satisfy the frozen</text><text x="26" y="132" class="cardBody">evidence—without editing that evidence.</text></g>
-    <g transform="translate(585 520)"><rect width="430" height="165" rx="20" fill="url(#agentCard)" stroke="#354a78" stroke-width="2"/><text x="26" y="35" class="step">06 · DIFFERENT FAMILY</text><text x="26" y="75" class="cardTitle">Review</text><text x="26" y="108" class="cardBody">Verify contract claims, security, wiring,</text><text x="26" y="132" class="cardBody">and what is missing on the final commit.</text></g>
-    <g transform="translate(1090 520)"><rect width="430" height="165" rx="20" fill="url(#gateCard)" stroke="#7762b3" stroke-width="2"/><text x="26" y="35" class="step" style="fill:#c4b5fd">07 · REQUIRED STATUS CHECKS</text><text x="26" y="75" class="cardTitle">Gate &amp; merge</text><text x="26" y="108" class="cardBody">GitHub + CI verify artifact integrity,</text><text x="26" y="132" class="cardBody">inputs, and acceptance-test execution.</text></g>
+    <g transform="translate(80 520)"><rect width="430" height="165" rx="20" fill="url(#agentCard)" stroke="#354a78" stroke-width="2"/><text x="26" y="35" class="step">05 · IMPLEMENTATION ROUTE</text><text x="26" y="75" class="cardTitle">Build candidates</text><text x="26" y="108" class="cardBody">T2 · one strong implementation</text><text x="26" y="132" class="cardBody">T3 · 2–3 parallel implementations</text></g>
+    <g transform="translate(585 520)"><rect width="430" height="165" rx="20" fill="url(#agentCard)" stroke="#354a78" stroke-width="2"/><text x="26" y="35" class="step">06 · JUDGE &amp; REVIEW</text><text x="26" y="75" class="cardTitle">Select &amp; verify</text><text x="26" y="108" class="cardBody">T2 · different-family review</text><text x="26" y="132" class="cardBody">T3 · suite score + blind two-family rank</text></g>
+    <g transform="translate(1090 520)"><rect width="430" height="165" rx="20" fill="url(#gateCard)" stroke="#7762b3" stroke-width="2"/><text x="26" y="35" class="step" style="fill:#c4b5fd">07 · REQUIRED STATUS CHECKS</text><text x="26" y="75" class="cardTitle">Gate &amp; merge</text><text x="26" y="108" class="cardBody">CI runs acceptance and tier-specific</text><text x="26" y="132" class="cardBody">verification; GitHub holds the merge wall.</text></g>
   </g>
 
   <path d="M510 602 H570" stroke="#8aa4d6" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M1015 602 H1075" stroke="#8aa4d6" stroke-width="3" fill="none" marker-end="url(#arrow)"/>

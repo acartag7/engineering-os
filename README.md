@@ -8,13 +8,15 @@ are required by branch protection, GitHub—not the agent that produced the work
 the merge boundary.
 
 <p align="center">
-  <img src="docs/engineering-os-overview.svg" alt="The T2 and T3 trust-boundary path: contract, independent critique, separately authored acceptance tests, a hash freeze, implementation, independent review, and required CI checks. A separate learning loop turns escaped failures into reusable checks." />
+  <img src="docs/engineering-os-overview.svg" alt="The shared T2 and T3 trust-boundary path: contract, independent critique, separately authored acceptance tests, and a hash freeze. T2 then uses one implementation and a different-family review. T3 branches to two or three parallel implementations, frozen-suite scoring, and blind two-family review before required CI checks." />
 </p>
 
 <p align="center"><a href="docs/engineering-os-overview.svg">Open the full-size diagram</a></p>
 
-> The diagram shows the full **T2/T3 trust-boundary path**. T0, T1, and documentation
-> changes take lighter routes defined in [`POLICY.md`](POLICY.md).
+> The diagram shows the shared **T2/T3 path and its T3 escalation**. T3 requires 2–3
+> parallel candidates, frozen-suite judging, blind two-family review, and stronger
+> verification. T0, T1, and documentation changes take lighter routes defined in
+> [`POLICY.md`](POLICY.md).
 
 ## Three principles
 
@@ -55,7 +57,7 @@ weight, where it can become too heavy, and how to avoid “vibe governance.”
 | **T0 — mechanical** | Normal pull request + CI floor |
 | **T1 — behavior, no trust boundary** | Pipeline default-on; explicit audited skip possible |
 | **T2 — trust boundary** | Critique → frozen independent acceptance → implementation → cross-family review |
-| **T3 — novel or critical boundary** | T2 controls + multiple candidates + stronger adversarial verification |
+| **T3 — novel or critical boundary** | T2 controls + 2–3 candidates + frozen-suite judging + blind two-family review |
 | **Docs** | Claims-vs-enforcement pass + guarantee-verb grep |
 
 The friction is deliberate where a mistake can leak credentials, widen permission,
