@@ -577,13 +577,14 @@ exact discriminator for the identified defect.
 
 ### Implementation prompt status (not a contract gap)
 
-The current working `prompts/reviewer.md` v1.2, Focus B reads:
+The reviewed intermediate `prompts/reviewer.md` v1.2, Focus B read:
 > "For every `never`, `always`, `cannot`, `only`, or `enforced` claim **changed by
 > the PR**:"
 
-This narrows scope to diff-touched claims only, omitting scope (a). This is an
-implementation defect against LANG-4, not a contract ambiguity. The LANG-7 evaluation
-scenario (unchanged binding claim) would catch it mechanically.
+That wording narrowed scope to diff-touched claims only, omitting scope (a). It was an
+implementation defect against LANG-4, not a contract ambiguity, and was corrected in
+reviewer v1.3. The LANG-7 evaluation scenario (unchanged binding claim) is the
+mechanical discriminator.
 
 No contract sentence is missing. The fix belongs in the prompt implementation.
 
