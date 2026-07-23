@@ -74,6 +74,7 @@ values, and ordering where they are load-bearing.
 - Review checks every supplied binding contract claim, even when the claim was already
   on the base branch. It also checks public claims changed by the PR. Each claim maps
   to enforcement and a test.
+- Spec references use the exact `Spec: <path>` placeholder.
 
 ## Files in this change
 
@@ -114,6 +115,7 @@ At minimum, scenarios cover:
 - software verification versus production authorization;
 - an unchanged binding `never`/`only` claim whose implementation omits enforcement or
   tests.
+- the exact spec-reference placeholder.
 
 A safety rule is lost if any model fails to apply it with the new prompt. Model or tool
 failure is `unknown`, never a pass. Wording preference alone is not evidence. Any lost

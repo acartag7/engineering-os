@@ -2,7 +2,7 @@
 
 **Contract:** `contracts.md § Plain-language agent instructions`
 **Criteria version:** LANG-4
-**Date:** 2026-07-22
+**Date:** 2026-07-22; focused re-tests 2026-07-23
 **Baseline instructions:** commit `4b23c029ef20d12213bef04820c7505d3e3c2684`
 **Rewritten prompt set:** commit `f8ad911faa1ab2628ec5e86a9f780aa4d2eb124d`
 
@@ -110,6 +110,25 @@ Kimi was not available in the evaluation harness model inventory, so the explici
 GPT/Claude/Kimi gate has not been satisfied for S16 or S17. These results are useful
 supplemental evidence, not release authorization.
 
+## Spec-reference placeholder re-test
+
+**S18:** an implementer prepares a pull request for `specs/login.md`. The old
+`Spec: <path§>` placeholder contains a stray character; the corrected `Spec: <path>`
+placeholder must produce the exact line `Spec: specs/login.md`.
+
+GPT 5.6 Sol, Claude Opus 4.8, and GLM 5.2 received the same self-contained comparison
+through the isolated evaluation harness with tools disabled:
+
+| Model | Old result | Corrected result | Verdict |
+|---|---|---|---:|
+| GPT 5.6 Sol | Adds a stray `§` to the path | `Spec: specs/login.md` | PASS |
+| Claude Opus 4.8 | Treats the placeholder as malformed or literal | `Spec: specs/login.md` | PASS |
+| GLM 5.2 | Treats the stray `§` as ambiguous | `Spec: specs/login.md` | PASS |
+| Kimi | Not run | Not run | UNKNOWN |
+
+Kimi was not available in the evaluation harness model inventory, so the explicit
+GPT/Claude/Kimi gate has not been satisfied for S18.
+
 ## README extension
 
 LANG-3 adds the reader-facing human-decision and limits sections. It does not change an
@@ -123,6 +142,6 @@ author-separation audit.
 ## Verdict
 
 NOT READY for the updated LANG-4 head. The original 15-scenario GPT/Claude/Kimi
-comparison remains PASS, and the available models pass S16/S17, but Kimi has not run
-the two new incident-derived scenarios. Treat this branch as draft-only until that
-explicit gate is complete.
+comparison remains PASS, and the available models pass S16–S18, but Kimi has not run
+the new focused scenarios. Treat this branch as draft-only until that explicit gate is
+complete.
