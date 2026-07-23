@@ -13,8 +13,7 @@ argument-hint: "<feature> [stage|status]"
 arguments: [feature, stage]
 ---
 
-<!-- v3.1.2 · injects the complete review-evidence packet into every stage-6 lens.
-     v3.1.1 · keeps status invocations read-only (review finding).
+<!-- v3.1.1 · keeps status invocations read-only (PR #6 review finding).
      v3.1.0 · adds visible routing, compact invariant contracts, bounded discovery,
      versioned criteria correction, and runtime-evidence separation (PA-1..PA-7).
      v3.0.0 · workflow rewrite after the 2026-07-18 contract critique. -->
@@ -108,7 +107,6 @@ Run `git fetch origin <base>` before base-branch checks.
 | `base` | the base branch name |
 | `headSha` | current PR head (stage 6 only) |
 | `reviewers` | `[{agentType, lens, template}]` per the mode (stage 6 only) |
-| `reviewEvidence` | `{routingAndClaims, threatRows, acceptanceCoverage, visibleResult, replacementParity, deletionConsumerMap}`; every value is non-empty evidence or an explicit reason it is not applicable (stage 6 only) |
 | `fixPreamble` | the implementer template's fix-round header (stage 6 only) |
 | `feature` | the feature slug (branch and path names derive from it) |
 | `branch` | the PR branch under review (stage 6 only) |
@@ -285,22 +283,9 @@ then surface.
 ## Stage 6 · review — workflow (template-faithful verdicts, bounded rounds)
 
 Gate: PR open, CI green. Build `args.reviewers` per the mode (lens A/B/C from
-the template in panel mode). Before dispatch, build `args.reviewEvidence` from
-committed artifacts and the PR:
-
-- `routingAndClaims`: routing record, stable invariants, and every guarantee claim.
-- `threatRows`: the rows, or an explicit `none — T1` reason.
-- `acceptanceCoverage`: invariant/finding → test map, or the recorded Process-Skip.
-- `visibleResult`: shipped entry point, named real input, and expected user-visible
-  result, or why the contract has no user-visible flow.
-- `replacementParity`: pinned source set plus forward/reverse decision maps for a
-  rewrite, consolidation, or supersession, or why no replacement exists.
-- `deletionConsumerMap`: delete/rename consumer sweep, or why the diff contains none.
-
-Every field is required even when its value is a reasoned `not applicable`; the
-reviewer checks those claims against the diff. The workflow injects this packet and
-the current candidate SHA into every lens on every round. Verdicts follow the TEMPLATE:
-`pass | warn | fail`, P1/P2 block, P3 may ship recorded; `CLEAN` list required:
+the template in panel mode; front-load = contract promises + threat rows,
+round 1, PC-14). Verdicts follow the TEMPLATE: `pass | warn | fail`, P1/P2
+block, P3 may ship recorded; `CLEAN` list required:
 
 ```js
 export const meta = {
@@ -328,30 +313,9 @@ const dedupe = (findings) => {
   }
   return [...seen.values()]
 }
-const REVIEW_EVIDENCE_FIELDS = [
-  'routingAndClaims',
-  'threatRows',
-  'acceptanceCoverage',
-  'visibleResult',
-  'replacementParity',
-  'deletionConsumerMap',
-]
-const missingReviewEvidence = REVIEW_EVIDENCE_FIELDS.filter(
-  field => typeof args.reviewEvidence?.[field] !== 'string' ||
-    args.reviewEvidence[field].trim() === '')
-if (missingReviewEvidence.length)
-  return { outcome: 'review-evidence-missing', missing: missingReviewEvidence }
-const evidencePacket = (sha) => `REVIEW EVIDENCE — verify every claim against the diff
-- Candidate revision: ${sha}
-- Routing and claims: ${args.reviewEvidence.routingAndClaims}
-- Threat rows: ${args.reviewEvidence.threatRows}
-- Acceptance coverage: ${args.reviewEvidence.acceptanceCoverage}
-- Named user-visible proof: ${args.reviewEvidence.visibleResult}
-- Replacement parity: ${args.reviewEvidence.replacementParity}
-- Delete/rename consumers: ${args.reviewEvidence.deletionConsumerMap}`
 const review = (sha, round) => parallel(
   args.reviewers.map((r, i) => () =>
-    agent(`${evidencePacket(sha)}\n\n${r.template.replaceAll('<SHA>', sha)}`,
+    agent(r.template.replace('<SHA>', sha),
       { agentType: r.agentType, label: `review:${r.lens ?? i}:r${round}`,
         phase: 'Review', schema: REVIEW_SCHEMA })))
 let sha = args.headSha
@@ -400,8 +364,8 @@ Returns:
   the P3 ledger. Push fixes; go to stage 7.
 - `spec-gap` → PC-15: draft the LESSONS.md entry, route to stage 2/3. Never
   round 4.
-- `review-evidence-missing` / `contradiction` / `stale-review` /
-  `reviewer-lost` → fail closed, show the user exactly what is missing or disagreed.
+- `contradiction` / `stale-review` / `reviewer-lost` → fail closed, show the
+  user exactly what disagreed.
 
 ## Stage 7 · merge — human
 
