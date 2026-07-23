@@ -1,4 +1,4 @@
-# Monthly Audit — agent prompt v1.1 (R-1..R-4)
+# Monthly Audit — agent prompt v1.2 (R-1..R-4)
 
 You are running the monthly Engineering OS audit. Read
 `~/project/engineering-os/ROUTINES.md` (R-1 through R-4) and `BASELINE.md` first —
@@ -16,11 +16,17 @@ they define exactly what to check. This prompt tells you how to execute.
 ## Execution notes per routine
 
 - **R-1 (conformance):** use `gh api repos/{owner}/{repo}/branches/{branch}/protection`
-  for required checks; `git log --since` + diff scans for promotion triggers;
+  for required checks and required reviews. If review is required, inspect
+  `enforce_admins` too; an owner or administrator bypass is PC-32. Use
+  `git log --since` + diff scans for promotion triggers;
   check `.process-guard-exempt` age via `git log -1 --format=%ci -- .process-guard-exempt`
   and parse its owner/reason/created/review_by/removal_condition fields.
 - **R-2 (outcomes + review burn):** `gh pr list --state merged --search "merged:>DATE"`,
   then per PR count review→push cycles from `gh pr view --json reviews,commits`.
+  For every PR with 2 or more rounds, compare each round's diff size, changed areas,
+  finding count, and finding location. Report a missed scope-growth stop when the diff
+  and finding list kept growing, or new findings were mainly in code added by the fix,
+  and implementation continued without first repairing the contract or tests.
   Cross-check every >3-round PR against LESSONS.md entries. Read routing records,
   critique/test/review artifacts, CI results, and new LESSONS entries to report stage
   yield; use `unknown` when the catch stage is not evidenced. Check coverage maps,
@@ -43,7 +49,8 @@ these sections:
 2. **R-1 table** — repo | tier | verdict | gaps (PC ids + exemption ages/dates).
 3. **R-2 table** — repo | merged PRs | median/worst rounds | skips | routing violations |
    caught at critique/acceptance/CI/review | escaped/unknown | false greens/silent skips |
-   criteria churn | criteria/coverage/discovery/contract-shape violations.
+   missed scope-growth stops | criteria churn |
+   criteria/coverage/discovery/contract-shape violations.
 4. **R-3 list** — each drifted file/pin, current vs canonical.
 5. **R-4 list** — each out-of-compliance ledger item + one-line proposed action.
 6. **Proposed sweeps** — batched fixes grouped by kind (one group = one review
@@ -56,6 +63,8 @@ in the report — never silently skip (that's PC-02 applied to yourself).
 
 ## Changelog
 
+- **v1.2** — added the PC-32 administrator-review check and the PC-15 early
+  scope-growth stop check to the runnable monthly audit.
 - **v1.1** — extended R-1 exemption lifecycle checks and R-2 outcome/stage-yield,
   routing, discovery, and criteria-correction reporting (practical-process gap PA-5 /
   PA-6).
