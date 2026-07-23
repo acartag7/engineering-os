@@ -22,8 +22,9 @@ tokens, tenancy, redaction, network access, data writes, and parsing untrusted i
   skipped stage requires an exact `Process-Skip:` commit-message entry; audits count
   skips.
 - **T2:** change at a trust boundary. Use the independent roles below.
-- **T3:** new or critical trust-boundary parser/state machine. Use multiple independent
-  implementations and reviewers.
+- **T3:** any novel trust boundary being implemented for the first time, or a
+  security-critical parser/state machine. Use multiple independent implementations
+  and reviewers.
 - **Docs:** for every promise such as `never`, `always`, or `cannot`, identify the
   enforcing control and a test.
 

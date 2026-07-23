@@ -46,6 +46,8 @@ values, and ordering where they are load-bearing.
 ## Instructions that must not change
 
 - T2/T3 roles run in separate harnesses; one Claude Code session is insufficient.
+- Any novel trust boundary routes through T3 even when it is not a parser or state
+  machine.
 - Acceptance tests are frozen. The implementer may only activate phases through
   `test/acceptance/phases.json`.
 - A disputed frozen test stops implementation and starts the correction process.
@@ -98,6 +100,8 @@ At minimum, scenarios cover:
 
 - empty configuration;
 - T2/T3 dispatch boundaries;
+- novel-boundary T3 routing;
+- acceptance-author family and harness separation from the implementer;
 - disputed frozen tests;
 - checking similar code paths after a fix;
 - loading prompt templates rather than reconstructing them;
