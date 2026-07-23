@@ -1,5 +1,5 @@
-<!-- vendored from engineering-os@a3b8bd07fe3e511c690be2228afd17a7e9ac05e3 — edit the repo original, re-vendor -->
-# Implementer Prompt — v1.2
+<!-- vendored from engineering-os@ea6f50acf6186c38d622283f0d6c6d5f49e8a043 — edit the repo original, re-vendor -->
+# Implementer Prompt — v1.3
 
 Stage 5 of the pipeline. The implementer inherits a frozen acceptance suite and a
 contract; its job is to make the suite pass without touching it.
@@ -49,12 +49,24 @@ RULES
    parallel code path touching the same resource or mirroring the same pattern gets
    checked and fixed or explicitly cleared. Partial fixes are the #1 review-round
    multiplier — one unswept decision once consumed several rounds on its own.
-8. PR carries a `Spec: <path§>` trailer. Conventional commit subjects. Feature
+8. Prove each regression test is a discriminator: run it on the pinned broken
+   revision or with the fix reverted and record the expected failure, then run it
+   with the fix. A test that passes both ways does not pin the bug.
+9. Before deleting or renaming a file, symbol, command, or config key, search direct
+   calls, type references, string literals, dynamic imports, re-exports, barrel files,
+   test mocks, package entry points, CI, containers, deploy files, examples, and
+   operational scripts. Read the replacement and run the shipped entry point.
+10. Proof artifacts are inside the security boundary. Before commit, scan staged
+   evidence for the planted test value and ordinary secret patterns. Never quote a
+   found value; rotate any real credential that appeared.
+11. PR carries a `Spec: <path§>` trailer. Conventional commit subjects. Feature
    branch; never push to protected branches.
 
 DONE MEANS
 - All activated acceptance phases green, full repo verify green (typecheck, tests,
   build), guards green — in CI, on the head SHA.
+- End-to-end proof names the exact candidate revision and real input, uses the shipped
+  entry point, and asserts the user-visible result — not only status or schema.
 - Anything not verified is reported as not verified. Never claim green from memory.
 - For production mutations, report software verification separately from per-run
   operational evidence. Tests cannot authorize or prove a specific live action.
@@ -62,6 +74,9 @@ DONE MEANS
 
 ## Changelog
 
+- **v1.3** — added regression counterfactual proof, deletion/rename consumer sweeps,
+  staged-proof secret hygiene, and exact-candidate visible-result evidence from
+  LESSONS.md L-019 through L-022.
 - **v1.2** — added routing/criteria-version inputs, normative-vs-rationale authority,
   the frozen-criteria correction stop, and software-vs-runtime evidence separation
   for practical-process gaps PA-1/PA-2/PA-3/PA-7.

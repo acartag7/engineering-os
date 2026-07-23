@@ -1,5 +1,5 @@
-<!-- vendored from engineering-os@a3b8bd07fe3e511c690be2228afd17a7e9ac05e3 — edit the repo original, re-vendor -->
-# Reviewer Prompt — v1.1
+<!-- vendored from engineering-os@ea6f50acf6186c38d622283f0d6c6d5f49e8a043 — edit the repo original, re-vendor -->
+# Reviewer Prompt — v1.2
 
 Stage 6 of the pipeline. Reviewers are a different model family than the implementer.
 Lenses run in parallel — each reviewer gets ONE lens plus the shared front-load — then
@@ -18,6 +18,10 @@ total rounds on a PR is itself a process finding.
 - The invariant checklist: guards-before-side-effects; closed positive sets at
   boundaries; fail-closed on missing config; sibling parity; no weakened controls
 - The acceptance coverage map (critique finding → test ID)
+- The exact candidate revision and the named user-visible result the end-to-end proof
+  must show
+- For a rewrite: the pinned source set plus forward and reverse decision maps; for a
+  delete or rename: the full consumer map
 
 STANCE
 Findings-first, ordered by severity, each with file:line. Review against the
@@ -59,6 +63,12 @@ value read, propagated, and used — or silently dropped somewhere in the middle
 Do startup/shutdown paths create and clean up what the new code assumes exists?
 Does the change behave under the real adapter/store matrix, not just the default
 one? Name any behavior only exercised by mocks — that is untested behavior.
+Run the exact candidate through the shipped entry point with the named real input and
+inspect the user-visible result; status, schema, mock, or fixture success alone is not
+the claimed proof. For every deletion or rename, search direct calls, type references,
+string literals, dynamic imports, re-exports, barrel files, test mocks, package entry
+points, CI, containers, deploy files, examples, and operational scripts, then verify
+the replacement and shipped entry point.
 If discovery preceded delivery, verify experimental code was not promoted directly.
 For production mutations, keep revision evidence separate from per-run target,
 precondition, authorization, stop, rollback, and postcondition evidence; green tests
@@ -80,10 +90,20 @@ CLEAN: explicit list of what was checked and found clean
   invalidates your marker.
 - If you catch a defect: it must become a permanent regression or acceptance test
   in the fix PR, and the fixer must sweep for sibling instances before the
-  finding closes.
+  finding closes. Confirm that regression test fails on the pinned broken revision
+  or with the fix reverted.
+- Treat proof artifacts as part of the security boundary: scan submitted evidence for
+  the planted test value and ordinary secret patterns. Never quote a found value in
+  the review.
+- For evaluations used to make a choice, verify independent ground truth, provenance,
+  exclusions, a decision rule chosen before scoring, and judge calibration. Otherwise
+  the conclusion must be labeled directional.
 
 ## Changelog
 
+- **v1.2** — added exact-candidate visible-result checks, replacement/deletion
+  consumer sweeps, regression counterfactuals, proof-file secret hygiene, and
+  decision-grade evaluation checks from LESSONS.md L-018 through L-023.
 - **v1.1** — added routing/evidence verification, invariant and criteria-version
   front-load, discovery boundary, and production runtime-evidence separation for
   practical-process gaps PA-1/PA-2/PA-4/PA-7.

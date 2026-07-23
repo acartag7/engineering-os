@@ -1,5 +1,5 @@
-<!-- vendored from engineering-os@9658e2b25b5529146778edc30096fb92ebb5c353 — edit the repo original, re-vendor -->
-# Critique Prompt — v1.3
+<!-- vendored from engineering-os@ea6f50acf6186c38d622283f0d6c6d5f49e8a043 — edit the repo original, re-vendor -->
+# Critique Prompt — v1.4
 
 Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
 suite is authored. The critic's findings are structurally consumed by stage 4: every
@@ -27,7 +27,7 @@ INPUTS
 - Supporting rationale: <paste or path — context only, never binding behavior>
 - Discovery record + experiment references: <specs/<feature>.discovery.md | none>
 - Threat rows for this change (T2+): <paste or path>
-- Silence-class checklist: v1.3 (below)
+- Silence-class checklist: v1.4 (below)
 
 TASK
 1. For each silence class, ask: where is the contract silent? For each silence,
@@ -45,7 +45,7 @@ TASK
    yet fully green and letter-compliant with this contract. Be specific about the
    defect and why the contract's wording permits it.
 
-SILENCE CLASSES (v1.3)
+SILENCE CLASSES (v1.4)
 SC-1  Domain completeness — for every input: null, empty, absent, malformed,
       composite, oversized, unicode/encoding edge. What does the contract say
       happens? If nothing: silence.
@@ -81,6 +81,15 @@ SC-10 Object shape — an object is more than the key/value pairs shown in a nor
       getter or proxy, or come from a different runtime realm. If that field can
       grant access or turn off a safety check, does the contract say which shapes
       and field sources are allowed? Do negative tests cover the rejected ones?
+SC-11 Replacement parity — when this change rewrites, consolidates, deletes, or
+      supersedes existing material, what exact source set is pinned? Is there a
+      forward map proving every source decision survived and a reverse map proving
+      the replacement invented nothing silently? What event makes that comparison
+      stale and forces it to run again?
+SC-12 Evaluation evidence — if an evaluation will choose a product, model, or
+      workflow, is its ground truth independent from the signal being compared?
+      Are provenance, exclusions, the pre-stated decision rule, and judge calibration
+      specified? If not, does the contract limit the result to directional evidence?
 
 OUTPUT CONTRACT (structured findings only — no prose-only findings)
 Each finding:
@@ -103,6 +112,9 @@ CALIBRATION
 
 ## Changelog
 
+- **v1.4** — added SC-11 (replacement parity) and SC-12 (evaluation evidence) after a
+  clean consolidation lost source decisions and a product comparison used circular
+  ground truth (LESSONS.md L-018, L-023).
 - **v1.3** — added SC-10 (object shape) and extended SC-8 with the unbounded
   repository-wide rule case after clean test objects hid an unsafe inherited flag and
   its incident fix grew a new subsystem (LESSONS.md L-015, L-016).
