@@ -21,11 +21,11 @@
 
 **Normative invariants**
 
-- **CMH-1 — replacement parity.** A rewrite or consolidation pins the source set and
-  maps every source decision to its replacement. The review checks both directions:
-  nothing required was dropped, and nothing new was invented without a decision. A
-  source change makes the old comparison stale and requires a fresh comparison.
-  Enforcement: **PROMPT**, not HARD.
+- **CMH-1 — replacement parity.** A rewrite, consolidation, or supersession pins the
+  source set and maps every source decision to its replacement. The review checks both
+  directions: nothing required was dropped, and nothing new was invented without a
+  decision. A source change makes the old comparison stale and requires a fresh
+  comparison. Enforcement: **PROMPT**, not HARD.
 - **CMH-2 — regression counterfactual.** A regression test is not evidence until it
   fails on the pinned broken revision or with the fix reverted, then passes with the
   fix present. Enforcement: **PROMPT**, not HARD.

@@ -136,9 +136,10 @@ became a product but kept experiment-level process."
 
 ## Evidence rules
 
-- A rewrite is reviewed against the pinned material it replaces, in both directions.
-  Reading only the clean new document cannot show what disappeared. A source change
-  makes the old review stale. **Enforcement: PROMPT, not CI.**
+- A rewrite, consolidation, or supersession is reviewed against the pinned material it
+  replaces, in both directions. Reading only the clean new document cannot show what
+  disappeared. A source change makes the old review stale.
+  **Enforcement: PROMPT, not CI.**
 - A regression test proves the regression: it fails on the broken revision or with
   the fix reverted, then passes with the fix. A test that passes both ways is not
   evidence. **Enforcement: PROMPT, not CI.**

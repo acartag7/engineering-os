@@ -19,8 +19,8 @@ total rounds on a PR is itself a process finding.
 - The acceptance coverage map (critique finding → test ID)
 - The exact candidate revision and the named user-visible result the end-to-end proof
   must show
-- For a rewrite: the pinned source set plus forward and reverse decision maps; for a
-  delete or rename: the full consumer map
+- For a rewrite, consolidation, or supersession: the pinned source set plus forward
+  and reverse decision maps; for a delete or rename: the full consumer map
 
 STANCE
 Findings-first, ordered by severity, each with file:line. Review against the

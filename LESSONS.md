@@ -273,7 +273,7 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   administrators, and every reviewer must return explicit completion evidence. Any
   refusal, error, timeout, filtering, fallback substitution, or empty result is red.
 
-## L-018 — A clean rewrite silently lost old decisions <a name="l-018"></a>
+## L-018 — A clean consolidation silently lost old decisions <a name="l-018"></a>
 
 - **What:** A consolidation replaced several source documents with one cleaner
   document. It read well and passed multiple internal reviews, but comparison against
