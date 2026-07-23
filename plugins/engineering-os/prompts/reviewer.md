@@ -1,10 +1,11 @@
-<!-- vendored from engineering-os@17c1bd98a4f460ff774626a3d8d0d794f41e0c2e — edit the repo original, re-vendor -->
-# Reviewer Prompt — v1.4
+<!-- vendored from engineering-os@8024842422ae04630e30528f1aecc114e60ce14c — edit the repo original, re-vendor -->
+# Reviewer Prompt — v1.5
 
 ## Purpose
 
-Check the implementation against the binding contract and threat model. Find missing
-controls as well as incorrect code. Reviewers report findings; they never edit files.
+Check the implementation against the binding contract and threat model using a model
+family different from the implementer. Find missing controls as well as incorrect code.
+Reviewers report findings; they never edit files.
 
 Each reviewer receives one focus area below. Run the focus areas separately, then merge
 and deduplicate their findings into one fix pass.
@@ -13,6 +14,7 @@ and deduplicate their findings into one fix pass.
 
 - Routing record: tier, reason, required evidence, final evidence links
 - Acceptance-criteria version
+- Reviewer independence record: implementer model family and reviewer model family
 - Binding contract rule IDs and exact claims
 - Background: context only; it cannot add requirements
 - Threat rows for T2/T3
@@ -120,6 +122,7 @@ P1 and P2 findings block. P3 findings are recorded and may ship with a ledger no
 
 ## Completion checks
 
+- The reviewer model family differs from the implementer model family.
 - The verdict applies to the current PR head SHA.
 - Every finding has severity, file:line, violated rule, and concrete evidence.
 - `clean` lists checked areas with no findings.
@@ -131,6 +134,8 @@ P1 and P2 findings block. P3 findings are recorded and may ship with a ledger no
 
 ## Changelog
 
+- **v1.5** — restored the required different-family reviewer rule after the
+  plain-language rewrite dropped it (`LANG-4`).
 - **v1.4** — removed repository-specific review metadata from the public prompt
   without changing review behavior (`LANG-6`).
 - **v1.3** — restored review of the full supplied binding-claims list, including claims
