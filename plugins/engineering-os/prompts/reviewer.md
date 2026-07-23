@@ -1,4 +1,4 @@
-<!-- vendored from engineering-os@8024842422ae04630e30528f1aecc114e60ce14c — edit the repo original, re-vendor -->
+<!-- vendored from engineering-os@13bff75b40726c76cb783a7c0a24ce69e390e579 — edit the repo original, re-vendor -->
 # Reviewer Prompt — v1.5
 
 ## Purpose
@@ -142,8 +142,8 @@ P1 and P2 findings block. P3 findings are recorded and may ship with a ledger no
   unchanged by the implementation PR; changed public documentation claims remain a
   second review set after exact-head review (`LANG-4`).
 - **v1.2** — replaced metaphors and narrative with direct steps, separate focus areas,
-  STOP conditions, an exact output shape, and completion checks while preserving review
-  behavior (`LANG-1..LANG-8`).
+  STOP conditions, an exact output shape, and completion checks. Later reviews restored
+  rules that this version dropped (`LANG-1..LANG-8`).
 - **v1.1** — added route/evidence checks, binding rule IDs, discovery boundary, and
   production evidence separation.
 - **v1.0** — initial security, claims, and wiring focus areas with structured verdicts.
