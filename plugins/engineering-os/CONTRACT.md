@@ -1,6 +1,6 @@
 # Plugin contract — engineering-os `/pipeline`
 
-Status: v1.0 · 2026-07-18 · written AFTER the 53-finding critique (process
+Status: v1.1 · 2026-07-24 · written AFTER the founding critique (process
 failure recorded: the plugin was built before its contract; this document
 encodes what that review discovered so the next review verifies).
 
@@ -62,6 +62,18 @@ R8 — **Consistency sweep.** Stage numbering matches OS.md; agent descriptions
 name the right stages and carry no `model-gateway:` references; plugin.json
 describes the actual surface; the skill's own args contract (every `args.*`
 field) is documented in one table. [advisory cluster]
+
+R9 — **Review evidence is rebuilt for each candidate.** At the start of every
+review round, a checker fetches the remote base and branch, resolves both full SHAs,
+proves the branch SHA equals the candidate SHA, and reads that exact head plus its diff
+from the resolved base. It returns both SHAs, routing and claims, threat rows,
+acceptance coverage, named user-visible proof, replacement-parity maps, and the
+delete/rename consumer map. Every field contains evidence or a reason it is not
+applicable. Lost output, a SHA mismatch, a declared missing field, or a blank field
+stops review before any lens runs. After a fixer pushes, the next round repeats this
+process from the new remote SHA; earlier evidence is never reused. Each reviewer binds
+its verdict to both SHAs, the review artifact records both, and stage detection treats
+movement of either ref as stale review. [review-front-load P2]
 
 ## Out of scope (recorded)
 
