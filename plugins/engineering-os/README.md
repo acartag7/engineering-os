@@ -73,7 +73,7 @@ the path).
   gateway's generator targets this directory — when models.yaml changes,
   update these files in the same change.
 2. **Panel** (no gateway, single subscription): the `eos-*` seats run on the
-  session model. Family diversity is honestly unavailable, so stage-5 review
+  session model. Family diversity is honestly unavailable, so stage-6 review
   becomes a lens-diverse panel — independent fresh-context reviewers running
   the reviewer template's own lenses (A security & insecure defaults,
   B claims vs. enforcement, C wiring & integration), merged and deduped,
