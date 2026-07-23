@@ -117,8 +117,10 @@ became a product but kept experiment-level process."
   nobody told them what was promised.
 - Review lenses run in parallel (security / promises-vs-code / wiring), then one fix
   pass. Prevents ten slow rounds of one-finding-at-a-time.
-- Merge needs the reviewer's marker on the exact final commit — never "no complaints
-  after a while." Prevents merging before a late finding lands.
+- Merge needs the reviewer's marker on the exact final head commit and the exact base
+  commit used for its diff — never "no complaints after a while." A move on either
+  side makes the review stale. Prevents merging before a late finding lands or after
+  upstream changed what the PR will become.
 - Stop after 3 review rounds, or sooner if the diff and finding list keep growing.
   Repair the contract or tests before writing more code. This is checked by the
   monthly audit, not by CI.

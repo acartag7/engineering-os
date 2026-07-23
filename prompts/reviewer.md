@@ -1,4 +1,4 @@
-# Reviewer Prompt — v1.2
+# Reviewer Prompt — v1.3
 
 Stage 6 of the pipeline. Reviewers are a different model family than the implementer.
 Lenses run in parallel — each reviewer gets ONE lens plus the shared front-load — then
@@ -17,8 +17,8 @@ total rounds on a PR is itself a process finding.
 - The invariant checklist: guards-before-side-effects; closed positive sets at
   boundaries; fail-closed on missing config; sibling parity; no weakened controls
 - The acceptance coverage map (critique finding → test ID)
-- The exact candidate revision and the named user-visible result the end-to-end proof
-  must show
+- The exact candidate revision, exact base revision used for the diff, and the named
+  user-visible result the end-to-end proof must show
 - For a rewrite, consolidation, or supersession: the pinned source set plus forward
   and reverse decision maps; for a delete or rename: the full consumer map
 
@@ -78,6 +78,8 @@ must not be presented as authorization for a live action.
 
 ```
 VERDICT: pass | warn | fail          # prose-only verdicts are malformed
+REVIEWED_HEAD: <full candidate commit SHA>
+REVIEWED_BASE: <full base commit SHA used for the diff>
 FINDINGS: ordered by severity, each:
   [P1|P2|P3] file:line — what, why it violates contract/threat row/invariant,
   and the minimal evidence (input → wrong outcome)
@@ -85,8 +87,8 @@ CLEAN: explicit list of what was checked and found clean
 ```
 
 - P1/P2 findings block; P3 are recorded and may ship with a ledger note.
-- Re-review happens on the new head SHA only — a fix pushed after your review
-  invalidates your marker.
+- Re-review happens on the exact head and base SHAs. A fix pushed after your review or
+  a base-branch move invalidates your marker.
 - If you catch a defect: it must become a permanent regression or acceptance test
   in the fix PR, and the fixer must sweep for sibling instances before the
   finding closes. Confirm that regression test fails on the pinned broken revision
@@ -100,6 +102,9 @@ CLEAN: explicit list of what was checked and found clean
 
 ## Changelog
 
+- **v1.3** — bound every verdict to the exact head and base revisions after a review
+  evidence fix showed that refreshing only the head can leave the reviewed diff stale
+  (LESSONS.md L-018).
 - **v1.2** — added exact-candidate visible-result checks, replacement/deletion
   consumer sweeps, regression counterfactuals, proof-file secret hygiene, and
   decision-grade evaluation checks from LESSONS.md L-018 through L-023.
