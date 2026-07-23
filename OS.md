@@ -134,6 +134,30 @@ became a product but kept experiment-level process."
   gets checked for the same bug before the finding is closed. Prevents: "fixed here,
   forgotten there."
 
+## Evidence rules
+
+- A rewrite is reviewed against the pinned material it replaces, in both directions.
+  Reading only the clean new document cannot show what disappeared. A source change
+  makes the old review stale. **Enforcement: PROMPT, not CI.**
+- A regression test proves the regression: it fails on the broken revision or with
+  the fix reverted, then passes with the fix. A test that passes both ways is not
+  evidence. **Enforcement: PROMPT, not CI.**
+- A deletion or rename includes the consumers outside the source tree: package entry
+  points, CI, containers, deploy files, examples, and operations scripts, as well as
+  direct calls, types, strings, dynamic imports, re-exports, barrels, and test mocks.
+  The shipped entry point runs before the change is called done.
+  **Enforcement: PROMPT, not CI.**
+- End-to-end evidence names the exact candidate revision and real input, then checks
+  the result a user sees. A success status, valid schema, mock, or fixture alone can
+  still hide a broken product. **Enforcement: PROMPT; repo suites may make parts HARD.**
+- Proof files are inside the security boundary. Submitted evidence is scanned for its
+  planted test value and normal secret patterns before commit. A real leaked credential
+  is rotated. **Enforcement: PROMPT; repo secret scanners remain separate.**
+- An evaluation cannot grade itself. Product decisions require independent ground
+  truth, provenance, a decision rule chosen before scoring, and calibrated model
+  judges. Without that, the result is useful direction, not a decision.
+  **Enforcement: PROMPT, not CI.**
+
 ## Accepted risks — named, not hidden
 
 Honesty rule: risks I choose to keep are written down, so they're decisions instead

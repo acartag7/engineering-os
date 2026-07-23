@@ -1,4 +1,4 @@
-# Acceptance Author Prompt — v1.1
+# Acceptance Author Prompt — v1.2
 
 Stage 4 of the pipeline. The acceptance author is a **different model family than the
 implementer** and works from the contract only — it never sees an implementation. Its
@@ -40,6 +40,10 @@ RULES
    populate — the implementer flips phases on as it implements.
 5. No test may depend on timing, ordering luck, or network reachability. A flaky
    judge is worse than no judge.
+6. End-to-end tests assert the named result a user sees through the shipped entry
+   point. A success status or valid response shape is not enough when the content can
+   still be an error page, placeholder, or unrelated result. If the real network
+   cannot run deterministically in CI, state the operational proof that remains.
 
 OUTPUT
 - test/acceptance/<phase>/... — the suite
@@ -61,6 +65,9 @@ DO NOT
 
 ## Changelog
 
+- **v1.2** — required end-to-end tests to assert the named user-visible result, not
+  only transport or schema success, after green flows returned unusable content
+  (LESSONS.md L-021).
 - **v1.1** — added stable invariant IDs, acceptance-criteria versions, explicit
   rationale non-authority, and correction mode for practical-process gaps PA-2/PA-3.
 - **v1.0** — initial independent black-box acceptance authoring and freeze manifest.

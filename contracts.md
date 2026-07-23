@@ -1,5 +1,65 @@
 # Contracts
 
+## Cross-project memory harvest (T1)
+
+**Routing record**
+
+- **Route:** T1 — adds review and evidence rules from incidents across several
+  projects; it does not change executable guard behavior
+- **Reason:** recurring failures survived because a replacement was checked only on
+  its new shape, a test was checked only while the fix was present, or a green result
+  proved completion without proving useful output
+- **Required evidence:** source-memory inventory, duplicate check against the current
+  baseline, public-safety pass, claims-vs-enforcement review, prompt/vendor parity,
+  existing acceptance suite, `process-guard`, and independent exact-head review
+- **Evidence links:** `LESSONS.md` L-018 through L-023, final PR checks, and review
+  threads
+- **Acceptance-criteria version:** CMH-1
+- **Process-Skip: acceptance** — this change records lessons and updates advisory
+  prompts. It adds no executable product boundary. Existing guard acceptance and
+  parity checks remain required.
+
+**Normative invariants**
+
+- **CMH-1 — replacement parity.** A rewrite or consolidation pins the source set and
+  maps every source decision to its replacement. The review checks both directions:
+  nothing required was dropped, and nothing new was invented without a decision. A
+  source change makes the old comparison stale and requires a fresh comparison.
+  Enforcement: **PROMPT**, not HARD.
+- **CMH-2 — regression counterfactual.** A regression test is not evidence until it
+  fails on the pinned broken revision or with the fix reverted, then passes with the
+  fix present. Enforcement: **PROMPT**, not HARD.
+- **CMH-3 — deletion and rename consumers.** Before deleting or renaming a file,
+  symbol, command, or config key, search every consumer class: direct calls, type
+  references, string literals, dynamic imports, re-exports, barrel files, test mocks,
+  package entry points, CI, containers, deploy files, examples, and operational
+  scripts. Read the replacement and verify the shipped entry point. Enforcement:
+  **PROMPT**, not HARD.
+- **CMH-4 — useful output, not ceremonial green.** End-to-end evidence runs the exact
+  candidate revision through the shipped entry point with a named real input and
+  asserts the user-visible result. A success status, valid schema, mock, or fixture
+  alone does not prove that the result is useful. Enforcement: **PROMPT**, not HARD.
+- **CMH-5 — proof files are secret surfaces.** A submitted proof artifact must not
+  contain the secret or test sentinel it claims was protected. Before commit, scan
+  the staged files for the literal and for ordinary secret patterns. A real credential
+  that appears anywhere is rotated, not merely removed. Enforcement: **PROMPT**;
+  repo secret scanning remains separate.
+- **CMH-6 — decision-grade evaluation evidence.** An evaluation used to choose a
+  product or model has ground truth independent from the signal being compared,
+  records provenance and exclusions, states the decision rule before scoring, and
+  checks judge calibration where a model judges a model. Without those properties,
+  results are labeled directional and cannot decide the choice. Enforcement:
+  **PROMPT**, not HARD.
+- **CMH-7 — honest enforcement labels.** A rule is not called audited unless a named
+  audit procedure checks it. The object-shape rule from RIL-2 is currently prompt-only.
+  Enforcement: **AUDIT** through the claims-vs-enforcement review of this change.
+
+**Supporting rationale (non-normative)**
+
+These incidents had different products and code, but the same evidence mistake: the
+check observed a convenient proxy instead of the claim that mattered. These rules ask
+for the missing comparison without adding a new tool or universal workflow.
+
 ## Review-incident lessons (T1)
 
 **Routing record**
@@ -28,7 +88,7 @@
   allowed. In languages with inheritance, getters, or proxies, a value that is not
   explicitly allowed at that trust boundary cannot silently grant access or turn off
   a safety check.
-  Enforcement: **PROMPT + AUDIT**, not HARD.
+  Enforcement: **PROMPT**, not HARD.
 - **RIL-3 — review execution evidence.** Every required reviewer proves it ran and
   records one of: findings, an explicit no-findings result, or a failed gate. Refusal,
   error, timeout, filtering, fallback substitution, and empty output are failures,

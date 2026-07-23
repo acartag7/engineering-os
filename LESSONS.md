@@ -272,3 +272,80 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Became:** PC-32, PC-33, and the R-1 monthly audit. Required review applies to
   administrators, and every reviewer must return explicit completion evidence. Any
   refusal, error, timeout, filtering, fallback substitution, or empty result is red.
+
+## L-018 — A clean rewrite silently lost old decisions <a name="l-018"></a>
+
+- **What:** A consolidation replaced several source documents with one cleaner
+  document. It read well and passed multiple internal reviews, but comparison against
+  the pinned sources showed that required decisions had disappeared or changed.
+- **Where:** a cross-project policy and memory consolidation.
+- **Caught by:** a late source-to-replacement comparison, not by reviewing the new
+  document on its own.
+- **Class:** replacement review without parity; reviewers saw a plausible destination
+  but never proved that it preserved the source.
+- **Became:** PC-36 and critique question SC-11. Pin the source set, map every source
+  decision forward, check the replacement backward, and restart when a source moves.
+
+## L-019 — A regression test passed while the bug was still alive <a name="l-019"></a>
+
+- **What:** A test described the reported failure and stayed green, but it exercised a
+  nearby safe path instead of the broken one. The same test also passed on the old
+  code.
+- **Where:** an internal application at a security boundary.
+- **Caught by:** running the claimed regression against the pinned broken revision.
+- **Class:** tautological regression evidence; a green test proved nothing changed.
+- **Became:** PC-37 and the implementer/reviewer counterfactual check. The regression
+  must go red on the broken revision or with the fix reverted, then green with the fix.
+
+## L-020 — Deleted code remained a shipped startup command <a name="l-020"></a>
+
+- **What:** A source file was removed after its replacement landed, but a container
+  startup command still named the deleted file. Code review and tests passed; the
+  shipped container would have failed at startup.
+- **Where:** a service with library, container, and deployment surfaces.
+- **Caught by:** a whole-repository consumer search followed by reading the replacement
+  and checking the packaged entry point.
+- **Class:** deletion reviewed only inside the source tree; operational consumers were
+  treated as unrelated.
+- **Became:** PC-38 and the deletion/rename sweep in the implementer and reviewer
+  prompts. Search calls, types, strings, dynamic imports, re-exports, barrels, test
+  mocks, packages, CI, containers, deploy files, examples, and operations before
+  removal.
+
+## L-021 — Green flow returned an unusable result <a name="l-021"></a>
+
+- **What:** A live flow returned a success status and plausible-looking content, but
+  the content was an error page or unrelated response. Elsewhere, fixture-backed tests
+  hid request-method and timeout failures that appeared only on the real network path.
+- **Where:** public tools that fetch or display outside data.
+- **Caught by:** running the exact candidate build with a named real input and reading
+  the user-visible result.
+- **Class:** ceremonial green; status, schema, mocks, and fixtures proved the pipeline
+  moved, not that the user received value.
+- **Became:** a stronger PC-16 plus acceptance-author and reviewer checks for the exact
+  candidate, shipped entry point, named input, and asserted visible result.
+
+## L-022 — The security proof leaked its own test secret <a name="l-022"></a>
+
+- **What:** A proof package claimed sensitive text was absent from product output, but
+  one submitted evidence file contained the planted test value in plain text.
+- **Where:** a security verification bundle.
+- **Caught by:** a literal scan of the staged proof files.
+- **Class:** evidence treated as outside the security boundary; the proof contradicted
+  the guarantee it was meant to demonstrate.
+- **Became:** PC-39 and the staged-proof scan in the implementer and reviewer prompts.
+  Synthetic sentinels are handled like secrets in submitted evidence; real credentials
+  are rotated if exposed.
+
+## L-023 — An evaluation graded itself <a name="l-023"></a>
+
+- **What:** A comparison used labels derived from the same signal it was scoring, so
+  the result mostly measured agreement with itself. A replacement method also lacked
+  enough independent checking to support the product decision being made.
+- **Where:** model and workflow evaluations used for product choices.
+- **Caught by:** rebuilding the ground truth from independent evidence and reviewing
+  the evaluation method, not just its result table.
+- **Class:** circular ground truth and decision claims stronger than the evidence.
+- **Became:** PC-40 and critique question SC-12. Decision-grade evaluations need
+  independent labels, provenance, a pre-stated decision rule, and judge calibration;
+  weaker results are labeled directional.
