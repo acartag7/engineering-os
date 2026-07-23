@@ -1,4 +1,4 @@
-<!-- vendored from engineering-os@fbb1901c28e948ac00df3accc17780c9efe09771 — edit the repo original, re-vendor -->
+<!-- vendored from engineering-os@96edb775b625a4852c99c1697e09ae1baf0e9e6b — edit the repo original, re-vendor -->
 # Reviewer Prompt — v1.3
 
 Stage 6 of the pipeline. Reviewers are a different model family than the implementer.
@@ -105,7 +105,7 @@ CLEAN: explicit list of what was checked and found clean
 
 - **v1.3** — bound every verdict to the exact head and base revisions after a review
   evidence fix showed that refreshing only the head can leave the reviewed diff stale
-  (LESSONS.md L-018).
+  (LESSONS.md L-024).
 - **v1.2** — added exact-candidate visible-result checks, replacement/deletion
   consumer sweeps, regression counterfactuals, proof-file secret hygiene, and
   decision-grade evaluation checks from LESSONS.md L-018 through L-023.
