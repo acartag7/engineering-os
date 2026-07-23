@@ -1,14 +1,17 @@
-<!-- vendored from engineering-os@4705924212e269291542d22a59556405449631c0 — edit the repo original, re-vendor -->
-# Acceptance Test Author Prompt — v1.2
+<!-- vendored from engineering-os@ff9e8ab4c04388a4f083097f92be20f4d86dd463 — edit the repo original, re-vendor -->
+# Acceptance Test Author Prompt — v1.3
 
 ## Purpose
 
-Write the tests that define when this change is done. You are independent from the
-implementer and must not see or write the implementation.
+Write the tests that define when this change is done. You run in a different model
+family and harness from the implementer, and you must not see or write the
+implementation.
 
 ## Inputs
 
 - Routing record and acceptance-criteria version
+- Independence record: acceptance-author family/harness and planned implementer
+  family/harness
 - Binding contract rules: stable rule IDs and exact text
 - Background: context only; it cannot add requirements
 - Critique findings: every `acceptance-test` finding must map to a test ID
@@ -78,6 +81,7 @@ critique finding ID → test ID
 
 Before finishing, confirm:
 
+- your family and harness both differ from the planned implementer's;
 - every binding rule has a mapped test;
 - every critique `acceptance-test` finding has a mapped test;
 - every T2/T3 threat control has a rejection test;
@@ -88,6 +92,9 @@ Before finishing, confirm:
 
 ## Changelog
 
+- **v1.3** — restored the required model-family and harness split from the implementer
+  after exact-head review found that the plain-language rewrite had weakened it
+  (`LANG-4`).
 - **v1.2** — reorganized instructions into direct steps, STOP conditions, mode-specific
   scope, outputs, and completion checks without changing freeze behavior
   (`LANG-1..LANG-8`).
