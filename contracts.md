@@ -22,13 +22,13 @@
 
 - **RIL-1 — public-safe lessons.** Public incident entries keep the failure class and
   remove repo names, employers, customers, model vendors, PR numbers, prices, and exact
-  counts that identify the incident. Enforcement: **PROMPT + AUDIT**.
+  counts that identify the incident. Enforcement: **PROMPT**, not HARD.
 - **RIL-2 — object-shape decisions.** When a security decision reads a field from an
   object or map, the contract states which container shapes and field sources are
   allowed. In languages with inheritance, getters, or proxies, a value that is not
   explicitly allowed at that trust boundary cannot silently grant access or turn off
   a safety check.
-  Enforcement: **PROMPT + AUDIT**, not HARD.
+  Enforcement: **PROMPT**, not HARD.
 - **RIL-3 — review execution evidence.** Every required reviewer proves it ran and
   records one of: findings, an explicit no-findings result, or a failed gate. Refusal,
   error, timeout, filtering, fallback substitution, and empty output are failures,
@@ -43,7 +43,7 @@
   fleet parity is audited.
 - **RIL-6 — plain language.** The lesson, baseline rule, OS rule, and critic question
   explain the concrete failure before using a technical label. Enforcement:
-  **PROMPT + AUDIT**.
+  **PROMPT**, not HARD.
 
 **Supporting rationale (non-normative)**
 

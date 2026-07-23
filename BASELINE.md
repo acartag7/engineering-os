@@ -43,7 +43,7 @@ Audit results live with each repo, not in this file.
 | PC-31 | Every suppressed warning (ignored CVE, disabled lint) carries a recheck date; expired ones get flagged | Ignores that outlive their excuse — the patch shipped a year ago and we're still ignoring the CVE | S, I | AUDIT | harvest: CVE-ignore rot |
 | PC-32 | Required review applies to administrators too | An owner merging while the platform still says review is required | S, I | HARD where required review exists | [L-017](LESSONS.md#l-017) |
 | PC-33 | Every required reviewer proves it ran; refusal, error, timeout, filtering, fallback substitution, or empty output is red | Missing review work being mistaken for “no findings” | S, I | NOT YET ENFORCED — backlog | [L-017](LESSONS.md#l-017) |
-| PC-34 | When a security decision reads a field from an object or map, the contract and tests cover where that field may come from | Normal test objects hiding an inherited or computed value that turns off a safety check | S, I | PROMPT + AUDIT | [L-015](LESSONS.md#l-015) |
+| PC-34 | When a security decision reads a field from an object or map, the contract and tests cover where that field may come from | Normal test objects hiding an inherited or computed value that turns off a safety check | S, I | PROMPT | [L-015](LESSONS.md#l-015) |
 | PC-35 | Keep an incident fix bounded; a new shared security helper or new guarantee gets its own contract, tests, and PR | A small fix growing a new subsystem that creates more defects than it removes | S, I | PROMPT + AUDIT | [L-016](LESSONS.md#l-016) |
 
 ## How enforcement labels read
