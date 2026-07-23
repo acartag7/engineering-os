@@ -120,7 +120,8 @@ became a product but kept experiment-level process."
 - Merge needs the reviewer's marker on the exact final head commit and the exact base
   commit used for its diff — never "no complaints after a while." A move on either
   side makes the review stale. Prevents merging before a late finding lands or after
-  upstream changed what the PR will become.
+  upstream changed what the PR will become. **Enforcement: PROMPT in `/pipeline`, not
+  a platform gate.**
 - Stop after 3 review rounds, or sooner if the diff and finding list keep growing.
   Repair the contract or tests before writing more code. This is checked by the
   monthly audit, not by CI.
