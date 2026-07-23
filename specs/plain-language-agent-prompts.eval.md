@@ -12,7 +12,11 @@
 | S01–S15 | `4b23c029ef20d12213bef04820c7505d3e3c2684` | `f8ad911faa1ab2628ec5e86a9f780aa4d2eb124d` |
 | S16–S17 | `f8ad911faa1ab2628ec5e86a9f780aa4d2eb124d` | `ff9e8ab4c04388a4f083097f92be20f4d86dd463` |
 | S18 | `ff9e8ab4c04388a4f083097f92be20f4d86dd463` | `2cf8f3e2b0d0e850d143ef2e313cadde149e9e41` |
-| S19 | `17c1bd98a4f460ff774626a3d8d0d794f41e0c2e` | `8024842422ae04630e30528f1aecc114e60ce14c` |
+| S19 | `17c1bd98a4f460ff774626a3d8d0d794f41e0c2e` | `13bff75b40726c76cb783a7c0a24ce69e390e579` |
+
+These intermediate source commits must remain reachable if this change later merges.
+Use a GitHub merge commit, not squash or rebase; otherwise branch cleanup can make the
+recorded source commits unreachable.
 
 ## Method
 
@@ -161,13 +165,32 @@ through the isolated evaluation harness with tools disabled:
 Kimi was not available in the evaluation harness model inventory, so the explicit
 GPT/Claude/Kimi gate has not been satisfied for S19.
 
+## Scenario-coverage gap
+
+S01–S19 do not cover every applicable LANG-4 behavior. Missing discriminator scenarios
+include remote-branch verification in a temporary worktree, refusing unrequested
+machinery, reviewers never editing silently, fixed defects receiving regression tests,
+and the mandatory stop after three review rounds.
+
+Rerunning only S01–S19 is insufficient. An independent evaluator must add the missing
+scenarios and run the complete set through GPT, Claude, and Kimi before LANG-7 can pass.
+
 ## Plugin integration blockers
 
-The corrected reviewer template requires a different model family. The plugin's panel
-mode uses one model family for implementation and review, so that mode cannot satisfy
-the template. The acceptance-author template also requires both a different family and
-a different harness from the implementer, while every plugin role runs inside one
-Claude Code process.
+Adversarial contract review found these unresolved plugin conflicts:
+
+- Panel review uses the implementer's model family, but reviewer v1.5 requires a
+  different family.
+- Acceptance authoring runs inside the same Claude Code process as implementation, but
+  the template requires a different family and harness.
+- Routed mode has no authoritative way to resolve and bind actual model families when
+  project or user agent definitions shadow a role name.
+- The schemas do not satisfy the plugin contract's verbatim-parity claim: Goodhart
+  accepts more than exactly three entries, and reviewer `clean` may be empty.
+- Routed review does not assign all required A/B/C focus areas.
+- Base-stage detection may read a stale `origin/<base>` remote-tracking ref.
+- Three agent definitions claim a serious-finding count check that the workflow does
+  not implement.
 
 These are product-contract conflicts, not wording defects. Changing Workflow
 JavaScript or inventing cross-harness dispatch in this prompt rewrite would violate
@@ -176,7 +199,7 @@ LANG-8. They require a separate behavior contract before implementation.
 ## README extension
 
 LANG-3 adds the reader-facing human-decision and limits sections. It does not change an
-agent instruction or the original 14 behavior scenarios. The README-scope critique
+agent instruction or the original 15 behavior scenarios. The README-scope critique
 checked that the wording keeps human ownership explicit and maps every limit to the
 remaining human, audit, review, or platform control. A final claims-vs-enforcement
 review checks the implemented README text. Its completeness findings were fixed by
@@ -189,9 +212,15 @@ NOT READY for the updated LANG-4 head.
 
 - S01–S15 have no retained per-model old/new results and are `UNKNOWN`.
 - Kimi has not run S16–S19.
+- LANG-7 scenario coverage is incomplete; rerunning the existing scenarios is not
+  enough.
 - Plugin panel review cannot satisfy the different-family reviewer rule.
 - Plugin acceptance authoring cannot satisfy the different-harness rule inside one
   Claude Code process.
+- Routed model-identity resolution and the other listed plugin contract conflicts need
+  a separate behavior contract.
+- GitHub CI receipts are pending on the replacement draft PR.
 
 Treat this branch as draft-only. The first two gaps need reproducible model evidence.
-The plugin conflicts need a separate behavior contract before any workflow-code change.
+The coverage gap needs new scenarios. The plugin conflicts need a separate behavior
+contract before any workflow-code change.
