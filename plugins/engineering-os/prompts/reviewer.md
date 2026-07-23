@@ -1,4 +1,4 @@
-<!-- vendored from engineering-os@ea6f50acf6186c38d622283f0d6c6d5f49e8a043 — edit the repo original, re-vendor -->
+<!-- vendored from engineering-os@06684fca8a980f6c8c066fb9b68d3f2886cdd5c5 — edit the repo original, re-vendor -->
 # Reviewer Prompt — v1.2
 
 Stage 6 of the pipeline. Reviewers are a different model family than the implementer.
@@ -20,8 +20,8 @@ total rounds on a PR is itself a process finding.
 - The acceptance coverage map (critique finding → test ID)
 - The exact candidate revision and the named user-visible result the end-to-end proof
   must show
-- For a rewrite: the pinned source set plus forward and reverse decision maps; for a
-  delete or rename: the full consumer map
+- For a rewrite, consolidation, or supersession: the pinned source set plus forward
+  and reverse decision maps; for a delete or rename: the full consumer map
 
 STANCE
 Findings-first, ordered by severity, each with file:line. Review against the
