@@ -1,5 +1,5 @@
-<!-- vendored from engineering-os@4705924212e269291542d22a59556405449631c0 — edit the repo original, re-vendor -->
-# Implementer Prompt — v1.3
+<!-- vendored from engineering-os@17c1bd98a4f460ff774626a3d8d0d794f41e0c2e — edit the repo original, re-vendor -->
+# Implementer Prompt — v1.4
 
 ## Purpose
 
@@ -32,7 +32,7 @@ rules; if a test conflicts with them, use the correction process instead of gues
 5. After any defect fix, check every similar code path for the same defect before
    asking for re-review. Fix it or record why it is not affected.
 6. Commit on a feature branch. Use a conventional commit subject and include
-   `Spec: <path§>` in the PR.
+   `Spec: <path>` in the PR.
 
 ## Safety rules
 
@@ -81,6 +81,8 @@ Done means all of the following are true on the PR head SHA:
 
 ## Changelog
 
+- **v1.4** — corrected the malformed spec-reference placeholder so it matches the
+  repository template (`LANG-4`).
 - **v1.3** — replaced narrative and metaphorical instructions with ordered steps,
   explicit safety rules, distinct STOP routes, and completion checks while preserving
   implementation behavior (`LANG-1..LANG-8`).

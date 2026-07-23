@@ -1,4 +1,4 @@
-<!-- vendored from engineering-os@ff9e8ab4c04388a4f083097f92be20f4d86dd463 — edit the repo original, re-vendor -->
+<!-- vendored from engineering-os@17c1bd98a4f460ff774626a3d8d0d794f41e0c2e — edit the repo original, re-vendor -->
 # Acceptance Test Author Prompt — v1.3
 
 ## Purpose
