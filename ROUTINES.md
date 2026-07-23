@@ -27,7 +27,9 @@ claude -p "$(cat engineering-os/routines/monthly-audit-prompt.md)"
    new login/auth code, new published package, new network egress, new personal
    data handling (scan the month's merged diffs for these).
 2. CI exists and is required: protected branch requires the verify job and
-   `process-guard`; the guard's pinned SHA is the current release.
+   `process-guard`; the guard's pinned SHA is the current release. Where review is a
+   required merge gate, confirm the rule applies to administrators too. An owner or
+   administrator bypass is a finding.
 3. Exempt markers (`.process-guard-exempt`) still present → validate `owner`,
    `reason`, `created`, `review_by`, and `removal_condition`; list each as a named
    gap with its age. Missing fields, passed review dates, or satisfied removal
@@ -50,8 +52,11 @@ upstream.
 **Check exactly:**
 
 1. Rounds per merged PR (review event → fix push → re-review = one round).
-   Median and worst. Every PR over 3 rounds must have a `LESSONS.md` entry — if it
-   doesn't, that's the finding.
+   Median and worst. For every PR with 2 or more rounds, compare each round's diff
+   size, changed areas, and findings. Flag a PR when the diff and finding list keep
+   growing, or when new findings are mainly in code added by the fix, and implementation
+   continued without first repairing the contract or tests. Every PR over 3 rounds
+   must have a `LESSONS.md` entry — if it doesn't, that's also a finding.
 2. `Process-Skip:` trailer count per repo. A rising skip rate is a finding.
 3. Red merges: any PR merged while a required check was failing (possible in
    degraded mode on private repos — this is the honesty check for that mode).
@@ -83,7 +88,7 @@ many review comments is not scored as process value by itself.
 
 **Output:** table per repo: PRs, median/worst rounds, skips, routing violations,
 stage-yield counts (critique / acceptance / CI / review / escaped / unknown),
-false-green/silent-skip count, criteria churn after coding began, and
+false-green/silent-skip count, missed scope-growth stops, criteria churn after coding began, and
 criteria/coverage-map/discovery/contract-shape violations.
 
 ## R-3 · Drift sync check — monthly

@@ -252,9 +252,10 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Class:** the task had no finish line. “Fix this known path” had silently become
   “make every object read safe everywhere,” without a contract defining which
   boundaries or behaviors belonged in the rule.
-- **Became:** PC-15 and PC-35, plus the SC-8 scope check. Stop after three rounds—or
-  earlier when the change grows every round. Ship the bounded incident fix alone. A new
-  shared helper or new guarantee starts with its own contract and tests.
+- **Became:** PC-15 and PC-35, the SC-8 scope check, and the R-2 monthly audit. Stop
+  after three rounds—or earlier when the change grows every round. Ship the bounded
+  incident fix alone. A new shared helper or new guarantee starts with its own contract
+  and tests.
 
 ## L-017 — Missing review work looked like approval <a name="l-017"></a>
 
@@ -268,6 +269,6 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Class:** two gates proved only that the workflow continued, not that review
   happened. Silence is not approval, and a rule an administrator can skip is not a hard
   merge gate.
-- **Became:** PC-32 and PC-33. Required review applies to administrators, and every
-  reviewer must return explicit completion evidence. Any refusal, error, timeout,
-  filtering, fallback substitution, or empty result is red.
+- **Became:** PC-32, PC-33, and the R-1 monthly audit. Required review applies to
+  administrators, and every reviewer must return explicit completion evidence. Any
+  refusal, error, timeout, filtering, fallback substitution, or empty result is red.
