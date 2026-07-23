@@ -82,7 +82,7 @@ for the missing comparison without adding a new tool or universal workflow.
 
 - **RIL-1 — public-safe lessons.** Public incident entries keep the failure class and
   remove repo names, employers, customers, model vendors, PR numbers, prices, and exact
-  counts that identify the incident. Enforcement: **PROMPT + AUDIT**.
+  counts that identify the incident. Enforcement: **PROMPT**, not HARD.
 - **RIL-2 — object-shape decisions.** When a security decision reads a field from an
   object or map, the contract states which container shapes and field sources are
   allowed. In languages with inheritance, getters, or proxies, a value that is not
@@ -103,7 +103,7 @@ for the missing comparison without adding a new tool or universal workflow.
   fleet parity is audited.
 - **RIL-6 — plain language.** The lesson, baseline rule, OS rule, and critic question
   explain the concrete failure before using a technical label. Enforcement:
-  **PROMPT + AUDIT**.
+  **PROMPT**, not HARD.
 
 **Supporting rationale (non-normative)**
 
