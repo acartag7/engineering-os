@@ -104,7 +104,7 @@ CLEAN: explicit list of what was checked and found clean
 
 - **v1.3** — bound every verdict to the exact head and base revisions after a review
   evidence fix showed that refreshing only the head can leave the reviewed diff stale
-  (LESSONS.md L-018).
+  (LESSONS.md L-024).
 - **v1.2** — added exact-candidate visible-result checks, replacement/deletion
   consumer sweeps, regression counterfactuals, proof-file secret hygiene, and
   decision-grade evaluation checks from LESSONS.md L-018 through L-023.

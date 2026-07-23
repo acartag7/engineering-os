@@ -349,3 +349,17 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Became:** PC-40 and critique question SC-12. Decision-grade evaluations need
   independent labels, provenance, a pre-stated decision rule, and judge calibration;
   weaker results are labeled directional.
+
+## L-024 — A fresh review received stale evidence <a name="l-024"></a>
+
+- **What:** A review workflow built its evidence packet once. After a fixer pushed a
+  new commit, the next reviewer received the new commit ID with the old visible-result
+  and consumer-map evidence.
+- **Where:** a Layer-2 review pipeline in a public process repository.
+- **Caught by:** the final permitted review round, after the first plumbing fix looked
+  complete and passed its checks.
+- **Class:** evidence bound to a mutable workflow invocation instead of the immutable
+  head and base that the reviewer actually judged.
+- **Became:** PC-41, plugin contract R9, reviewer prompt v1.3, and the non-frozen
+  pipeline regression. Rebuild evidence for every reviewed head/base pair and make a
+  move on either side stale.

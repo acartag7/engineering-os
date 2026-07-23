@@ -73,7 +73,8 @@ applicable. Lost output, a SHA mismatch, a declared missing field, or a blank fi
 stops review before any lens runs. After a fixer pushes, the next round repeats this
 process from the new remote SHA; earlier evidence is never reused. Each reviewer binds
 its verdict to both SHAs, the review artifact records both, and stage detection treats
-movement of either ref as stale review. [review-front-load P2]
+movement of either ref as stale review. Enforcement: **PROMPT in `/pipeline`, not
+HARD**. [review-front-load P2]
 
 ## Out of scope (recorded)
 

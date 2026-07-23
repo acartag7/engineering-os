@@ -50,6 +50,7 @@ Audit results live with each repo, not in this file.
 | PC-38 | Before a delete or rename, search all consumer classes and run the shipped entry point | Source cleanup leaving a package, container, deploy, CI, example, or operations path pointing at something gone | S, I | PROMPT | [L-020](LESSONS.md#l-020) |
 | PC-39 | Submitted proof artifacts are scanned for their test sentinel and ordinary secret patterns; real credentials found anywhere are rotated | A security proof leaking the value it claims was protected | S, I | PROMPT; history scanning is separately HARD where installed | [L-022](LESSONS.md#l-022) |
 | PC-40 | An evaluation that decides a product or model choice uses independent ground truth, provenance, a pre-stated decision rule, and calibrated judges; otherwise it is labeled directional | Circular scoring producing a confident but invalid product decision | S, I | PROMPT | [L-023](LESSONS.md#l-023) |
+| PC-41 | Rebuild review evidence from the exact remote head and base before every round, and bind the verdict marker to both | A new review judging a new commit with an old proof packet, or staying green after its base moved | S, I | PROMPT in `/pipeline`, not HARD | [L-024](LESSONS.md#l-024) |
 
 ## How enforcement labels read
 
