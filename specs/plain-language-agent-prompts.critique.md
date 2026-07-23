@@ -5,7 +5,7 @@
 **Acceptance-criteria version:** LANG-1
 **Route:** T1 (no trust boundary; behavior-only change via prompt rewording)
 **Critique prompt version:** v1.2
-**Date:** 2025-07-21
+**Date:** 2026-07-21
 
 ---
 
@@ -138,8 +138,8 @@ disposition_detail: >
 silence: SC-1 (domain completeness) — "unless an example is needed to execute
   correctly" has no decision procedure.
 divergent_choices:
-  - A: remove every incident reference (e.g., "an unrequested parser once cost
-    several review rounds") because it is history
+  - A: remove every incident reference (e.g., the prior parser-churn example) because
+    it is history
   - B: keep it because it calibrates the rule's severity for the model
 severity: P2
 disposition: contract-sentence
@@ -260,7 +260,7 @@ disposition_detail: >
 | Goal A | Goal B | Tension |
 |--------|--------|---------|
 | LANG-1: replace metaphors with plain terms | LANG-4: keep existing meaning | Precise repo-internal terms (silence class, Goodhart, front-load) have no equal-precision plain synonym |
-| LANG-6: history stays out | Implementer rule 5 calibration ("an unrequested parser once cost several review rounds") | Removing the example weakens the rule's force |
+| LANG-6: history stays out | Implementer rule 5 parser-churn calibration | Removing the example weakens the rule's force |
 | LANG-3: visible stop blocks | LANG-2: predictable structure | Some stops are mid-step context-dependent and resist extraction into a flat list |
 
 ---
@@ -308,16 +308,14 @@ safety-critical rules are NOT listed and are therefore vulnerable to simplificat
 ### G-1: Strip calibration examples, comply with LANG-6
 
 **Defective implementation:** Remove every sentence containing incident history or
-motivation from all prompts, including: "an unrequested parser once cost several review
-rounds before being deleted entirely" (implementer rule 5), "a PR audit found this
-exact class repeated many times" (implementer rule 4), and the critique prompt's
-versioning paragraph ("the silence-class list below is the compressed history of real
-escaped defects").
+motivation from all prompts, including the implementer parser-churn calibration, the
+external-input review calibration, and the critique prompt's note that its checklist
+comes from escaped defects.
 
-**Defect:** Models lose calibration for HOW STRICTLY to apply the rules. Without
-"several review rounds" the least-machinery rule reads as mild advice rather than a
-hard stop. Without the critique's history sentence, models may treat silence classes
-as optional suggestions rather than a compressed audit of real escapes.
+**Defect:** Models lose calibration for HOW STRICTLY to apply the rules. Without the
+churn example, the least-machinery rule reads as mild advice rather than a hard stop.
+Without the critique's history sentence, models may treat silence classes as optional
+suggestions rather than a compressed audit of real escapes.
 
 **Permitted by:** LANG-6 says "Incident history and motivation move to changelogs or
 linked documentation unless an example is needed to execute correctly." The contract
@@ -450,7 +448,7 @@ without risk of shipping a compliant-but-defective rewrite.
 
 ---
 
-## Round 2 — LANG-2 contract critique
+## LANG-2 contract critique
 
 **Date:** 2026-07-22
 **Contract version reviewed:** LANG-2
@@ -460,7 +458,7 @@ repo prompts, vendored prompt copies, `plugins/engineering-os/skills/pipeline/SK
 
 ### Prior finding status
 
-| Finding | Status | Round-2 basis |
+| Finding | Status | Follow-up basis |
 |---|---|---|
 | F-1 term boundary (P1) | CLOSED | LANG-1 names replaceable metaphors, freezes precise paths/commands/schemas/reason codes/Git/checklist IDs, and keeps precise technical terms with a first-use definition. |
 | F-2 section headings | CLOSED | LANG-2 makes the eight sections content categories, not literal headings, and preserves reviewer focus areas/role boundaries. |
@@ -489,13 +487,13 @@ LANG-7 is concrete enough for a fair GPT/Claude/Kimi old-vs-new comparison. The 
 
 None.
 
-### Round-2 verdict
+### Follow-up verdict
 
 READY
 
 ---
 
-## Round 3 — LANG-3 README scope critique
+## LANG-3 README scope critique
 
 **Date:** 2026-07-22
 **Contract version reviewed:** LANG-3
@@ -521,15 +519,15 @@ None blocking. The contract does not need to enumerate exact README prose before
 - Do not call per-feature pipeline/audit or human review a hard enforcement layer unless the repo has an actual hard gate for that claim.
 - Name the stronger platform control for workflow tampering directly; avoid implying current in-repo checks already close that risk.
 
-### Round-3 verdict
+### README-scope verdict
 
 READY
 
 ---
 
-## Round 4 — Focus B supplied-binding-claim scope critique
+## Focus B supplied-binding-claim scope critique
 
-**Date:** 2025-07-22
+**Date:** 2026-07-22
 **Contract version reviewed:** LANG-4
 **Focused scope:** whether LANG-4 unambiguously requires (a) full supplied binding
 contract claims review regardless of PR diff and (b) public docs/README claims changed
@@ -594,6 +592,6 @@ No contract sentence is missing. The fix belongs in the prompt implementation.
 No new blocking contract findings. The concern is confirmed real but is classified as
 an implementation non-compliance, not a contract gap.
 
-### Round-4 verdict
+### Focus B verdict
 
 READY

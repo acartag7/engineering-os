@@ -1,4 +1,4 @@
-# Reviewer Prompt — v1.3
+# Reviewer Prompt — v1.4
 
 ## Purpose
 
@@ -130,9 +130,11 @@ P1 and P2 findings block. P3 findings are recorded and may ship with a ledger no
 
 ## Changelog
 
+- **v1.4** — removed repository-specific review metadata from the public prompt
+  without changing review behavior (`LANG-6`).
 - **v1.3** — restored review of the full supplied binding-claims list, including claims
   unchanged by the implementation PR; changed public documentation claims remain a
-  second review set (PR #7 review finding, LANG-4).
+  second review set after exact-head review (`LANG-4`).
 - **v1.2** — replaced metaphors and narrative with direct steps, separate focus areas,
   STOP conditions, an exact output shape, and completion checks while preserving review
   behavior (`LANG-1..LANG-8`).

@@ -6,8 +6,9 @@
 **Reason:** prompt wording can change agent behavior
 **Required evidence:** independent critique, three-model old/new comparison, vendor
 parity, existing CI and guard suite
-**Evidence links:** `specs/plain-language-agent-prompts.md`; critique and comparison
-reports added before implementation/review complete
+**Evidence links:** `specs/plain-language-agent-prompts.md`,
+`specs/plain-language-agent-prompts.critique.md`, and
+`specs/plain-language-agent-prompts.eval.md`; CI receipts recorded on the draft PR
 **Acceptance-criteria version:** LANG-4
 **Process-Skip: acceptance** — model wording has no deterministic product acceptance
 surface; behavior retention is checked through the same scenarios across three model
@@ -83,7 +84,8 @@ must remain exact.
   operational evidence, and process outcomes explicit
 - **Required evidence:** claims-vs-enforcement review, prompt/vendor parity, link and
   SVG validation, existing acceptance suite, and `process-guard`
-- **Evidence links:** PR #6 checks and review threads
+- **Evidence links:** commit `4b23c029ef20d12213bef04820c7505d3e3c2684`
+  checks and exact-head review records
 - **Acceptance-criteria version:** PA-1
 - **Process-Skip: acceptance** — these changes alter policy and prompts but add no
   executable product behavior; existing guard acceptance and drift checks remain the
@@ -440,7 +442,7 @@ NOT any acceptance-dir file.
 The **frozen suite asserts FIXED behaviour** against the guard under test, resolved
 from `PG_CHECK_PATH` (default: the repo's `process-guard/scripts/check.mjs`). It does
 NOT compare against a moving reference — `origin/main:check.mjs` becomes the fixed
-guard once PR #2 merges, so freezing a comparison against it would self-break. Every
+guard once the fix merges, so freezing a comparison against it would self-break. Every
 row asserts exit code AND `<check>: <reason-code>` (D4) against the repo guard.
 
 Red-then-green is verified **once, by the author, out of band** (not frozen into CI):
@@ -462,7 +464,7 @@ tautological). Report the table. Classify every row:
   edit-plus-register, base-hole registration positive, NFC blob-read, NFC-collision,
   non-hex hash, log-injection filename, blank PG_SRC_PATHS, src+fixture passes,
   src+frozen fails, malformed-base recovery, H8 self-gating fixture.
-- **FIXED-ONLY regression rows added after round-1 review** (each pins a reproduced
+- **FIXED-ONLY regression rows added after initial review** (each pins a reproduced
   bypass — see addenda A1–A7): empty-base steady-state (base `{files:{}}` + a src PR →
   `stage-artifact: manifest-on-base` but overall exit 1 via `freeze-hash: empty-suite`);
   re-freeze-to-empty (delete all tests + `{files:{}}` + contract → `empty-suite`, not
@@ -479,7 +481,7 @@ Every test strips inherited `PG_*` from env, setting only what the fixture needs
 fail-closed-on-error case asserts a clean `✗ freeze-hash: manifest-malformed` verdict
 (no raw stack), not merely non-zero.
 
-### Review-hardening addenda (round-1 adversarial review — fold into the clauses)
+### Review-hardening addenda (initial adversarial review — fold into the clauses)
 
 A cross-family review reproduced several exit-0 bypasses a green suite had laundered.
 These tighten the clauses above; each gets a fixed-only regression row.
@@ -520,7 +522,7 @@ These tighten the clauses above; each gets a fixed-only regression row.
 - **A10 — CI enforces the mirror + suite + self-gating.** PG-H8/Deliverables: the CI
   drift guard compares vendored `scripts/*.mjs` against originals (not only prompts);
   CI runs the acceptance suite; `src-paths` + trusted-bootstrap wired (guard PR).
-- **A11 — a structurally-corrupt BASE is recoverable, not a wedge** (round-2 review).
+- **A11 — a structurally-corrupt BASE is recoverable, not a wedge** (follow-up review).
   The A2/A3/D3 base-side checks must not permanently wedge the repo. HEAD structural
   checks stay UNCONDITIONAL (a PR can never commit a symlink, NFC collision, or empty
   suite). But a PRE-EXISTING corrupt base — a matched/listed symlink, an NFC collision,

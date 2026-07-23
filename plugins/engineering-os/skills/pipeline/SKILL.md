@@ -12,9 +12,10 @@ argument-hint: "<feature> [stage|status]"
 arguments: [feature, stage]
 ---
 
-<!-- v3.2.0 · rewrites agent-facing prose in plain language while preserving workflow
+<!-- v3.2.1 · removes repository-specific review metadata; behavior unchanged (LANG-6).
+     v3.2.0 · rewrites agent-facing prose in plain language while preserving workflow
      code and gates (LANG-1..LANG-8).
-     v3.1.1 · keeps status invocations read-only (PR #6 review finding).
+     v3.1.1 · keeps status invocations read-only after exact-head review.
      v3.1.0 · adds routing, contract rules, bounded discovery, criteria correction,
      and production-evidence separation (PA-1..PA-7).
      v3.0.0 · workflow rewrite after the 2026-07-18 contract critique. -->
