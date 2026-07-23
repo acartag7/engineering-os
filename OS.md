@@ -119,8 +119,17 @@ became a product but kept experiment-level process."
   pass. Prevents ten slow rounds of one-finding-at-a-time.
 - Merge needs the reviewer's marker on the exact final commit — never "no complaints
   after a while." Prevents merging before a late finding lands.
-- More than 3 review rounds on one PR = the spec or tests were weak. That gets written
-  into `LESSONS.md` instead of endured.
+- Stop after 3 review rounds, or sooner if the diff and finding list keep growing.
+  Repair the contract or tests before writing more code. This is checked by the
+  monthly audit, not by CI.
+- A reviewer that refuses, errors, times out, is filtered, is silently replaced, or
+  returns nothing has failed. It did not report “no findings.” **[not yet enforced
+  fleetwide]**
+- Required review applies to administrators too. If the owner can merge around it, it
+  is not a hard gate. Branch protection enforces this where configured; fleet parity
+  remains an audit.
+- Keep an incident fix bounded. A new shared security helper or new guarantee gets its
+  own contract, tests, and PR. This is **PROMPT + AUDIT**, not a CI check.
 - Every defect a review catches becomes a permanent test, and every similar code path
   gets checked for the same bug before the finding is closed. Prevents: "fixed here,
   forgotten there."

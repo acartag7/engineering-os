@@ -1,5 +1,57 @@
 # Contracts
 
+## Review-incident lessons (T1)
+
+**Routing record**
+
+- **Route:** T1 — changes review behavior and public process guidance, not executable
+  guard behavior
+- **Reason:** two incidents exposed missing stop rules, false review evidence, and an
+  input-shape blind spot
+- **Required evidence:** source-session review, public-safety pass,
+  claims-vs-enforcement review, prompt/vendor parity, existing acceptance suite,
+  `process-guard`, and independent exact-head review
+- **Evidence links:** `LESSONS.md` L-015 through L-017, final PR checks, and review
+  threads
+- **Acceptance-criteria version:** RIL-1
+- **Process-Skip: acceptance** — this change records lessons and updates an advisory
+  critic prompt. It does not change `process-guard` or another executable product
+  boundary. Existing guard acceptance and parity checks remain required.
+
+**Normative invariants**
+
+- **RIL-1 — public-safe lessons.** Public incident entries keep the failure class and
+  remove repo names, employers, customers, model vendors, PR numbers, prices, and exact
+  counts that identify the incident. Enforcement: **PROMPT + AUDIT**.
+- **RIL-2 — object-shape decisions.** When a security decision reads a field from an
+  object or map, the contract states which container shapes and field sources are
+  allowed. In languages with inheritance, getters, or proxies, a value that is not
+  explicitly allowed at that trust boundary cannot silently grant access or turn off
+  a safety check.
+  Enforcement: **PROMPT + AUDIT**, not HARD.
+- **RIL-3 — review execution evidence.** Every required reviewer proves it ran and
+  records one of: findings, an explicit no-findings result, or a failed gate. Refusal,
+  error, timeout, filtering, fallback substitution, and empty output are failures,
+  never approval. Enforcement: **NOT YET ENFORCED fleetwide**.
+- **RIL-4 — stop scope growth.** Stop an incident fix when review reaches three
+  rounds, when the diff grows every round, or when new findings are mainly in code the
+  fix just added. Repair the contract or tests before more implementation. A new shared
+  security helper or new guarantee gets its own contract, tests, and PR. Enforcement:
+  **PROMPT + AUDIT**, not HARD.
+- **RIL-5 — owner cannot skip review.** When approval is a required merge gate, branch
+  protection applies it to administrators too. Enforcement: **HARD where configured**;
+  fleet parity is audited.
+- **RIL-6 — plain language.** The lesson, baseline rule, OS rule, and critic question
+  explain the concrete failure before using a technical label. Enforcement:
+  **PROMPT + AUDIT**.
+
+**Supporting rationale (non-normative)**
+
+Several independent reviewers can share one blind spot when every probe uses the same
+normal input. A small fix can also become a new subsystem when nobody defines where the
+rule stops. These amendments make both failure modes visible without adding another
+runtime mechanism.
+
 ## Practical process amendments (T1)
 
 **Routing record**

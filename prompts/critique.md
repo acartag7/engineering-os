@@ -1,4 +1,4 @@
-# Critique Prompt — v1.2
+# Critique Prompt — v1.3
 
 Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
 suite is authored. The critic's findings are structurally consumed by stage 4: every
@@ -26,7 +26,7 @@ INPUTS
 - Supporting rationale: <paste or path — context only, never binding behavior>
 - Discovery record + experiment references: <specs/<feature>.discovery.md | none>
 - Threat rows for this change (T2+): <paste or path>
-- Silence-class checklist: v1.1 (below)
+- Silence-class checklist: v1.3 (below)
 
 TASK
 1. For each silence class, ask: where is the contract silent? For each silence,
@@ -44,7 +44,7 @@ TASK
    yet fully green and letter-compliant with this contract. Be specific about the
    defect and why the contract's wording permits it.
 
-SILENCE CLASSES (v1.1)
+SILENCE CLASSES (v1.3)
 SC-1  Domain completeness — for every input: null, empty, absent, malformed,
       composite, oversized, unicode/encoding edge. What does the contract say
       happens? If nothing: silence.
@@ -68,11 +68,18 @@ SC-8  Wrong tool / unbounded input space — does this change hand-roll parsing,
       (e.g. escalate to a real renderer instead of string-stripping)? If the
       contract permits a hand-rolled parser, it must also bound the malformed-input
       space it handles — otherwise reviewers will discover that space one round at
-      a time.
+      a time. Treat “every X everywhere must Y” the same way: the contract must list
+      the exact boundaries. A new shared security helper or new guarantee does not
+      belong inside an incident fix.
 SC-9  Readiness — does the contract contain pending decisions, references to files
       outside the repo, or "design is done" claims pointing at ephemeral paths?
       A contract with open decisions is not ready for implementation; naming them
       is a P1 finding, not a footnote.
+SC-10 Object shape — an object is more than the key/value pairs shown in a normal
+      literal. Depending on the language, a field can be inherited, computed by a
+      getter or proxy, or come from a different runtime realm. If that field can
+      grant access or turn off a safety check, does the contract say which shapes
+      and field sources are allowed? Do negative tests cover the rejected ones?
 
 OUTPUT CONTRACT (structured findings only — no prose-only findings)
 Each finding:
@@ -95,6 +102,9 @@ CALIBRATION
 
 ## Changelog
 
+- **v1.3** — added SC-10 (object shape) and extended SC-8 with the unbounded
+  repository-wide rule case after clean test objects hid an unsafe inherited flag and
+  its incident fix grew a new subsystem (LESSONS.md L-015, L-016).
 - **v1.2** — added routing-record, normative-invariant, bounded-discovery, and
   production-runtime-evidence checks for practical-process gaps PA-1/PA-2/PA-4/PA-7.
   No new silence class: these extend readiness, authority, and wiring checks.

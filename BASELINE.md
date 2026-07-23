@@ -24,7 +24,7 @@ Audit results live with each repo, not in this file.
 | PC-12 | Each repo declares its tier in one line; gaining logins/real data/publishing flags a promotion | An internal tool quietly becoming a product with experiment-level process | S, I, X | AUDIT | [L-008](LESSONS.md#l-008) |
 | PC-13 | The committer on acceptance tests differs from the committer on code | Same-author tests pretending to be independent | S, I | SEMI — forgeable by owner, audited | [L-001](LESSONS.md#l-001) |
 | PC-14 | Reviewers get the contract's promises + threat notes up front, in round 1 | Reviews that find wrong code but never missing code | S, I | PROMPT + AUDIT | [L-005](LESSONS.md#l-005) |
-| PC-15 | More than 3 review rounds on one PR is recorded as a process failure | Grinding through 16 rounds instead of fixing the stage that produced weak code | S, I | AUDIT | [L-005](LESSONS.md#l-005) |
+| PC-15 | Stop after 3 review rounds, or sooner if the diff and finding list keep growing; repair the contract or tests before more code | Review becoming an endless spec-discovery loop | S, I | AUDIT | [L-005](LESSONS.md#l-005), [L-016](LESSONS.md#l-016) |
 | PC-16 | The real end-to-end flow (real entry point, real stores, real client) runs in CI before anything is called done | Perfect units, broken product — wiring bugs are invisible to unit tests | S, I | HARD where suites exist | [L-004](LESSONS.md#l-004) |
 | PC-17 | Generative (property/fuzz) tests at parser and encoding boundaries | The input shape nobody hand-wrote a test for | S | NOT YET ENFORCED — backlog | [L-002](LESSONS.md#l-002) |
 | PC-18 | Mutation testing as a periodic report (never a CI gate): break the code on purpose, see if tests notice | Test suites that look thorough but assert nothing | S | NOT YET ENFORCED — backlog | [L-001](LESSONS.md#l-001) |
@@ -41,6 +41,10 @@ Audit results live with each repo, not in this file.
 | PC-29 | Dry-run mode is a deny-all-writes policy layer, not a code path that must remember to be careful | One forgotten `if dry_run` guard doing a real write | S, I | PATTERN — adopt per tool | harvest: replication-agent |
 | PC-30 | Every allowlist entry (network, mounts, commands) carries an inline reason | Allowlists that grow forever because nobody remembers why entries exist | S, I | SEMI (review lens) | harvest: scanner sandbox policy |
 | PC-31 | Every suppressed warning (ignored CVE, disabled lint) carries a recheck date; expired ones get flagged | Ignores that outlive their excuse — the patch shipped a year ago and we're still ignoring the CVE | S, I | AUDIT | harvest: CVE-ignore rot |
+| PC-32 | Required review applies to administrators too | An owner merging while the platform still says review is required | S, I | HARD where required review exists | [L-017](LESSONS.md#l-017) |
+| PC-33 | Every required reviewer proves it ran; refusal, error, timeout, filtering, fallback substitution, or empty output is red | Missing review work being mistaken for “no findings” | S, I | NOT YET ENFORCED — prompt + audit only | [L-017](LESSONS.md#l-017) |
+| PC-34 | When a security decision reads a field from an object or map, the contract and tests cover where that field may come from | Normal test objects hiding an inherited or computed value that turns off a safety check | S, I | PROMPT + AUDIT | [L-015](LESSONS.md#l-015) |
+| PC-35 | Keep an incident fix bounded; a new shared security helper or new guarantee gets its own contract, tests, and PR | A small fix growing a new subsystem that creates more defects than it removes | S, I | PROMPT + AUDIT | [L-016](LESSONS.md#l-016) |
 
 ## How enforcement labels read
 

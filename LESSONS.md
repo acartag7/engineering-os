@@ -223,3 +223,51 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   frozen acceptance suite carrying a regression row per reproduced bypass; the guard
   now gates its own code via a base-materialized trusted-bootstrap job; strengthens
   PC-08, PC-09, PC-10, PC-23.
+
+## L-015 — Clean test objects hid an unsafe security flag <a name="l-015"></a>
+
+- **What:** A network safety check read a boolean from an ordinary object. The code
+  accepted a value inherited from that object's parent as if the caller had supplied
+  it. That inherited value could turn on a local-network exception.
+- **Where:** an outbound-network boundary in a public security library.
+- **Caught by:** a fresh review that changed the *shape* of the input instead of trying
+  more values in the same normal object. The path was fixed before it was wired into a
+  released flow.
+- **Class:** the contract, tests, and earlier reviewers all asked whether the value was
+  true or false. None asked where the value came from. Independent reviewers shared
+  the same clean-object assumption.
+- **Became:** PC-34 and critique question SC-10. Security flags must come from an
+  explicitly allowed field source, and the negative tests must cover inherited or
+  computed values where the language permits them.
+
+## L-016 — A small fix grew into a new security subsystem <a name="l-016"></a>
+
+- **What:** A bounded fix expanded into a repository-wide rule and a new shared helper.
+  Each review round found more problems, mostly in code that the fix itself had added.
+  The helper eventually repeated the same unsafe assumption it was meant to prevent.
+- **Where:** an incident fix in a public security library.
+- **Caught by:** the owner noticing that the diff and finding list grew every round
+  instead of converging. The large change was closed without merging; the small fix
+  shipped separately.
+- **Class:** the task had no finish line. “Fix this known path” had silently become
+  “make every object read safe everywhere,” without a contract defining which
+  boundaries or behaviors belonged in the rule.
+- **Became:** PC-15 and PC-35, plus the SC-8 scope check. Stop after three rounds—or
+  earlier when the change grows every round. Ship the bounded incident fix alone. A new
+  shared helper or new guarantee starts with its own contract and tests.
+
+## L-017 — Missing review work looked like approval <a name="l-017"></a>
+
+- **What:** One required reviewer could refuse, error, time out, be filtered, or return
+  nothing. In the automated flow, that absence could look like “no findings.” The same
+  incident also merged while the platform still wanted a review because the owner
+  could bypass the normal approval rule.
+- **Where:** the review and merge path for a public security project.
+- **Caught by:** a manual check of the actual reviewer result and the platform's merge
+  state, rather than trusting a green summary.
+- **Class:** two gates proved only that the workflow continued, not that review
+  happened. Silence is not approval, and a rule an administrator can skip is not a hard
+  merge gate.
+- **Became:** PC-32 and PC-33. Required review applies to administrators, and every
+  reviewer must return explicit completion evidence. Any refusal, error, timeout,
+  filtering, fallback substitution, or empty result is red.
