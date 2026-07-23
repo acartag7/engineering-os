@@ -36,6 +36,9 @@ jobs:
           done
           echo "frontmatter ok for all agents + skills"
 
+      - name: Pipeline review evidence refresh is pinned
+        run: node --test test/pipeline-review-evidence.test.mjs
+
       - name: Vendored prompts match repo originals (drift guard)
         run: |
           set -euo pipefail
