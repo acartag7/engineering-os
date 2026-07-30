@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "collected_on": "2026-07-29",
+  "definitions": {
+    "changed_lines": "GitHub additions plus deletions",
+    "submitted_review": "A Codex pull-request review submission; one submission can contain several findings",
+    "finding_review": "A Codex pull-request review that returned one or more findings",
+    "inline_finding": "A Codex review comment attached to changed lines",
+    "review_window_hours": "Time from pull-request creation to merge; work before PR creation is excluded"
+  },
+  "cases": [
+    {
+      "id": "public-security-library",
+      "repository": "acartag7/mcp-sso",
+      "sources": {
+        "field_report": "https://dev.to/acartag7/a-4-line-security-fix-turned-into-a-100-file-pull-request-and-i-nearly-merged-it-1gkf",
+        "runaway_pr": "https://github.com/acartag7/mcp-sso/pull/88",
+        "reviewed_rule_pr": "https://github.com/acartag7/mcp-sso/pull/111",
+        "implementation_pr": "https://github.com/acartag7/mcp-sso/pull/116",
+        "bounded_fix_pr": "https://github.com/acartag7/mcp-sso/pull/110"
+      },
+      "runaway_fix": {
+        "files": 104,
+        "additions": 6900,
+        "deletions": 1461,
+        "changed_lines": 8361,
+        "open_hours": 5.39,
+        "merged": false
+      },
+      "release_hardening": {
+        "pull_requests": 15,
+        "submitted_reviews": 110,
+        "mean_submitted_reviews": 7.33,
+        "audit_findings_approx": 186,
+        "highest_review_counts": [29, 27, 12, 12],
+        "context": "Deliberate hardening before the 0.3.0 release"
+      },
+      "rule_then_code": {
+        "rule_review": {
+          "changed_lines": 1031,
+          "finding_reviews": 27,
+          "inline_findings": 49,
+          "review_window_hours": 11.42
+        },
+        "implementation": {
+          "changed_lines": 1546,
+          "added_test_lines": 770,
+          "finding_reviews": 3,
+          "inline_findings": 3,
+          "review_window_hours": 0.88
+        }
+      },
+      "bounded_live_fix": {
+        "changed_lines": 131,
+        "files": 5,
+        "finding_reviews": 1,
+        "final_review_clean": true,
+        "review_window_hours": 2.55
+      }
+    },
+    {
+      "id": "private-internal-project",
+      "repository": null,
+      "history_public": false,
+      "process_start": "2026-07-22",
+      "before_process": {
+        "included_in_process_results": false,
+        "description": "Direct AI-generated development without a stable review process"
+      },
+      "planning_reset": {
+        "files": 35,
+        "additions": 13116,
+        "deletions": 107
+      },
+      "oversized_first_change": {
+        "changed_lines": 6565,
+        "files": 46,
+        "commits": 44,
+        "submitted_reviews": 43,
+        "inline_findings": 129,
+        "review_window_hours": 25.4
+      },
+      "following_changes": {
+        "pull_requests": 16,
+        "total_changed_lines": 22329,
+        "median_changed_lines": 1264,
+        "total_finding_reviews": 33,
+        "median_finding_reviews": 2,
+        "total_inline_findings": 39,
+        "median_inline_findings": 2,
+        "median_review_window_hours": 0.98
+      }
+    }
+  ],
+  "limits": [
+    "Both projects have the same owner",
+    "The projects and change types differ",
+    "Review-window time excludes work before PR creation",
+    "Review and finding counts do not measure severity",
+    "The private case cannot yet be checked against public history"
+  ]
+}
