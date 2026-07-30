@@ -19,9 +19,9 @@ Non-negotiables — CI enforces these; this block just saves you a red build:
 - Contract first: contracts.md wins over the code and over your inference. Never
   implement while the contract has open decisions or points at files outside this
   repo.
-- Trust-boundary decisions are allowlists, never blocklists. Empty config counts
-  as missing config: fail closed. Type-check every externally-sourced value before
-  using it. Malformed input fails closed, never best-effort.
+- Security and sensitive-data decisions use allowlists, never blocklists. Empty
+  config counts as missing config: fail closed. Type-check every externally-sourced
+  value before using it. Malformed input fails closed, never best-effort.
 - Build the least machinery the contract asks for. No unrequested parsers,
   validators, or abstractions. If the simple approach feels insufficient, stop and
   ask — don't build.

@@ -1,4 +1,4 @@
-# Implementer Prompt — v1.2
+# Implementer Prompt — v1.3
 
 Stage 5 of the pipeline. The implementer inherits a frozen acceptance suite and a
 contract; its job is to make the suite pass without touching it.
@@ -28,8 +28,8 @@ RULES
    correction path runs; never patch around or continue against disputed criteria.
 2. Add your own unit/integration tests freely — they supplement, never replace,
    the acceptance suite.
-3. Trust-boundary decisions are allowlists. Guards run before side effects. Fail
-   closed on missing/invalid configuration.
+3. Security and sensitive-data decisions use allowlists. Guards run before side
+   effects. Fail closed on missing/invalid configuration.
 4. Untrusted-input hygiene (a PR audit found this exact class repeated many times
    in a single PR — it is checked on every review):
    - Present-but-empty counts as missing: config set to "" fails closed, same as
@@ -61,6 +61,8 @@ DONE MEANS
 
 ## Changelog
 
+- **v1.3** — replaced an abstract boundary label with concrete security and
+  sensitive-data wording; the allowlist and fail-closed behavior is unchanged.
 - **v1.2** — added routing/criteria-version inputs, normative-vs-rationale authority,
   the frozen-criteria correction stop, and software-vs-runtime evidence separation
   for practical-process gaps PA-1/PA-2/PA-3/PA-7.

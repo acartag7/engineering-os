@@ -15,13 +15,15 @@ anything.
 
 ## 1. Every piece of work: decide the tier first
 
-Ask one question: **does this touch a trust boundary?** (logins, tokens, tenancy,
-redaction, network egress, data writebacks, parsers over untrusted input.)
+Ask one question: **does this decide who or what may access, change, or send sensitive
+data?** Examples include login, tokens, tenant separation, redaction, network
+connections, data writes, and parsers for untrusted input.
 
-- No, and it's mechanical (rename, dep bump) → **T0**: just do it. Normal PR + CI.
+- No, and it's routine (rename, dependency update) → **T0**: normal PR + CI.
 - No, but behavior changes → **T1**: pipeline is default-on; you may skip stages
   with a `Process-Skip:` trailer (the audit counts skips).
-- Yes → **T2**. Parser over untrusted input, or a brand-new boundary → **T3**.
+- Yes → **T2**. A parser for untrusted input, or brand-new security behavior →
+  **T3**.
 - Docs that make promises to users → run the claims check (every "never/always/
   cannot" must point at enforcing code).
 
@@ -34,6 +36,17 @@ Required evidence: <stages, tests, review, runtime evidence>
 Evidence links: <fill before merge>
 Acceptance-criteria version: <AC-n | not applicable>
 ```
+
+Then check that the task is ready:
+
+- one clear rule rather than several unrelated rules;
+- every affected code path can be listed;
+- no important decision is still open;
+- one reviewer can understand the whole change;
+- the AI has a clear reason to stop.
+
+Line count is only a warning. A rule used in several places may still be one clear
+change, especially when much of the pull request is tests.
 
 This record is **PROMPT + AUDIT**, not a `process-guard` check. If the route cannot be
 decided without an experiment, use [`POLICY.md`](POLICY.md)'s bounded discovery lane,
@@ -68,18 +81,18 @@ Rules of thumb:
 
 ### If a frozen criterion is wrong
 
-Stop the implementation. The contract owner increments the acceptance-criteria
-version, names the superseded version and affected invariant IDs, and re-runs critique
-for those invariants on a correction branch. The independent acceptance author then
-adds only the affected tests + manifest to that same branch without editing the
-contract. Merge the reviewed contract+acceptance PR before implementation resumes. The
-mechanical freeze is HARD; the semantic/version/authorship checks are **PROMPT +
-AUDIT**. See [`OS.md`](OS.md#correcting-frozen-acceptance-criteria).
+Stop implementation. The owner increments the acceptance-criteria version, names the
+old version and changed rule IDs, and asks for another review of those rules on a
+correction branch. A test author other than the coder then changes only the affected
+tests and their saved hashes. Merge that reviewed rule-and-test PR before coding
+continues. `process-guard` checks the hashes. Prompts and later review currently check
+the reason, version, separate authorship, and approval. See
+[`OS.md`](OS.md#correcting-frozen-acceptance-criteria).
 
-For production mutations, also fill the runtime-evidence overlay from
-[`POLICY.md`](POLICY.md#production-mutation-overlay). It is **NOT YET ENFORCED
-fleetwide** and must not be presented as a HARD gate until the target repository wires
-it outside the orchestrator.
+For a change that modifies live data, also record the before-and-after evidence listed
+in [`POLICY.md`](POLICY.md#changes-to-live-data). This is **not yet a required check in
+every repository**. Do not claim that CI enforces it unless the repository really has
+that check.
 
 ## 3. Where the prompts go, per tool
 

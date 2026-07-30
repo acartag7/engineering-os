@@ -1,5 +1,5 @@
 <!-- vendored from engineering-os@a3b8bd07fe3e511c690be2228afd17a7e9ac05e3 — edit the repo original, re-vendor -->
-# Critique Prompt — v1.2
+# Critique Prompt — v1.3
 
 Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
 suite is authored. The critic's findings are structurally consumed by stage 4: every
@@ -51,7 +51,7 @@ SC-1  Domain completeness — for every input: null, empty, absent, malformed,
       happens? If nothing: silence.
 SC-2  Deny-side completeness — for every capability granted (MAY), where is the
       MUST-NOT? What states/outcomes must be unreachable, not merely unrequired?
-SC-3  Closed positive sets — is every trust-boundary decision expressed as an
+SC-3  Closed positive sets — is every security or sensitive-data decision expressed as an
       explicit allowlist? Could any predicate be plausibly implemented as a
       blacklist and still read as compliant?
 SC-4  Round-trip invariants — serialize→parse identity, precision, encoding,
@@ -96,6 +96,8 @@ CALIBRATION
 
 ## Changelog
 
+- **v1.3** — replaced an abstract boundary label with concrete security and
+  sensitive-data wording; SC-3 behavior is unchanged.
 - **v1.2** — added routing-record, normative-invariant, bounded-discovery, and
   production-runtime-evidence checks for practical-process gaps PA-1/PA-2/PA-4/PA-7.
   No new silence class: these extend readiness, authority, and wiring checks.

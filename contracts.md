@@ -4,7 +4,7 @@
 
 **Routing record**
 
-- **Route:** T1 — process behavior changes without a trust-boundary change
+- **Route:** T1 — process behavior changes without a security or sensitive-data change
 - **Reason:** make routing, contracts, discovery, acceptance correction, exemptions,
   operational evidence, and process outcomes explicit
 - **Required evidence:** claims-vs-enforcement review, prompt/vendor parity, link and
@@ -271,7 +271,7 @@ src+suite-in-one-PR still fails stage-artifact; the suite PR precedes the impl P
 - Negative (fixed-only): base-manifest probe git error (bad base ref / forced non-zero
   `ls-tree`) → `process-guard: git-error`, NOT the introduction path.
 
-### PG-H7 — input hardening at the trust boundary
+### PG-H7 — reject unsafe input before using it
 
 1. **NUL-delimited git output** — every `--name-only`/`ls-tree` uses `-z`, read as
    bytes; invalid-UTF-8 paths rejected fail-closed.

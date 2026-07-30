@@ -13,7 +13,8 @@ argument-hint: "<feature> [stage|status]"
 arguments: [feature, stage]
 ---
 
-<!-- v3.1.1 · keeps status invocations read-only (PR #6 review finding).
+<!-- v3.1.2 · uses concrete security and sensitive-data routing language.
+     v3.1.1 · keeps status invocations read-only (PR #6 review finding).
      v3.1.0 · adds visible routing, compact invariant contracts, bounded discovery,
      versioned criteria correction, and runtime-evidence separation (PA-1..PA-7).
      v3.0.0 · workflow rewrite after the 2026-07-18 contract critique. -->
@@ -34,8 +35,8 @@ pipeline log, PR body, branch, or any working-tree file. Run only stage detectio
 print the found/missing table, and stop. A status invocation may inspect Git/remotes;
 it never changes delivery artifacts or metadata.
 
-1. **Tier.** Ask/confirm: does this change touch a trust boundary (logins,
-   tokens, tenancy, redaction, egress, parsers over untrusted input)?
+1. **Tier.** Ask/confirm: does this change make a security or sensitive-data decision
+   (logins, tokens, tenancy, redaction, egress, parsers over untrusted input)?
    - T0 mechanical → say "pipeline is overkill, normal PR" and stop.
    - T1 → proceed. A stage may be skipped only with a `Process-Skip:` trailer
      on the relevant commit; record the skip in the log line.

@@ -10,17 +10,17 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 
 ---
 
-## L-001 — Green tests laundered a trust-boundary defect <a name="l-001"></a>
+## L-001 — Green tests hid a security defect <a name="l-001"></a>
 
 - **What:** Four independent model configs implemented the same spec in parallel. The
   weakest shipped a null-input path that promoted an unverified claim to a confirmed
   fact with a staged write — a blacklist predicate where the contract required an
   allowlist. Its self-authored suite (100+ tests) was green; all four configs
   self-reported APPROVE.
-- **Where:** internal application, trust-boundary state machine.
+- **Where:** internal application, state machine deciding whether data was trusted.
 - **Caught by:** independent adversarial review (a different model reading the code
   against the spec) — not by any test suite.
-- **Class:** insecure default at a trust boundary; self-authored tests cannot indict
+- **Class:** insecure default in a security decision; self-authored tests cannot catch
   their own implementation; quality divergence traced to spec silence.
 - **Became:** the acceptance-split (stages 3–4 of the pipeline), PC-07, PC-08, PC-09,
   PC-10, PC-13, PC-18; critique silence classes: domain completeness, closed positive
@@ -215,7 +215,7 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Caught by:** contract-first critique caught the shipped fail-open *before* code;
   cross-family adversarial review caught the rest *after* a green suite had laundered
   them — the same shape as [[l-001]] (self-passing tests cannot indict their own code).
-- **Class:** fail-open at a trust boundary; working-tree state trusted for a freeze
+- **Class:** fail-open security check; working-tree state trusted for a freeze
   decision; a green suite is necessary, not sufficient. Every guard input is
   attacker-influenced and must be read from the base tree and hashed from git bytes.
 - **Became:** a re-derived guard (base-tree sourcing, git-blob hashing, fail-closed

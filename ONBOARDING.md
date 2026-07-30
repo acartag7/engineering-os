@@ -1,25 +1,24 @@
 # Onboarding a Repo
 
-Prerequisites for putting an existing project under the OS. Split by who can fulfill
-them — most are machine work; the operator items are few, explicit, and one-time.
+What an existing repository needs before using Engineering OS. Most setup can be
+automated; a person must make a few choices once.
 
-## Operator items (only a human can decide these)
+## Decisions a person must make
 
 | # | Prerequisite | Why |
 |---|---|---|
 | O-1 | Repo has a GitHub remote | Layer 0 lives server-side; a local-only repo has no wall |
-| O-2 | Branch protection is *available*: repo is public, or the account/org plan supports required checks on private repos | On free plans, private repos cannot require status checks — without this, enforcement downgrades from HARD to SEMI (see below) |
-| O-3 | Specs and contracts live **in the repo** (`specs/`, `contracts.md`) — not in a sibling directory or external docs tree | The artifact chain gates on committed files; the guard's contract-path unlock must point at something in-diff |
+| O-2 | Branch protection is available: the repo is public, or its account plan supports required checks on private repos | Without required checks, GitHub cannot block a failing merge |
+| O-3 | Written rules live **in the repo** (`specs/`, `contracts.md`) rather than elsewhere | The guard can check only committed files and must see a rule change before protected tests can be updated |
 | O-4 | Tier declared (`S` / `I` / `X`) in the repo's policy/context file | Filters which baseline items apply |
 | O-5 | The habit: stage prompts are dispatched from `prompts/` templates, never improvised | The one rule that cannot be pushed below layer 2 |
 
-**O-2 degraded mode (private repo, free plan):** wire CI + guard anyway. Checks run
-and go red; they just can't block the merge button. Since a solo operator is the only
-merger, "never merge red" is self-enforced and the monthly audit reads merged history
-for red-merged PRs. This is SEMI, not HARD — a named gap in every audit until the
-plan or visibility changes.
+**If private-repository branch protection is unavailable:** add CI and the guard
+anyway. Failing checks will be visible but cannot block the merge button. “Never merge
+red” then depends on the person merging. Record that weakness in every monthly review
+until the plan or repository visibility changes.
 
-## Machine items (agents do these; operator reviews once)
+## Setup that can be automated
 
 | # | Step |
 |---|---|
@@ -46,10 +45,10 @@ check is Layer 1. Field completeness, review dates, and removal conditions are
 **AUDIT-enforced** by R-1. An empty legacy marker remains an explicit audit gap rather
 than being silently treated as compliant.
 
-## The ratchet (after onboarding)
+## After onboarding
 
-Onboarding installs the wall; it does not retrofit history. The next trust-boundary
-change goes through the full pipeline (contract → critique → frozen suite →
+Onboarding does not rewrite history. The next security or sensitive-data change goes
+through the full process (written rules → review of those rules → frozen tests →
 implementation), the first manifest lands, and the exempt marker comes out. Old code
 is grandfathered **visibly**: every audit lists exempt markers and ungoverned
 boundaries as named gaps.

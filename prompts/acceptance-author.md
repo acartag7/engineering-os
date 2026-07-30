@@ -1,4 +1,4 @@
-# Acceptance Author Prompt — v1.1
+# Acceptance Author Prompt — v1.2
 
 Stage 4 of the pipeline. The acceptance author is a **different model family than the
 implementer** and works from the contract only — it never sees an implementation. Its
@@ -32,9 +32,9 @@ RULES
 2. Black-box only: drive the real entry points (HTTP routes, CLI, public API).
    Never import implementation internals — the suite must be valid for any
    implementation of the contract, including ones that don't exist yet.
-3. Every trust-boundary decision in the contract gets: the allowed-set test AND at
-   least one test proving a non-member is rejected — including null/absent/
-   malformed members (SC-1/SC-3 from the critique checklist).
+3. Every security or sensitive-data decision in the contract gets: the allowed-set
+   test AND at least one test proving a non-member is rejected — including
+   null/absent/malformed members (SC-1/SC-3 from the critique checklist).
 4. Tests are keyed by phase tag. All tests land as pending/inactive; activation
    happens via the activation file (test/acceptance/phases.json), which you do not
    populate — the implementer flips phases on as it implements.
@@ -61,6 +61,8 @@ DO NOT
 
 ## Changelog
 
+- **v1.2** — replaced an abstract boundary label with concrete security and
+  sensitive-data wording; the positive and negative test requirement is unchanged.
 - **v1.1** — added stable invariant IDs, acceptance-criteria versions, explicit
   rationale non-authority, and correction mode for practical-process gaps PA-2/PA-3.
 - **v1.0** — initial independent black-box acceptance authoring and freeze manifest.
