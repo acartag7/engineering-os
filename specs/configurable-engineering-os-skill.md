@@ -1,6 +1,6 @@
 # Configurable Engineering OS skill
 
-Status: owner accepted; Fable review corrections locally verified
+Status: owner accepted; round-two Fable corrections locally verified
 
 Route: T2
 
@@ -292,10 +292,12 @@ Other arrays contain at most 32 entries. Strings contain 1 to 2,048 Unicode
 characters; exception and decision reasons contain at most 500. The complete file is
 at most 64 KiB.
 
-Protected exception targets are exactly `CES-8`, `CES-9`, `CES-10`, `CES-11`,
-`CES-12`, `CES-13`, `CES-14A`, `CES-15`, `CES-16`, `CES-16A`, `CES-16B`, `CES-17`,
-`CES-18`, `CES-19`, `CES-20A`, `CES-21`, `CES-21A`, `CES-24`, `CES-25`, and
-`CES-31`. An exception naming one of these is invalid.
+Protected exception targets are exactly `CES-3A`, `CES-8`, `CES-9`, `CES-10`,
+`CES-11`, `CES-12`, `CES-13`, `CES-14A`, `CES-15`, `CES-16`, `CES-16A`, `CES-16B`,
+`CES-17`, `CES-18`, `CES-19`, `CES-20A`, `CES-21`, `CES-21A`, `CES-22`, `CES-24`,
+`CES-25`, `CES-31`, and `CES-32`. An exception naming one of these is invalid.
+`CES-22` is protected because migration cannot delete evidence without owner approval.
+`CES-32` is protected because an old entrypoint cannot become a weaker alternate path.
 
 Each `decisions.notApplicable` item has exactly `group` and `reason`. `group` is one
 of `mode`, `project`, `commands`, `risk`, `team`, `workflow`, `platform`, `brief`,
@@ -303,7 +305,14 @@ of `mode`, `project`, `commands`, `risk`, `team`, `workflow`, `platform`, `brief
 groups are stored here; per-change skipped groups are stored in the routing record.
 
 The validator rejects symlinked configuration, files outside the repository, files
-larger than 64 KiB, inherited properties, and unknown fields before use.
+larger than 64 KiB, inherited properties, and unknown fields before use. It checks
+the file's reported size before reading it and checks the bytes again after reading.
+
+One local filesystem race remains: another process that can rename repository
+directories during validation could replace an already-checked parent directory.
+Node does not provide the anchored, one-directory-at-a-time open needed to close that
+race on every supported system. Run the validator in a workspace whose parent
+directories are not writable by an untrusted local process.
 
 ## Validator command contract
 

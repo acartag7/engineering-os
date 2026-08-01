@@ -20,8 +20,9 @@
 - CES-11 supersedes SLW-5: strict T2/T3 work requires an independent test author
   before implementation; the old optional challenger wording no longer governs.
 - The repository `verify` check is HARD when branch protection requires it.
-- Slice size, work-in-progress, round-three stop, plain language, optional challenge,
-  and exact-head review are PROMPT + AUDIT until a repository adds mechanical checks.
+- Slice size, work-in-progress, round-three stop, plain language, independent-test
+  routing, and exact-head review are PROMPT + AUDIT until a repository adds
+  mechanical checks.
 - `process-guard` remains optional and retains its own T2 contract below.
 
 **Supporting rationale (non-normative)**

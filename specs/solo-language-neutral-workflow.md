@@ -50,7 +50,8 @@ It also blocks a Go repository whose source and tests do not live under `src/` a
 - **SLW-5 — Optional acceptance challenger.** A separate acceptance challenger is
   used only when the owner marks a slice as unusually dangerous. It proposes a small
   set of hostile cases. It does not create a second implementation or a default
-  frozen suite.
+  frozen suite. For the configurable skill, CES-11 supersedes this rule: strict T2
+  and T3 work always uses an independent test author before implementation.
 - **SLW-6 — Language-neutral verification.** Every governed repository exposes one
   repository-owned verification command. CI runs that same command. Engineering OS
   does not assume a package manager, programming language, source directory, test

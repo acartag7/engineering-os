@@ -128,6 +128,11 @@ JSON shape, unsafe keys, exact fields, types, bounds, dates, exceptions, and pro
 rules. A valid result prints `engineering-os config: valid`. An invalid result prints
 one fixed reason code without a path or supplied value.
 
+The file size is checked before content is read and checked again afterward. A local
+process that can rename repository directories at the same moment could still race
+the parent-directory checks. Run validation in a workspace whose parent directories
+are not writable by untrusted local processes.
+
 Configuration validation is hard only when required CI runs this command. Without
 Node, perform the same review by inference, report `deterministic validator did not
 run`, and keep onboarding incomplete until required CI runs it.

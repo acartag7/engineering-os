@@ -190,10 +190,10 @@ test("exception rules, shape, dates, and expiry are checked", () => {
 
   expectInvalid(runValidator({ config: withException({ ...allowed, rule: "CES-99" }) }), "unknown-rule");
   for (const rule of [
-    "CES-8", "CES-9", "CES-10", "CES-11", "CES-12", "CES-13", "CES-14A", "CES-15",
+    "CES-3A", "CES-8", "CES-9", "CES-10", "CES-11", "CES-12", "CES-13", "CES-14A", "CES-15",
     "CES-16", "CES-16A",
     "CES-16B", "CES-17", "CES-18", "CES-19", "CES-20A", "CES-21", "CES-21A",
-    "CES-24", "CES-25", "CES-31",
+    "CES-22", "CES-24", "CES-25", "CES-31", "CES-32",
   ]) {
     expectInvalid(runValidator({ config: withException({ ...allowed, rule }) }), "protected-rule");
   }
@@ -291,6 +291,37 @@ test("file and path boundaries are fail closed", () => {
     rmSync(outside, { force: true });
   } finally {
     rmSync(outsideRoot, { recursive: true, force: true });
+  }
+});
+
+test("an oversized file is rejected before its content is read", () => {
+  const repository = tempRoot();
+  try {
+    const configPath = join(repository, "engineering-os.json");
+    const preloadPath = join(repository, "fail-on-read.cjs");
+    writeFileSync(configPath, Buffer.alloc(65_537, 0x20));
+    writeFileSync(
+      preloadPath,
+      [
+        'const fs = require("node:fs");',
+        'const { syncBuiltinESMExports } = require("node:module");',
+        'const original = fs.readFileSync;',
+        'fs.readFileSync = (path, ...args) => {',
+        '  if (typeof path === "number") throw new Error("oversized file content was read");',
+        '  return original(path, ...args);',
+        '};',
+        'syncBuiltinESMExports();',
+        '',
+      ].join("\n"),
+    );
+    const result = spawnSync(process.execPath, ["--require", preloadPath, VALIDATOR], {
+      cwd: repository,
+      encoding: "utf8",
+      env: {},
+    });
+    expectInvalid(result, "too-large");
+  } finally {
+    rmSync(repository, { recursive: true, force: true });
   }
 });
 

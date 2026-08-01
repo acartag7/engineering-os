@@ -34,7 +34,7 @@ prompt copies, and the real Go example. The owner still decides whether to merge
 | `LESSONS.md` | Class-level record of failures and the checks they created |
 | `ONBOARDING.md` | Language-neutral setup, including a real Go example |
 | `skills/engineering-os/` | Canonical guided skill, references, starter config, and validator |
-| `prompts/` | Versioned critic, implementer, challenger, and reviewer instructions |
+| `prompts/` | Versioned critic, implementer, independent test author, and reviewer instructions |
 | `templates/` | Files copied into governed repositories |
 | `plugins/engineering-os/` | Optional installed helper for running the workflow |
 | `process-guard/` | Optional hash guard for repositories that freeze contract tests |

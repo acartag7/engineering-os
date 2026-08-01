@@ -51,6 +51,7 @@ const RULES = new Set([
   ...LETTERED_RULES,
 ]);
 const PROTECTED_RULES = new Set([
+  "CES-3A",
   "CES-8",
   "CES-9",
   "CES-10",
@@ -68,9 +69,11 @@ const PROTECTED_RULES = new Set([
   "CES-20A",
   "CES-21",
   "CES-21A",
+  "CES-22",
   "CES-24",
   "CES-25",
   "CES-31",
+  "CES-32",
 ]);
 
 class ConfigError extends Error {
@@ -298,6 +301,7 @@ function loadConfig() {
     const opened = fstatSync(descriptor);
     if (!opened.isFile()) reject("not-file");
     if (opened.dev !== stats.dev || opened.ino !== stats.ino) reject("read-error");
+    if (opened.size > MAX_BYTES) reject("too-large");
     bytes = readFileSync(descriptor);
   } catch (error) {
     if (error instanceof ConfigError) throw error;
