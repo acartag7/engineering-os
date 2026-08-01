@@ -1,10 +1,11 @@
 name: ci
 
 # engineering-os governs itself: the repo that defines the walls runs them on its
-# own PRs. Required jobs: validate (plugin/manifest/prompt/script integrity),
-# acceptance (the process-guard frozen suite), process-guard (the artifact-chain
-# action, dogfooded), and process-guard-trusted (the SAME guard materialized from the
-# base ref so a tampered HEAD check.mjs cannot clear its own gate — PG-H8).
+# own PRs. Required jobs: verify (the repository-owned full command), validate
+# (plugin and prompt integrity), acceptance
+# (process-policy contract, a real Go onboarding fixture, and the optional guard's
+# frozen suite), process-guard (the optional action, dogfooded), and
+# process-guard-trusted (the same guard materialized from the base ref).
 
 on:
   pull_request:
@@ -15,6 +16,17 @@ permissions:
   contents: read
 
 jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: test/fixtures/go-project/go.mod
+          cache: false
+      - run: ./scripts/verify
+
   validate:
     name: validate
     runs-on: ubuntu-latest
@@ -49,26 +61,20 @@ jobs:
           done
           echo "vendored prompts in sync with prompts/"
 
-      - name: Vendored scripts match repo originals (drift guard)
-        run: |
-          set -euo pipefail
-          # A10: the vendored process-guard scripts must stay byte-identical to the
-          # originals (modulo their single `// vendored from …` header line, wherever
-          # it sits relative to a shebang). grep -v removes only that header line.
-          for f in plugins/engineering-os/scripts/*.mjs; do
-            base="process-guard/scripts/$(basename "$f")"
-            if ! grep -v '^// vendored from ' "$f" | diff -q - "$base" >/dev/null; then
-              echo "::error file=$f::vendored script has drifted from $base — re-vendor"
-              exit 1
-            fi
-          done
-          echo "vendored scripts in sync with process-guard/scripts/"
-
   acceptance:
     name: acceptance
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version-file: test/fixtures/go-project/go.mod
+          cache: false
+      - name: Check the current process contract
+        run: node --test test/process-policy.test.mjs
+      - name: Run the real Go onboarding fixture
+        working-directory: test/fixtures/go-project
+        run: ./scripts/verify
       - name: Run the process-guard frozen acceptance suite
         run: node --test test/acceptance/process-guard/guard.test.mjs
 

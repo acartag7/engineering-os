@@ -1,62 +1,92 @@
-# Onboarding a Repo
+# Onboarding a Repository
 
-Prerequisites for putting an existing project under the OS. Split by who can fulfill
-them — most are machine work; the operator items are few, explicit, and one-time.
+Engineering OS does not need to know the repository's programming language. The
+repository owns one verification command; CI runs it.
 
-## Operator items (only a human can decide these)
+## Decisions the owner makes
 
-| # | Prerequisite | Why |
-|---|---|---|
-| O-1 | Repo has a GitHub remote | Layer 0 lives server-side; a local-only repo has no wall |
-| O-2 | Branch protection is *available*: repo is public, or the account/org plan supports required checks on private repos | On free plans, private repos cannot require status checks — without this, enforcement downgrades from HARD to SEMI (see below) |
-| O-3 | Specs and contracts live **in the repo** (`specs/`, `contracts.md`) — not in a sibling directory or external docs tree | The artifact chain gates on committed files; the guard's contract-path unlock must point at something in-diff |
-| O-4 | Tier declared (`S` / `I` / `X`) in the repo's policy/context file | Filters which baseline items apply |
-| O-5 | The habit: stage prompts are dispatched from `prompts/` templates, never improvised | The one rule that cannot be pushed below layer 2 |
+1. Choose the project tier: S, I, or X.
+2. Name the default branch and real shipped entrypoint.
+3. Choose the one local verification command.
+4. Decide which security or sensitive-data areas need threat notes.
+5. Confirm the repository has one human owner or name the actual maintainers.
 
-**O-2 degraded mode (private repo, free plan):** wire CI + guard anyway. Checks run
-and go red; they just can't block the merge button. Since a solo operator is the only
-merger, "never merge red" is self-enforced and the monthly audit reads merged history
-for red-merged PRs. This is SEMI, not HARD — a named gap in every audit until the
-plan or visibility changes.
+## Setup
 
-## Machine items (agents do these; operator reviews once)
+1. Create `BRIEF.md` from `templates/project-brief.md` and replace every placeholder
+   with the repository's real files and commands.
+2. Copy `templates/agent-context-block.md` into both `AGENTS.md` and `CLAUDE.md`.
+3. Add the repository-owned verify command, such as `./scripts/verify` or
+   `make verify`.
+4. Make CI run that same command in a job named `verify`.
+5. Protect `main` with pull requests and required checks. A solo repository keeps
+   required human approvals at zero; independent AI review is recorded separately.
+6. Run the command locally and through the real entrypoint before onboarding is
+   called complete.
 
-| # | Step |
-|---|---|
-| M-1 | `.github/workflows/ci.yml`: repo verify (typecheck, tests, build) + `process-guard` job, actions SHA-pinned, frozen-lockfile installs |
-| M-2 | `.process-guard-exempt` marker committed with lifecycle metadata (repo predates the pipeline; stage-artifact stays quiet until the first suite lands) |
-| M-3 | Branch protection / ruleset: require PR, required checks (verify + guard), required review — where O-2 allows |
-| M-4 | `.githooks/pre-commit` running the same guard checks locally; setup command runs `git config core.hooksPath .githooks` |
-| M-5 | Governed-repo block in the repo's agent context docs (`AGENTS.md` / `CLAUDE.md`): frozen acceptance tests, contract-first, PR-only — guidance so agents understand the walls, not enforcement |
-| M-6 | `test/acceptance/` location wired into the repo's test runner; `phases.json` activation convention |
-| M-7 | Harness-native deny rules where supported (e.g. pre-tool-use hooks blocking edits to acceptance paths and pushes to protected branches) |
+If the account cannot enforce required checks, record that gap. Never describe a
+visible but bypassable check as a hard gate.
 
-The marker is machine-readable YAML:
+## Go example
 
-```yaml
-owner: <accountable owner>
-reason: <why the first suite cannot land yet>
-created: <YYYY-MM-DD>
-review_by: <YYYY-MM-DD>
-removal_condition: <observable condition that removes the marker>
+This repository includes a working example at `test/fixtures/go-project`.
+Its `./scripts/verify` command runs:
+
+```bash
+gofmt -l .
+go vet ./...
+go test ./...
+go build ./...
+go run ./cmd/demo
 ```
 
-`process-guard` checks only that the marker exists on the base tree; that presence
-check is Layer 1. Field completeness, review dates, and removal conditions are
-**AUDIT-enforced** by R-1. An empty legacy marker remains an explicit audit gap rather
-than being silently treated as compliant.
+The final command is the smoke test for the real entrypoint. A real project replaces
+`./cmd/demo` with its shipped command or service check.
 
-## The ratchet (after onboarding)
+Here, `go vet` is the static analyzer: it catches suspicious Go code without assuming
+a JavaScript or Python tool. A Go project may add a pinned linter when its risks need
+stronger checks.
 
-Onboarding installs the wall; it does not retrofit history. The next trust-boundary
-change goes through the full pipeline (contract → critique → frozen suite →
-implementation), the first manifest lands, and the exempt marker comes out. Old code
-is grandfathered **visibly**: every audit lists exempt markers and ungoverned
-boundaries as named gaps.
+A minimal CI job is:
 
-## Order of onboarding across a fleet
+```yaml
+verify:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@<full-commit-sha>
+    - uses: actions/setup-go@<full-commit-sha>
+      with:
+        go-version-file: go.mod
+    - run: ./scripts/verify
+```
 
-Highest leverage first: (1) the lab repo where process experiments run — unreliable
-labs produce unreliable conclusions; (2) Tier-S repos with active development;
-(3) everything else as touched. Batch by check, not by repo, when sweeping portable
-items (secret-history lint, anti-silent-skip) so each review pass is homogeneous.
+Pin actions to reviewed commit SHAs in the actual repository. Do not copy a moving
+tag from an example.
+
+## Other languages
+
+The shape stays the same:
+
+- Python may run linting, static checks, `pytest`, package build, and its command.
+- Rust may run formatting, `clippy`, tests, build, and its binary.
+- TypeScript may run linting, type checking, tests, build, and the installed command
+  or application.
+
+Engineering OS calls the repository command. It does not add a central language
+switch or assume `src/`, `test/acceptance/`, `package.json`, or `pnpm`.
+
+## Optional `process-guard`
+
+Do not install `process-guard` by default. It is only for repositories that choose
+hash-frozen acceptance tests. Read its README and open limitation before opting in.
+
+## Completion proof
+
+Onboarding is complete only when:
+
+- the local verify command passes;
+- the CI `verify` job passes;
+- branch protection requires it;
+- the real entrypoint was exercised;
+- the agent context exists in both supported instruction files;
+- `BRIEF.md` names the real project shape and working commands.

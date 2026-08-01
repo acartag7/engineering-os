@@ -1,158 +1,161 @@
 # The Operating System
 
-The rules of how I work. Every rule here says **why** it exists — what breaks without
-it. Any rule that no machine checks yet is marked **[not yet enforced]**. There is no
-third state: a rule is checked, or it's honestly labeled as a wish.
+This is the source of truth for how work moves from an idea to `main`. Every rule says
+where it is enforced. A written rule that no machine checks is guidance, not a gate.
 
-## The three principles
+## Three principles
 
-**1. Rules become checks, or they don't count.**
-Written rules decay — agents skip them, humans forget them, docs drift from reality.
-I've watched all three happen in my own repos. So every rule gets pushed down until a
-machine checks it (see the four layers below). A rule that's still only words is a
-to-do, not a rule.
+### 1. Rules become checks, or stay honestly labeled
 
-**2. The orchestrator never guards itself.**
-Any system that dispatches AI agents is itself AI-driven — so it can't be the thing
-that enforces the rules. My first factory kept approval state and evidence records
-inside the same runtime that ran the agents, and both went wrong. Enforcement lives
-outside: in GitHub, in CI, in runtime gates the orchestrator can't edit. The factory
-obeys the same walls as everyone else.
+Important rules should move into GitHub, CI, tests, or small guard scripts. Until that
+happens, mark them as prompt or audit rules. A green check must never claim more than
+it proved.
 
-**3. Every gate checks its own inputs.**
-A gate that runs against the wrong inputs looks green and proves nothing. Real case:
-my three SDKs each verify against a shared test-fixture set, pinned by version — and
-the pins silently drifted apart. All three were "passing parity" against different
-fixtures. So every verifier must also check: am I running the right corpus, at the
-right version, at full breadth? A green check that didn't verify its inputs is a lie
-with extra steps.
+### 2. The agent runner never approves itself
 
-## The four layers — where a rule can live
+The tool that writes or dispatches work cannot be the final judge. Required CI lives
+in the repository. The final review uses a fresh context and binds its result to the
+exact commit reviewed.
 
-| Layer | Lives in | Who can ignore it | So it's good for |
-|---|---|---|---|
-| **0 — Platform** | GitHub itself: branch protection, required checks, required review | Nobody | The final wall |
-| **1 — Repo** | Checks committed in the repo: CI jobs, tests, lints, guard scripts | Only by editing the repo — which is visible and blocked by layer 0 | Almost everything |
-| **2 — Prompt** | The instructions an agent gets for one task | Any agent, any time it's under pressure | Guidance, never guarantees |
-| **3 — Prose** | Specs, playbooks, CLAUDE.md files | Everyone, silently | Explaining rules and specifying future checks |
+### 3. Every gate checks its inputs
 
-Every rule gets pushed to the lowest layer that can hold it. A rule at layer 2–3 is a
-check waiting to be built.
+A check that ran against the wrong files, skipped its important suite, or reviewed an
+old commit is not green. It is missing evidence.
 
-## The pipeline — how one piece of work flows
+## Where rules live
 
-Each step leaves a file behind. `process-guard` HARD-enforces the global base-manifest,
-freeze-hash, and mixed-diff mechanics; the driver and monthly audit check that the
-artifacts belong to this specific feature and appear in sequence. CI does **not**
-currently prove per-feature coverage. This division works the same for every AI tool
-and for me, and the global-not-per-feature residual remains named below.
-
-| Step | Who | Leaves behind | Why the next gate needs it |
-|---|---|---|---|
-| 1. Define | Me | `specs/<feature>.md` | — |
-| 2. Contract | Me + agent | `contracts.md` section (+ threat notes for risky changes) | The critic needs something concrete to attack |
-| 3. Critique | An independent agent | `specs/<feature>.critique.md` | Finds the questions the contract forgot to answer — *before* four models answer them four different ways. Prevents: "the spec was silent, so the model guessed, and guessed wrong." |
-| 4. Acceptance tests | A **different AI than the coder** | `test/acceptance/` + a hash manifest | Defines "done" independently. Prevents: green tests that never test the bug. |
-| 5. Code | The routed coder | `src/` changes | The freeze-hash check stops it from touching the tests. Prevents: quietly weakening a test to pass it. |
-| 6. Review | A different model family | Review marker on the exact commit | Hunts what's *missing*, not just what's wrong. Prevents: "the code is right but the guard was never written." |
-| 7. Merge | GitHub | — | Only path in. All checks green + review present. |
-
-Key mechanics, plainly:
-- **Compact contract surface:** new or changed contracts give normative promises
-  stable invariant IDs and mark supporting rationale as non-normative. The routing
-  record names tier, reason, required evidence, and acceptance-criteria version.
-  **Enforcement: PROMPT + AUDIT, not HARD.** This keeps the binding surface reviewable
-  without deleting the reasoning behind it.
-- **Freeze:** the test author commits a list of file hashes. CI recomputes them on
-  every PR. Any edited test → red. The coder can *activate* finished test phases via
-  a separate small file — it can never change test content.
-- **Mixed-diff rule:** one PR can't change both the code and the acceptance tests —
-  unless the contract changed too, which I review. Prevents one author from playing
-  both sides.
-- **Never weaken a safety check to make a test pass.** If a test and a fail-closed
-  rule disagree, the rule wins and the acceptance criteria are corrected through the
-  replacement path below.
-
-### Correcting frozen acceptance criteria
-
-Frozen means an implementation cannot silently rewrite its judge; it does not make a
-mistaken criterion permanent. When a criterion is wrong:
-
-1. Stop implementation and record why the current criteria are wrong.
-2. Increment the contract's acceptance-criteria version and identify the version it
-   supersedes plus the affected invariant IDs.
-3. Re-run critique for those invariants.
-4. The contract owner commits the versioned contract correction on a correction
-   branch. A test author independent from the implementer then changes only the
-   affected acceptance tests and manifest on that branch.
-5. Merge the reviewed contract+acceptance PR before implementation resumes against
-   the new version.
-
-The acceptance-criteria version is a domain label, not the manifest schema version.
-`process-guard` HARD-enforces only that frozen bytes change through a configured
-contract-path change and that the new manifest is self-consistent. The correction
-reason, semantic version link, affected invariants, independent authorship, and review
-are **PROMPT + AUDIT** checks; the current contract unlock remains coarse.
-
-## Project tiers — not every repo needs the full treatment
-
-The tier depends on **what the repo can leak or break** — never on how many users it
-has. My two-person internal app does auth and holds personal data, so it gets real
-gates. A throwaway experiment doesn't.
-
-| Tier | What it is | What it must have |
+| Layer | Place | Meaning |
 |---|---|---|
-| **S** | Public, published, or security products | Everything in `BASELINE.md` |
-| **I** | Internal, but holds real data, credentials, or logins | CI that gates, a one-page threat model, frozen acceptance tests at trust boundaries, secret-history scan |
-| **X** | Experiments and scratch | Secrets hygiene only |
+| **0** | GitHub | Pull requests, required checks, and protected branches block merge |
+| **1** | Repository | CI, tests, lints, and scripts check repeatable facts |
+| **2** | Task prompt | Agents receive guidance that they may still miss |
+| **3** | Written docs | People can understand the rule, but nothing automatically checks it |
 
-A repo's tier is one declared line. If a repo gains logins, real data, or gets
-published, the audit flags it for promotion. Prevents: "the internal tool quietly
-became a product but kept experiment-level process."
+Use the strongest practical layer. Always name weaker enforcement honestly.
 
-## Review rules
+## Plain language across every project
 
-- Reviewers get the contract's promises and the threat notes **up front**. Prevents
-  the failure I hit twice: reviewers find wrong code but never missing code, because
-  nobody told them what was promised.
-- Review lenses run in parallel (security / promises-vs-code / wiring), then one fix
-  pass. Prevents ten slow rounds of one-finding-at-a-time.
-- Merge needs the reviewer's marker on the exact final commit — never "no complaints
-  after a while." Prevents merging before a late finding lands.
-- More than 3 review rounds on one PR = the spec or tests were weak. That gets written
-  into `LESSONS.md` instead of endured.
-- Every defect a review catches becomes a permanent test, and every similar code path
-  gets checked for the same bug before the finding is closed. Prevents: "fixed here,
-  forgotten there."
+This rule is about writing, not the programming language used to build the project.
 
-## Accepted risks — named, not hidden
+Use plain, easy English in documentation, specs, issues, pull requests, prompts, code
+comments, error messages, and user-facing text. Use a technical term only when
+accuracy needs it, and explain it the first time. Do not use jargon to sound formal.
+Keep exact code names, commands, and protocol terms when changing them would reduce
+accuracy.
 
-Honesty rule: risks I choose to keep are written down, so they're decisions instead
-of surprises.
+Why: difficult wording hides unclear thinking and makes review and adoption harder.
+**Enforcement: Layer 2 prompt guidance + Layer 3 docs; not machine-enforced.**
 
-- **Solo workstation deploys.** Some infra deploys run from my machine without a CI
-  gate. Accepted for now: I'm the only operator, and the deploy scripts are
-  evidence-gated (they wait and verify before reporting success). Revisit if anyone
-  else ever deploys.
-- **"Different AI wrote the tests" is checkable but forgeable.** Git identities can
-  be faked — by me. Accepted: the system's job is to stop agents and mistakes, not a
-  self-sabotaging owner. The monthly audit watches it.
-- **"Prompts come from the templates" can't be machine-enforced.** It's the one habit
-  that stays on me. The audit reads merged history to catch drift after the fact.
-- **The freeze-gate is global, not per-feature.** `process-guard`'s stage-artifact
-  check confirms a frozen acceptance suite exists on the base branch before code lands;
-  it does not verify that every feature has its own coverage. That gap is named in the
-  guard's own pass message and reviewed by the monthly audit — it is not mechanized in
-  CI, and it is not what the review-burn routine (R-2) measures.
+## The workflow for one slice
 
-## The evolution loop
+A slice changes one clear rule that one reviewer can understand in one sitting.
 
-1. A bug or near-miss happens anywhere → a five-line entry in `LESSONS.md`.
-2. The entry becomes a new or updated check (or a new question in the critic's
-   checklist).
-3. The check ships in `process-guard`, and one version bump spreads it to every repo.
-4. A monthly audit compares each repo against `BASELINE.md` and reports gaps as a
-   short table. Findings go back to step 1.
+| Step | Who | Result |
+|---|---|---|
+| 0. Cut | Owner + agent | One bounded slice with dependencies and exclusions |
+| 1. Contract | Owner + agent | Required behavior, failures, and open questions resolved |
+| 2. Critique | One fresh AI critic | Missing decisions and unsafe silences found before code |
+| 3. Implement | One implementer | Code and normal tests written together |
+| 4. Verify | Repository CI | The repository's verification command and real entrypoint pass |
+| 5. Review | One fresh AI reviewer | Findings and reviewed final commit SHA recorded |
+| 6. Merge | Owner | The only human decides after checks and review are complete |
 
-Nothing in this loop depends on my memory. That's the design goal: the process should
-survive me being tired, busy, or five months smarter than my own docs.
+T0 mechanical work may skip the contract and critique. T1 uses the full path when the
+behavior is not already clear. T2 and T3 require the contract and critique.
+
+### Slice limits
+
+- About 300 changed lines is a warning to check whether the work should be split. It
+  is not an automatic rejection. Necessary tests and generated files are explained.
+- Never compress code or make mechanical file splits to satisfy a line target. Split
+  only when the new files represent clear concepts.
+- A solo owner keeps no more than two pull requests in active review.
+- A third substantive review round stops the change. Fix the contract or cut a smaller
+  slice before continuing.
+
+**Enforcement: prompt + monthly audit. These are not yet fleet-wide CI gates.**
+
+### Tests and regression proof
+
+The implementer writes normal tests alongside the code. For a bug fix, the new test
+must fail when the fix is removed. Record the command and result in the pull request.
+A test that passes with and without the fix proves nothing.
+
+For unusually dangerous work, the owner may add one fresh acceptance challenger. The
+challenger proposes a small set of hostile cases from the contract and threat notes.
+This is an escalation, not a default separate suite.
+
+### Exact-head review
+
+The reviewer receives the contract, threat notes, full diff, verification evidence,
+and exact commit SHA. P1 and P2 findings block merge. Any later push makes the review
+stale and requires another review of the new head.
+
+The owner is the only required human. A solo repository does not require approval
+from a second human who does not exist. **Enforcement: prompt + review artifact today;
+exact-head GitHub enforcement is not yet fleet-wide.**
+
+## Language-neutral verification
+
+Each repository owns one verification command. CI runs the same command. The command
+uses the strongest suitable checks for that project and exercises the real shipped
+entrypoint.
+
+Engineering OS does not assume:
+
+- a programming language;
+- a package manager;
+- a `src/` directory;
+- a separate acceptance-test directory;
+- a type checker where the language has none.
+
+The required status check has a stable purpose—`verify`—while its implementation
+belongs to the repository. **Enforcement: Layer 1 when `verify` is required by branch
+protection.**
+
+## Project Brief
+
+Every governed repository carries `BRIEF.md` at its root. It lets a tired owner or a
+new collaborator understand the project in about five minutes. It uses plain English
+and names the real files and commands.
+
+The fixed sections are: what it is, why it exists, one real action through the
+system, the directory map, sharp edges, run and test commands, and current state plus
+the next milestone. Start from [`templates/project-brief.md`](templates/project-brief.md).
+
+A pull request updates the brief when it changes architecture, adds or removes a
+module, or changes run or test commands. The monthly audit checks that the file
+exists, its map matches the tree, and its commands still work. **Enforcement: review
++ monthly audit; no fleet-wide CI content check exists yet.**
+
+## Project tiers
+
+The tier depends on what a mistake can leak or break.
+
+| Tier | Project | Minimum process |
+|---|---|---|
+| **S** | Public, published, or security product | Full applicable baseline |
+| **I** | Internal with real data, credentials, or logins | Required verify, threat notes for boundaries, independent review |
+| **X** | Experiment or scratch work | Secrets hygiene and an honest status |
+
+## Optional frozen-test guard
+
+`process-guard` remains supported for a repository that explicitly chooses hash-frozen
+acceptance tests. It is not part of normal onboarding. Its current contract-change
+path can permit a reviewed re-freeze and is broader than a machine-verifiable human
+approval. That limitation stays documented in its README and issue tracker.
+
+For a small contract amendment, the repository may update the contract, code, and
+affected frozen tests in one pull request. The pull request names what changes, why,
+and which tests move. Hash checks remain required. Only externally visible behavior
+belongs in a frozen suite; implementation details do not.
+
+## Evolution loop
+
+1. A bug, false green, or dragged review becomes a class-level entry in `LESSONS.md`.
+2. The lesson changes a baseline check, prompt, repository check, or named risk.
+3. The changed rule is verified in this repository.
+4. The monthly audit checks whether governed repositories adopted it.
+
+The goal is not more process. The goal is a smaller change, one independent second
+look, and evidence that the real thing works.

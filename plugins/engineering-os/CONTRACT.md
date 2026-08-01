@@ -1,71 +1,62 @@
 # Plugin contract — engineering-os `/pipeline`
 
-Status: v1.0 · 2026-07-18 · written AFTER the 53-finding critique (process
-failure recorded: the plugin was built before its contract; this document
-encodes what that review discovered so the next review verifies).
+Status: v2.1 · solo, language-neutral workflow
 
-## What the plugin is
+## Purpose
 
-The engineering-os pipeline as an installable Claude Code plugin: one driver
-skill (`/pipeline`), nine seat agents (five routed, four eos-* panel), and — because an installed plugin must be
-self-contained — vendored copies of the prompt templates and the manifest
-generator. Layer-2 advisory throughout: process-guard CI + branch protection
-remain the only walls, and every prose claim in the plugin must be honest
-about that.
+The plugin makes the normal Engineering OS path easy to run. It is prompt-layer
+orchestration, not enforcement. Repository CI and GitHub branch protection remain the
+merge wall.
 
-## Requirements (each traces to a confirmed finding cluster)
+## Requirements
 
-R1 — **Self-contained install.** The plugin ships `prompts/` (vendored copies
-of the repo templates, with source SHA noted) and `scripts/generate-manifest.mjs`
-(vendored from process-guard). The skill resolves templates plugin-relative
-first, repo-relative second. A marketplace.json at repo root makes
-`/plugin install` real. [installability P1s]
+- **R1 — Self-contained.** The plugin ships the four canonical prompt templates. CI
+  checks byte parity with the repository originals. No stale source commit header is
+  used as proof.
+- **R2 — One bounded slice.** The driver records one changed rule, affected paths,
+  exclusions, tier, repository verify command, and real entrypoint before dispatch.
+- **R3 — One normal seat per role.** The normal path uses one critic, one implementer,
+  and one reviewer. There is no reviewer panel or competing implementation mode.
+- **R4 — Optional challenger.** The acceptance challenger runs only when the routing
+  record explicitly requires it. It returns three to seven hostile cases and never
+  creates a frozen suite.
+- **R5 — Language-neutral.** The driver runs the repository's declared verify command.
+  It never guesses a language, package manager, source root, or test layout. The
+  command includes a language-appropriate linter or static analyzer.
+- **R6 — Remote evidence.** Implementation verification runs against the pushed remote
+  branch in a temporary worktree, not an agent's discarded worktree or claim. Its
+  result is attached to the pull request and never committed onto the branch it
+  attests to.
+- **R7 — Exact-head review.** The reviewer receives and returns the full head SHA. A
+  mismatch or later push makes the result stale.
+- **R8 — Bounded review.** P1 and P2 findings block. Fixes happen in one batch. The
+  third substantive review round stops with `process-stop`; round four does not run.
+- **R9 — Honest status.** `/pipeline <feature> status` is read-only. Missing artifacts,
+  commands, reviewers, or verification fail closed with a plain reason.
+- **R10 — Solo owner.** The plugin stops for owner product decisions and final merge.
+  It does not require or fabricate approval from another human.
+- **R11 — Plain English.** Status, blockers, artifacts, and prompts use plain English;
+  exact code names and commands stay exact.
+- **R12 — Maintainable project map.** A governed repository has root `BRIEF.md`. The
+  driver checks it changed with architecture, module, or run/test command changes and
+  rejects line-target compression or mechanical file splits.
 
-R2 — **Both modes work in every stage.** Seat names are never hardcoded in
-workflow scripts; the skill resolves the full seat map (critic, author,
-implementer, reviewers, fixer) once, passes it via `args.seats`, and panel
-mode maps every seat to its `eos-*` fallback — including fix rounds. [panel P1s]
+## Artifacts
 
-R3 — **Schemas are derived from the templates, verbatim.** Reviewer verdicts:
-`pass | warn | fail` (+ `CLEAN` list; P1/P2 block, P3 may ship recorded — a
-`warn` with zero P1/P2 passes the gate with a ledger note). Critique
-dispositions: `contract-sentence | acceptance-test | accepted-residual`, plus
-the mandatory Goodhart entries. No invented enums. [schema P1s]
+| Stage | Artifact |
+|---|---|
+| Contract | `specs/<feature>.md` |
+| Critique | `specs/<feature>.critique.md` ending in `READY` |
+| Optional challenge | `specs/<feature>.challenge.md` ending in `READY` |
+| Implementation | pushed feature branch and pull request |
+| Verification | Pull-request evidence containing `VERIFIED_SHA: <full SHA>` |
+| Review | Pull-request review or comment containing `REVIEWED_SHA: <full SHA>` |
 
-R4 — **The contract stage exists.** Stage detection includes the `contracts.md`
-section (OS.md step 2) between spec and critique; the critic, author, and
-implementer receive the CONTRACT section (plus threat rows for T2+), never the
-raw spec. [contract-stage P1]
+## Out of scope
 
-R5 — **Per-feature artifacts.** Stage detection keys tests on the FEATURE's
-test IDs present in the manifest on base (not "a manifest exists"); critique
-completeness = the critique file's verdict line is READY (not file existence);
-review markers embed the reviewed SHA and are validated against the PR head at
-detection time. `git ls-tree -r origin/<base>` (with `-r`, fetch first). [detection P1s]
-
-R6 — **Honest prose.** No claim of tool-enforced write scopes (scope is
-checked by diff after the fact — say exactly that). Worktree isolation
-isolates WRITES and branch state, not reads. T2/T3: the skill refuses with a
-pointer to DISPATCH.md (single-harness seats do not satisfy T2/T3 separation);
-`--force-t2` does not exist. Tier question is stage-0, recorded in the log
-line. [overclaim P1s]
-
-R7 — **Workflow-mechanics fixes.** Post-seat verification steps run in the
-main checkout against the pushed branch (never assume access to another
-agent's pruned worktree); fix rounds inherit worktree isolation; `dedupe`
-keys on (file, normalized title); a `fail` verdict with zero P1/P2 findings is
-surfaced as a contradiction, not an empty fix round; `reviewer-lost` re-runs
-once then fails closed; panel lenses = the template's A/B/C (+ per-tier count
-from POLICY.md), not an invented taxonomy. [mechanics P2s]
-
-R8 — **Consistency sweep.** Stage numbering matches OS.md; agent descriptions
-name the right stages and carry no `model-gateway:` references; plugin.json
-describes the actual surface; the skill's own args contract (every `args.*`
-field) is documented in one table. [advisory cluster]
-
-## Out of scope (recorded)
-
-T2/T3 orchestration (refused, not half-supported), cross-harness dispatch,
-process-guard hardening (separate T2 slice — see LESSONS drafts), automatic
-models.yaml → agent-frontmatter generation (follow-up in the gateway repo;
-until then the mirror-by-hand note stays).
+- Enforcing branch protection or CI settings.
+- Pretending prompt instructions are hard gates.
+- Running a frozen acceptance workflow by default.
+- Cross-harness identity proof.
+- A central language configuration parser.
+- Merging without the owner.

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Regenerate acceptance.manifest.json for the acceptance author (pipeline stage 4).
+// Regenerate acceptance.manifest.json for a repository that opted into frozen tests.
 // Sources content from git BLOB bytes over the STAGED index (`git cat-file blob
 // :<path>`), never the working tree — closing CRLF/autocrlf/smudge and symlink
 // differentials, in lockstep with check.mjs (D1). Hashes only mandatory-matched

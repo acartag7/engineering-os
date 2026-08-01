@@ -5,7 +5,7 @@
     {
       "name": "engineering-os",
       "source": "./plugins/engineering-os",
-      "description": "The engineering-os pipeline as a plugin: /pipeline driver skill, routed + routing-free seat agents, vendored templates. Layer-2 advisory; process-guard CI stays the wall."
+      "description": "The solo, language-neutral engineering-os pipeline: one critic, optional challenger, one implementer, repository verification, and one exact-head reviewer."
     }
   ]
 }
