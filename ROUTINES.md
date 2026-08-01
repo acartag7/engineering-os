@@ -152,9 +152,9 @@ sweep (one kind of fix across all repos, one review pass).
 ## R-6 · Per incident — not scheduled
 
 Triggered whenever a bug, near-miss, or dragged review happens. Steps are in
-[`DISPATCH.md`](DISPATCH.md) §4: five abstract lines in `LESSONS.md` → becomes a
-check or critique question → version bump → batched sweep. Target: less than a day
-from incident to check.
+[`DISPATCH.md`](DISPATCH.md), "When the process fails": five abstract lines in
+`LESSONS.md` → becomes a check or critique question → version bump → batched sweep.
+Target: less than a day from incident to check.
 
 ---
 

@@ -72,6 +72,10 @@ Use `basic`, `standard`, or `strict` as described in the configuration reference
 setting may raise protection but never lower the route's minimum. T2 and T3 work is
 always strict.
 
+When the owner disagrees with a higher recommended route, record both routes and the
+evidence. Keep the higher route as the workflow floor unless new evidence changes the
+recommendation.
+
 Use one implementation. Strict work needs an independent test author before
 implementation. The failing-test evidence names the pre-implementation commit, exact
 command, and failing output. A final reviewer uses a different provider instance from

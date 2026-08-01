@@ -1,6 +1,6 @@
 # Configurable Engineering OS skill
 
-Status: implemented and locally verified; exact-head review pending
+Status: owner accepted; Fable review corrections locally verified
 
 Route: T2
 
@@ -292,10 +292,10 @@ Other arrays contain at most 32 entries. Strings contain 1 to 2,048 Unicode
 characters; exception and decision reasons contain at most 500. The complete file is
 at most 64 KiB.
 
-Protected exception targets are exactly `CES-8`, `CES-10`, `CES-11`, `CES-14A`,
-`CES-15`, `CES-16`, `CES-16A`, `CES-16B`, `CES-17`, `CES-18`, `CES-19`, `CES-20A`,
-`CES-21`, `CES-21A`, `CES-24`, `CES-25`, and `CES-31`. An exception naming one of
-these is invalid.
+Protected exception targets are exactly `CES-8`, `CES-9`, `CES-10`, `CES-11`,
+`CES-12`, `CES-13`, `CES-14A`, `CES-15`, `CES-16`, `CES-16A`, `CES-16B`, `CES-17`,
+`CES-18`, `CES-19`, `CES-20A`, `CES-21`, `CES-21A`, `CES-24`, `CES-25`, and
+`CES-31`. An exception naming one of these is invalid.
 
 Each `decisions.notApplicable` item has exactly `group` and `reason`. `group` is one
 of `mode`, `project`, `commands`, `risk`, `team`, `workflow`, `platform`, `brief`,

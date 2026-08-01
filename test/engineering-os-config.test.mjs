@@ -105,7 +105,7 @@ test("the exact starter and maximum allowed collections are valid", () => {
 
 test("versions, required fields, unknown fields, types, and blank strings fail closed", () => {
   const cases = [
-    ["unknown-version", (c) => { c.version = 2; }],
+    ["bad-enum", (c) => { c.version = 2; }],
     ["wrong-type", (c) => { c.version = "1"; }],
     ["missing-field", (c) => { delete c.optional; }],
     ["unknown-field", (c) => { c.extra = {}; }],
@@ -190,7 +190,8 @@ test("exception rules, shape, dates, and expiry are checked", () => {
 
   expectInvalid(runValidator({ config: withException({ ...allowed, rule: "CES-99" }) }), "unknown-rule");
   for (const rule of [
-    "CES-8", "CES-10", "CES-11", "CES-14A", "CES-15", "CES-16", "CES-16A",
+    "CES-8", "CES-9", "CES-10", "CES-11", "CES-12", "CES-13", "CES-14A", "CES-15",
+    "CES-16", "CES-16A",
     "CES-16B", "CES-17", "CES-18", "CES-19", "CES-20A", "CES-21", "CES-21A",
     "CES-24", "CES-25", "CES-31",
   ]) {

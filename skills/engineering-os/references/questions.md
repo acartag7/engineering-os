@@ -107,8 +107,6 @@ Use the configuration reference before asking.
 - What review-round limit, from one to three, is affordable?
 - How many active pull requests, from one to nine, can the owner review safely?
 - Is hash protection with optional `process-guard` needed for named behavior tests?
-- Are exceptions requested? What rule, reason, owner, creation date, review date, and
-  removal condition applies?
 
 Recommend `standard` for a normal solo project. Use `strict` for T2 and T3 regardless
 of the default. Explain that a lighter default never lowers a route floor. Record an
@@ -137,6 +135,8 @@ Keep the project understandable.
   sharp edges, how to run and test it, and its next milestone?
 - Which discovered architecture, module, or command facts need correction?
 - Are plain-English instructions needed for another host?
+- Are exceptions requested? What rule, reason, owner, creation date, review date, and
+  removal condition applies?
 - Which gaps remain unresolved?
 
 Necessary technical words are allowed, but explain them once. Record an inapplicable

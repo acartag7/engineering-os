@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 
-import { lstatSync, readFileSync } from "node:fs";
+import {
+  closeSync,
+  constants,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readFileSync,
+} from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { TextDecoder } from "node:util";
 
@@ -45,8 +52,11 @@ const RULES = new Set([
 ]);
 const PROTECTED_RULES = new Set([
   "CES-8",
+  "CES-9",
   "CES-10",
   "CES-11",
+  "CES-12",
+  "CES-13",
   "CES-14A",
   "CES-15",
   "CES-16",
@@ -231,7 +241,7 @@ function validateExceptions(exceptions) {
 function validateConfig(config) {
   objectShape(config, ["version", "project", "commands", "workflow", "optional", "decisions", "exceptions"]);
   if (typeof config.version !== "number") reject("wrong-type");
-  if (config.version !== 1) reject("unknown-version");
+  if (config.version !== 1) reject("bad-enum");
   validateProject(config.project);
   validateCommands(config.commands);
   const providers = validateWorkflow(config.workflow);
@@ -275,11 +285,27 @@ function loadConfig() {
   if (stats.isSymbolicLink()) reject("symlink");
   if (!stats.isFile()) reject("not-file");
 
+  let descriptor;
+  try {
+    descriptor = openSync(target, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+  } catch (error) {
+    if (error && typeof error === "object" && error.code === "ELOOP") reject("symlink");
+    reject("read-error");
+  }
+
   let bytes;
   try {
-    bytes = readFileSync(target);
-  } catch {
+    const opened = fstatSync(descriptor);
+    if (!opened.isFile()) reject("not-file");
+    if (opened.dev !== stats.dev || opened.ino !== stats.ino) reject("read-error");
+    bytes = readFileSync(descriptor);
+  } catch (error) {
+    if (error instanceof ConfigError) throw error;
     reject("read-error");
+  } finally {
+    try {
+      closeSync(descriptor);
+    } catch {}
   }
   if (bytes.length > MAX_BYTES) reject("too-large");
 

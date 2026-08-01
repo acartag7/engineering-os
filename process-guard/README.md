@@ -102,6 +102,6 @@ point Renovate or Dependabot's `github-actions` ecosystem at this action and it 
 the re-pin PR on each release. Exempt this first-party action from any release-age floor
 with a *scoped* rule (e.g. Renovate `matchPackageNames: ["/^acartag7\/engineering-os/"]`,
 `minimumReleaseAge: "0"`) so hardening fixes propagate immediately — never a blanket
-disable. This turns the batched SHA-bump sweep ([`OS.md`](../OS.md) §6) from a chore into
-automation. A check is never weakened to make a repo green; the repo changes, or the
-exemption is named.
+disable. This turns the batched SHA-bump sweep
+([`ROUTINES.md`](../ROUTINES.md), R-3) from a chore into automation. A check is never
+weakened to make a repo green; the repo changes, or the exemption is named.
