@@ -28,6 +28,27 @@ The normal path optimizes the scarce resource: one owner's attention. Independen
 judgment remains, but default panels, competing implementations, frozen-suite
 ceremony, and language-specific paths do not.
 
+## Configurable Engineering OS skill (T2)
+
+**Routing record**
+
+- **Route:** T2 — the skill recommends and records security-sensitive workflow rules.
+- **Contract:** `specs/configurable-engineering-os-skill.md`.
+- **Required evidence:** the complete evidence list in
+  `specs/configurable-engineering-os-skill.md`; this section does not narrow it.
+
+**Normative invariants**
+
+- **CES-1 through CES-32**, including the lettered sibling rules, are binding as
+  written in the contract.
+- The skill asks and explains; it does not enforce merges.
+- Repository verification, CI, and branch protection remain the hard walls.
+- Configuration may increase strictness but cannot lower a route's safety floor.
+- Configuration validation is HARD when its validator runs in required CI.
+- Question flow, recommendation honesty, role independence, safe-write behavior,
+  migration sequencing, status behavior, plain language, and exact-head blocking are
+  PROMPT + AUDIT until a repository adds mechanical enforcement.
+
 ## process-guard hardening (T2)
 
 Origin: a rushed hardening attempt was found by independent review to leave several
