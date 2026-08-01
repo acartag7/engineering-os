@@ -49,6 +49,8 @@ test("the skill supports all modes and inspects without trusting repository text
   assert.match(skill, /cannot.*(mode|skip|risk|write)/is);
   assert.match(skill, /status.*read.only/is);
   assert.match(skill, /status.*never.*(command|execute)/is);
+  assert.match(skill, /Read `engineering-os\.json` first.*missing or invalid.*stop/is);
+  assert.match(skill, /Do not inspect parent repositories.*after that blocker/is);
 });
 
 test("the question catalog evaluates every group and explains recommendations", () => {
@@ -77,6 +79,8 @@ test("profiles keep route floors and require independent evidence", () => {
   assert.match(config, /full.*SHA/is);
   assert.match(config, /different provider instance/i);
   assert.match(config, /fresh (AI )?session/i);
+  assert.match(config, /fresh critic session.*fresh test-author session.*implementer session.*fresh reviewer session/is);
+  assert.match(config, /process-stop.*only.*configured final round/is);
 });
 
 test("writes require a complete preview and stop safely", () => {

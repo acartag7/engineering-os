@@ -1,36 +1,76 @@
-# Onboarding a Repository
+# Onboarding a repository
 
-Engineering OS does not need to know the repository's programming language. The
-repository owns one verification command; CI runs it.
+Use the `engineering-os` skill. It makes this process discoverable while you use it:
+it inspects the repository, asks only unresolved questions, recommends defaults, and
+explains what every choice enables, costs, weakens, and leaves unchanged.
 
-## Decisions the owner makes
+The skill is not a command-line program with a model inside it. The AI host does the
+inspection and conversation. A small Node script checks the final configuration
+without making recommendations.
 
-1. Choose the project tier: S, I, or X.
-2. Name the default branch and real shipped entrypoint.
-3. Choose the one local verification command.
-4. Decide which security or sensitive-data areas need threat notes.
-5. Confirm the repository has one human owner or name the actual maintainers.
+## What the skill asks
 
-## Setup
+It evaluates project purpose, languages, shipped entrypoint, real test and build
+commands, security boundaries, available humans or AI sessions, workflow strictness,
+CI, branch protection, project documentation, migration state, and final confirmation.
 
-1. Create `BRIEF.md` from `templates/project-brief.md` and replace every placeholder
-   with the repository's real files and commands.
-2. Copy `templates/agent-context-block.md` into both `AGENTS.md` and `CLAUDE.md`.
-3. Add the repository-owned verify command, such as `./scripts/verify` or
-   `make verify`.
-4. Make CI run that same command in a job named `verify`.
-5. Protect `main` with pull requests and required checks. A solo repository keeps
-   required human approvals at zero; independent AI review is recorded separately.
-6. Run the command locally and through the real entrypoint before onboarding is
-   called complete.
+It asks one short question at a time. The recommended answer comes first. Facts proved
+by source are shown for correction instead of asked again.
 
-If the account cannot enforce required checks, record that gap. Never describe a
-visible but bypassable check as a hard gate.
+## Recommended solo default
+
+- profile: `standard`;
+- critic: fresh AI session;
+- implementer: current session;
+- reviewer: a different fresh AI session;
+- independent tests: required for T2/T3 and recommended for bug fixes;
+- review limit: three rounds;
+- active pull requests: two;
+- `process-guard`: off.
+
+This gives one owner independent judgment without pretending another human exists.
+Teams may use named humans. Hosts with multi-agent seats may use them. Neither is
+required.
+
+## Complete output
+
+After the owner confirms one complete preview, onboarding creates or proposes:
+
+1. validated root `engineering-os.json`;
+2. a real `BRIEF.md` from `templates/project-brief.md`;
+3. clear `AGENTS.md` and `CLAUDE.md` instructions for supported hosts;
+4. one repository-owned verify command;
+5. CI that runs verify and configuration validation;
+6. branch protection that requires the checks;
+7. proof still missing.
+
+The skill does not silently install a dependency, overwrite a file, change GitHub
+settings, or run a live operation. CI and branch protection are proposals until a
+separately authorized action changes and verifies them.
+
+## Verification command
+
+The repository owns one command, such as `./scripts/verify` or `make verify`. It uses
+the language's real tools and runs at least the tests. It also proves the shipped
+entrypoint where practical.
+
+The process does not assume TypeScript, `pnpm`, `src/`, `package.json`, or a special
+test directory. Examples:
+
+| Project | Repository-owned command may run |
+|---|---|
+| Go | formatting, `go vet`, tests, build, real command |
+| Python | formatter or linter, static checks, tests, package or command |
+| Rust | formatting, `clippy`, tests, build, binary |
+| TypeScript | lint, type check, tests, build, installed command or application |
+
+When no tests exist, onboarding names that gap and proposes the smallest real test.
+A pure library uses a public API integration test as its closest real entrypoint and
+records why.
 
 ## Go example
 
-This repository includes a working example at `test/fixtures/go-project`.
-Its `./scripts/verify` command runs:
+The working fixture at `test/fixtures/go-project` runs:
 
 ```bash
 gofmt -l .
@@ -40,53 +80,31 @@ go build ./...
 go run ./cmd/demo
 ```
 
-The final command is the smoke test for the real entrypoint. A real project replaces
-`./cmd/demo` with its shipped command or service check.
+Run `test/fixtures/go-project/scripts/verify` to prove the example. `go vet` inspects
+Go code for suspicious mistakes. The final command exercises the real demo entrypoint.
 
-Here, `go vet` is the static analyzer: it catches suspicious Go code without assuming
-a JavaScript or Python tool. A Go project may add a pinned linter when its risks need
-stronger checks.
+## Configuration check
 
-A minimal CI job is:
+From the repository root:
 
-```yaml
-verify:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@<full-commit-sha>
-    - uses: actions/setup-go@<full-commit-sha>
-      with:
-        go-version-file: go.mod
-    - run: ./scripts/verify
+```text
+node <engineering-os-skill>/scripts/validate_config.mjs engineering-os.json
 ```
 
-Pin actions to reviewed commit SHAs in the actual repository. Do not copy a moving
-tag from an example.
+The validator is read-only and prints one fixed result. Without Node, the skill can
+review the same fields, but onboarding remains incomplete until required CI runs the
+deterministic validator.
 
-## Other languages
+## Moving from the old process
 
-The shape stays the same:
-
-- Python may run linting, static checks, `pytest`, package build, and its command.
-- Rust may run formatting, `clippy`, tests, build, and its binary.
-- TypeScript may run linting, type checking, tests, build, and the installed command
-  or application.
-
-Engineering OS calls the repository command. It does not add a central language
-switch or assume `src/`, `test/acceptance/`, `package.json`, or `pnpm`.
-
-## Optional `process-guard`
-
-Do not install `process-guard` by default. It is only for repositories that choose
-hash-frozen acceptance tests. Read its README and open limitation before opting in.
+Use the skill's migration mode. Phase one adds and proves the new verify path while
+all old checks remain. Phase two removes only owner-approved old files after proof
+shows the new verify check is green at the current commit and required by branch
+protection. Read every old test before deciding to keep, protect, rewrite, or remove
+it. Missing proof blocks cleanup.
 
 ## Completion proof
 
-Onboarding is complete only when:
-
-- the local verify command passes;
-- the CI `verify` job passes;
-- branch protection requires it;
-- the real entrypoint was exercised;
-- the agent context exists in both supported instruction files;
-- `BRIEF.md` names the real project shape and working commands.
+Onboarding is complete only when local verify passes, CI passes at the current commit,
+branch protection requires it, the real entrypoint ran, configuration validation
+passes, host instructions exist, and `BRIEF.md` names the real project and commands.

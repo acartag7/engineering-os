@@ -1,0 +1,4 @@
+interface:
+  display_name: "Engineering OS"
+  short_description: "Guide safe repository setup and delivery"
+  default_prompt: "Use $engineering-os to onboard this repository and explain every recommendation."

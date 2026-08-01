@@ -155,20 +155,20 @@ test("enums and profile provider rules are exact", () => {
 
 test("numeric, array, and string bounds reject wrong values", () => {
   const cases = [
-    (c) => { c.workflow.maxReviewRounds = 0; },
-    (c) => { c.workflow.maxReviewRounds = 4; },
-    (c) => { c.workflow.maxReviewRounds = 2.5; },
-    (c) => { c.workflow.maxActivePullRequests = 10; },
-    (c) => { c.project.languages = []; },
-    (c) => { c.project.languages = Array(17).fill("Go"); },
-    (c) => { c.project.languages = [""]; },
-    (c) => { c.decisions.notApplicable = Array(33).fill({ group: "platform", reason: "none" }); },
-    (c) => { c.project.defaultBranch = "x".repeat(2049); },
+    ["out-of-bounds", (c) => { c.workflow.maxReviewRounds = 0; }],
+    ["out-of-bounds", (c) => { c.workflow.maxReviewRounds = 4; }],
+    ["wrong-type", (c) => { c.workflow.maxReviewRounds = 2.5; }],
+    ["out-of-bounds", (c) => { c.workflow.maxActivePullRequests = 10; }],
+    ["out-of-bounds", (c) => { c.project.languages = []; }],
+    ["out-of-bounds", (c) => { c.project.languages = Array(17).fill("Go"); }],
+    ["blank-string", (c) => { c.project.languages = [""]; }],
+    ["out-of-bounds", (c) => { c.decisions.notApplicable = Array(33).fill({ group: "platform", reason: "none" }); }],
+    ["out-of-bounds", (c) => { c.project.defaultBranch = "x".repeat(2049); }],
   ];
-  for (const mutate of cases) {
+  for (const [reason, mutate] of cases) {
     const config = starter();
     mutate(config);
-    expectInvalid(runValidator({ config }), "out-of-bounds");
+    expectInvalid(runValidator({ config }), reason);
   }
 });
 
@@ -205,6 +205,14 @@ test("exception rules, shape, dates, and expiry are checked", () => {
   expectInvalid(runValidator({ config: withException(missing) }), "missing-field");
   expectInvalid(runValidator({ config: withException({ ...allowed, extra: true }) }), "unknown-field");
   expectInvalid(runValidator({ config: withException({ ...allowed, reason: "x".repeat(501) }) }), "out-of-bounds");
+
+  const twoProblems = withException({
+    ...allowed,
+    created: "2000-01-01",
+    reviewBy: "2000-01-02",
+  });
+  twoProblems.workflow.reviewer = "current-session";
+  expectInvalid(runValidator({ config: twoProblems }), "expired-exception");
 });
 
 test("not-applicable decisions have exact groups, shape, and reasons", () => {
@@ -252,6 +260,22 @@ test("file and path boundaries are fail closed", () => {
     setup: ({ repository, configPath }) => symlinkSync(configPath, join(repository, "linked.json")),
   });
   expectInvalid(symlinkResult, "symlink");
+
+  const ancestorRoot = tempRoot();
+  const externalRoot = tempRoot();
+  try {
+    writeFileSync(join(externalRoot, "config.json"), `${JSON.stringify(starter())}\n`);
+    symlinkSync(externalRoot, join(ancestorRoot, "linked-dir"), "dir");
+    const result = spawnSync(process.execPath, [VALIDATOR, "linked-dir/config.json"], {
+      cwd: ancestorRoot,
+      encoding: "utf8",
+      env: {},
+    });
+    expectInvalid(result, "symlink");
+  } finally {
+    rmSync(ancestorRoot, { recursive: true, force: true });
+    rmSync(externalRoot, { recursive: true, force: true });
+  }
 
   const outsideRoot = tempRoot();
   try {

@@ -1,5 +1,5 @@
 <!-- vendored from repository prompts/implementer.md; CI checks exact byte parity after this line -->
-# Implementer Prompt — v2.1
+# Implementer Prompt — v2.2
 
 One implementer writes the code and its normal tests for one bounded slice.
 
@@ -14,7 +14,7 @@ INPUTS
 - Route and slice: <tier, one changed rule, affected paths, exclusions>
 - Contract: <binding rules>
 - Critique: <findings, hostile cases, accepted residuals>
-- Optional acceptance challenge: <cases or not required>
+- Independent tests and red evidence: <paths, test commit, command, result, or route-based N/A>
 - Repository verify command: <exact command>
 - Real entrypoint: <exact command or check>
 - Repository conventions: <paths and language rules>
@@ -25,6 +25,7 @@ RULES
    over a hand-written parser for untrusted input.
 3. Add unit, integration, and regression tests suitable for this repository. Do not
    assume `src/`, `test/acceptance/`, TypeScript, or any package manager.
+   Do not weaken, remove, or rewrite independent tests without a contract amendment.
 4. For a bug fix, run the new regression test with the fix removed and record the
    failure. Restore the fix and record the passing result.
 5. Exercise the real shipped entrypoint. A type check, build, or unit suite alone is
@@ -53,6 +54,8 @@ DONE MEANS
 
 ## Changelog
 
+- **v2.2** — added strict independent-test input and the no-weakening rule after
+  LESSONS.md L-019.
 - **v2.1** — added language-appropriate static checks, duplicate security-header
   rejection, closed error codes, Project Brief freshness, and the anti-code-golf rule
   after LESSONS.md L-016 through L-018.

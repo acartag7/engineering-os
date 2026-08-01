@@ -1,6 +1,6 @@
 # Configurable Engineering OS skill
 
-Status: owner accepted after independent critique and test-author review
+Status: implemented and locally verified; exact-head review pending
 
 Route: T2
 

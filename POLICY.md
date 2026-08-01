@@ -21,16 +21,21 @@ lines is a warning to check the cut, not a block.
 | Step | T0 | T1 | T2 | T3 | Docs |
 |---|---|---|---|---|---|
 | Small contract | — | when behavior is not already clear | required | required | claims list |
-| Fresh critique before code | — | recommended | required | required | — |
+| Fresh critique before code | — | configured; recommended | required | required | claims review |
+| Independent test author before implementation | — | recommended for bugs | required | required | — |
 | Implementations | 1 | 1 | 1 | 1 | 1 |
 | Tests | existing checks | code + tests | code + tests | code + tests | link or rendering checks |
-| Acceptance challenger | — | — | owner may add | recommended for a novel or irreversible boundary | — |
-| Independent final review | CI/bot | one fresh reviewer | one fresh reviewer | one fresh reviewer | claims against source |
+| Independent final review | owner or CI | configured fresh context | fresh context | fresh context | claims against source |
 | Real entrypoint | when relevant | required | required | required | examples when relevant |
 
-The acceptance challenger is not a second implementer. It proposes a few hostile test
-cases before or during implementation. It is used only when the risk justifies the
-extra seat.
+The independent test author is not a second implementer. It writes a small set of
+behavior tests before code and proves they fail. The implementer then writes one
+implementation and may add normal tests without weakening the independent ones.
+
+`basic`, `standard`, and `strict` are project defaults, not ways to lower risk. T2 and
+T3 always use strict. Standard and strict use fresh critic and reviewer contexts;
+strict also uses the independent test author. A fresh AI session, named human, or
+multi-agent seat can fill an independent role.
 
 ## Routing record
 
@@ -40,9 +45,10 @@ Put this in the spec or pull request:
 Route: <T0 | T1 | T2 | T3 | Docs>
 Reason: <why>
 Slice: <one rule changed; explicit exclusions>
+Effective profile: <basic | standard | strict>
+Providers: <critic, test author, implementer, reviewer; name real instances>
 Verify command: <repository-owned command>
 Real entrypoint evidence: <command or not-applicable reason>
-Acceptance challenger: <required | not required, with reason>
 Review: <reviewer + exact commit SHA, filled before merge>
 ```
 

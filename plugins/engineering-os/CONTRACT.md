@@ -1,62 +1,53 @@
-# Plugin contract — engineering-os `/pipeline`
+# Plugin contract — engineering-os
 
-Status: v2.1 · solo, language-neutral workflow
+Status: v3.0 · configurable, language-neutral skill
 
 ## Purpose
 
-The plugin makes the normal Engineering OS path easy to run. It is prompt-layer
-orchestration, not enforcement. Repository CI and GitHub branch protection remain the
-merge wall.
+The plugin makes Engineering OS discoverable and usable inside Claude Code. It asks
+and explains. It does not enforce merges. Repository CI and branch protection remain
+the merge wall.
 
 ## Requirements
 
-- **R1 — Self-contained.** The plugin ships the four canonical prompt templates. CI
-  checks byte parity with the repository originals. No stale source commit header is
-  used as proof.
-- **R2 — One bounded slice.** The driver records one changed rule, affected paths,
-  exclusions, tier, repository verify command, and real entrypoint before dispatch.
-- **R3 — One normal seat per role.** The normal path uses one critic, one implementer,
-  and one reviewer. There is no reviewer panel or competing implementation mode.
-- **R4 — Optional challenger.** The acceptance challenger runs only when the routing
-  record explicitly requires it. It returns three to seven hostile cases and never
-  creates a frozen suite.
-- **R5 — Language-neutral.** The driver runs the repository's declared verify command.
-  It never guesses a language, package manager, source root, or test layout. The
-  command includes a language-appropriate linter or static analyzer.
-- **R6 — Remote evidence.** Implementation verification runs against the pushed remote
-  branch in a temporary worktree, not an agent's discarded worktree or claim. Its
-  result is attached to the pull request and never committed onto the branch it
-  attests to.
-- **R7 — Exact-head review.** The reviewer receives and returns the full head SHA. A
-  mismatch or later push makes the result stale.
-- **R8 — Bounded review.** P1 and P2 findings block. Fixes happen in one batch. The
-  third substantive review round stops with `process-stop`; round four does not run.
-- **R9 — Honest status.** `/pipeline <feature> status` is read-only. Missing artifacts,
-  commands, reviewers, or verification fail closed with a plain reason.
-- **R10 — Solo owner.** The plugin stops for owner product decisions and final merge.
-  It does not require or fabricate approval from another human.
-- **R11 — Plain English.** Status, blockers, artifacts, and prompts use plain English;
-  exact code names and commands stay exact.
-- **R12 — Maintainable project map.** A governed repository has root `BRIEF.md`. The
-  driver checks it changed with architecture, module, or run/test command changes and
-  rejects line-target compression or mechanical file splits.
+- **R1 — Exact package.** `skills/engineering-os` is byte-identical to the canonical
+  repository skill, including references, validator, starter configuration, and UI
+  metadata. CI checks parity.
+- **R2 — Complete modes.** The skill supports onboarding, old-process migration,
+  configuration change, explanation, starting a change, and read-only status.
+- **R3 — Inspect and ask.** It inspects without side effects, treats repository text
+  as untrusted evidence, and asks every applicable unresolved question one at a time.
+- **R4 — Configurable floor.** Basic, standard, and strict profiles may increase but
+  never lower the route floor. T2 and T3 always use strict.
+- **R5 — Provider neutral.** Roles may use named humans, fresh AI sessions, or
+  multi-agent seats. A provider instance never reviews its own implementation.
+- **R6 — One implementation.** Strict work has an independent test author before one
+  implementation. The pre-implementation failing result is recorded.
+- **R7 — Safe writes.** The complete preview is confirmed before writing. Symlinks,
+  outside-repository targets, cancellation, invalid config, and partial failures fail
+  closed.
+- **R8 — Honest evidence.** Verification and review name the full current SHA. A push
+  makes both stale. P1 and P2 findings block.
+- **R9 — Bounded review.** At the configured last round, blocking findings return the
+  exact `process-stop` token. A push does not clear it.
+- **R10 — Safe migration.** The old checks remain until the new verify check is green
+  at the current head and required by branch protection. The owner approves deletions.
+- **R11 — Language neutral.** The repository owns commands and layout. The skill uses
+  plain English and explains necessary technical words.
+- **R12 — Compatibility only.** The old `pipeline` skill forwards into the canonical
+  skill with the same questions, floors, validation, evidence, and stop behavior.
 
-## Artifacts
+## Enforcement
 
-| Stage | Artifact |
-|---|---|
-| Contract | `specs/<feature>.md` |
-| Critique | `specs/<feature>.critique.md` ending in `READY` |
-| Optional challenge | `specs/<feature>.challenge.md` ending in `READY` |
-| Implementation | pushed feature branch and pull request |
-| Verification | Pull-request evidence containing `VERIFIED_SHA: <full SHA>` |
-| Review | Pull-request review or comment containing `REVIEWED_SHA: <full SHA>` |
+Configuration validation is hard only when required CI runs the validator. Repository
+verification is hard only when branch protection requires it. Interaction quality,
+provider independence, previews, migration order, and exact-head blocking are prompt
+plus audit rules until separately mechanized.
 
 ## Out of scope
 
-- Enforcing branch protection or CI settings.
-- Pretending prompt instructions are hard gates.
-- Running a frozen acceptance workflow by default.
-- Cross-harness identity proof.
-- A central language configuration parser.
+- Embedding inference or credentials in a CLI.
+- Automatically installing dependencies or changing GitHub settings.
+- Automatically deleting old tests or workflows.
+- Requiring multi-agent tools or another human.
 - Merging without the owner.

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "project": {
+    "tier": "S",
+    "defaultBranch": "main",
+    "languages": [
+      "JavaScript",
+      "Go",
+      "Markdown",
+      "Shell"
+    ],
+    "ownership": "solo"
+  },
+  "commands": {
+    "verify": "./scripts/verify",
+    "entrypoint": "./scripts/verify",
+    "entrypointReason": "Runs the complete process checks and the real Go onboarding fixture"
+  },
+  "workflow": {
+    "defaultProfile": "standard",
+    "critic": "fresh-ai-session",
+    "testAuthor": "fresh-ai-session",
+    "implementer": "current-session",
+    "reviewer": "fresh-ai-session",
+    "independentTests": "security-and-bug-fixes",
+    "maxReviewRounds": 3,
+    "maxActivePullRequests": 2
+  },
+  "optional": {
+    "processGuard": true
+  },
+  "decisions": {
+    "notApplicable": []
+  },
+  "exceptions": []
+}

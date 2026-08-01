@@ -3,8 +3,8 @@ name: ci
 # engineering-os governs itself: the repo that defines the walls runs them on its
 # own PRs. Required jobs: verify (the repository-owned full command), validate
 # (plugin and prompt integrity), acceptance
-# (process-policy contract, a real Go onboarding fixture, and the optional guard's
-# frozen suite), process-guard (the optional action, dogfooded), and
+# (process and skill contracts, a real Go onboarding fixture, and the optional
+# guard's frozen suite), process-guard (the optional action, dogfooded), and
 # process-guard-trusted (the same guard materialized from the base ref).
 
 on:
@@ -72,6 +72,8 @@ jobs:
           cache: false
       - name: Check the current process contract
         run: node --test test/process-policy.test.mjs
+      - name: Check the guided skill and configuration validator
+        run: node --test test/engineering-os-config.test.mjs test/engineering-os-skill.test.mjs
       - name: Run the real Go onboarding fixture
         working-directory: test/fixtures/go-project
         run: ./scripts/verify

@@ -1,11 +1,8 @@
 # engineering-os plugin
 
-The `/pipeline` helper drives one small change through the solo Engineering OS path:
-contract, one fresh critique, optional acceptance challenge, one implementation with
-tests, repository-owned verification, one exact-head review, and owner merge.
-
-It removes manual prompt copying. It does not replace required CI or branch
-protection.
+The plugin ships the configurable Engineering OS skill for Claude Code. It can
+onboard a repository, explain or change its workflow, migrate the old process, start
+one change, and report read-only status.
 
 ## Install
 
@@ -14,27 +11,24 @@ protection.
 /plugin install engineering-os@engineering-os
 ```
 
+Then ask:
+
+```text
+Use the engineering-os skill to onboard this repository and explain every recommendation.
+```
+
 ## What it uses
 
-- `skills/pipeline` — stage detection and dispatch.
-- `prompts/` — copies of the canonical repository prompts; CI checks exact parity.
-- `agents/` — routed seats plus routing-free fallbacks.
+- `skills/engineering-os` — exact copy of the canonical skill, references, starter
+  configuration, and deterministic validator;
+- `skills/pipeline` — compatibility forwarder for old `/pipeline` requests;
+- `prompts/` — canonical role prompts with byte-parity checks;
+- `agents/` — optional routed seats and routing-free fallbacks.
 
-The normal path uses one critic, one implementer, and one reviewer. The acceptance
-challenger runs only when the owner marks the slice as unusually dangerous. There are
-no default panels, competing implementations, or frozen-test stage.
+Multi-agent seats are optional. A named human or fresh AI session can fill an
+independent role. The normal recommended profile is standard. T2 and T3 always use
+strict, which adds an independent test author before one implementation.
 
-Each project declares its own verify command and real entrypoint in `AGENTS.md` and
-`CLAUDE.md`. The plugin runs those commands; it does not assume TypeScript, `pnpm`,
-`src/`, or `test/acceptance/`.
-
-The verify command includes the linter or static analyzer that fits that language.
-The project also keeps a root `BRIEF.md`; architecture, module, and command changes
-update it in the same pull request.
-
-Fresh reviewer context is required. A different model family is preferred. When only
-one model provider is available, the fallback reviewer remains a separate fresh seat
-and the limitation is reported honestly.
-
-The plugin never merges by itself. The owner sees the exact head, CI, verification,
-and review result, then decides.
+Each project owns its verify command and real entrypoint. The skill does not assume a
+language, package manager, source directory, or test layout. It never merges by
+itself. Required CI and branch protection remain the walls; the owner decides.

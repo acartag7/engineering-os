@@ -2,10 +2,11 @@
 
 ## What it is
 
-Engineering OS is a small set of delivery rules for repositories maintained by one
-owner. It prevents unclear work, false-green checks, and stale review evidence from
-reaching `main`. Each project keeps its own tools and exposes one command that proves
-the real project still works.
+Engineering OS is a configurable set of delivery rules for one owner or a team. Its
+skill makes the process discoverable while onboarding a repository or starting work.
+It prevents unclear work, false-green checks, unsafe migration, and stale review
+evidence from reaching `main`. Each project keeps its own tools and one command that
+proves the real project still works.
 
 ## Why it exists
 
@@ -16,12 +17,12 @@ language-neutral, and realistic for a solo developer.
 
 ## How it works
 
-An owner starts with one bounded change and records its route in `POLICY.md` terms. A
-fresh critic uses `prompts/critique.md` to find missing decisions before code. The
-implementer uses the repository's own verification command. CI runs `scripts/verify`,
-which checks this repository's policy tests, optional guard tests, prompt copies, and
-the real Go onboarding example. One fresh reviewer uses `prompts/reviewer.md` and
-records the exact commit SHA on the pull request before the owner merges.
+The `engineering-os` skill inspects the repository, asks unresolved questions, and
+recommends a basic, standard, or strict workflow. T2 and T3 use strict: a fresh critic,
+an independent test author before code, one implementation, real verification, and a
+fresh exact-head reviewer. The included validator checks `engineering-os.json`. CI
+runs `scripts/verify`, including policy tests, skill tests, optional guard tests,
+prompt copies, and the real Go example. The owner still decides whether to merge.
 
 ## The map
 
@@ -32,6 +33,7 @@ records the exact commit SHA on the pull request before the owner merges.
 | `BASELINE.md` | Auditable rules learned from incidents or proven practice |
 | `LESSONS.md` | Class-level record of failures and the checks they created |
 | `ONBOARDING.md` | Language-neutral setup, including a real Go example |
+| `skills/engineering-os/` | Canonical guided skill, references, starter config, and validator |
 | `prompts/` | Versioned critic, implementer, challenger, and reviewer instructions |
 | `templates/` | Files copied into governed repositories |
 | `plugins/engineering-os/` | Optional installed helper for running the workflow |
@@ -61,6 +63,6 @@ code inspection, tests, and build succeed.
 
 ## State and next milestone
 
-- Current phase: solo, language-neutral workflow ready for first governed Go project
+- Current phase: configurable, language-neutral workflow under exact-head review
 - Frozen parts: `test/acceptance/process-guard/` when the optional guard is changed
-- Next milestone: onboard the Go project and require its repository-owned `verify` job
+- Next milestone: merge the guided skill, then onboard the blocked Go project

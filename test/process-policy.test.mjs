@@ -4,17 +4,21 @@ import { test } from "node:test";
 
 const read = (path) => readFileSync(path, "utf8");
 
-test("source-of-truth docs use the solo language-neutral workflow", () => {
+test("source-of-truth docs use the configurable language-neutral workflow", () => {
   const os = read("OS.md");
   const policy = read("POLICY.md");
   const onboarding = read("ONBOARDING.md");
 
   assert.match(os, /Each repository owns one verification command/);
-  assert.match(os, /one fresh AI reviewer/i);
+  assert.match(os, /engineering-os\.json/);
+  assert.match(os, /T2 and T3 always\s+use strict/i);
+  assert.match(os, /Multi-agent tools are optional/i);
   assert.match(os, /Every governed repository carries `BRIEF\.md`/);
   assert.doesNotMatch(os, /\| 4\. Acceptance tests \|/);
 
   assert.match(policy, /\| Implementations \| 1 \| 1 \| 1 \| 1 \| 1 \|/);
+  assert.match(policy, /Independent test author before implementation/);
+  assert.match(policy, /basic.*standard.*strict/is);
   assert.match(policy, /language-appropriate linter or static analyzer/);
   assert.match(policy, /more than one value for a security-relevant HTTP/);
   assert.match(policy, /closed language type/);
@@ -23,7 +27,8 @@ test("source-of-truth docs use the solo language-neutral workflow", () => {
 
   assert.match(onboarding, /## Go example/);
   assert.match(onboarding, /templates\/project-brief\.md/);
-  assert.match(onboarding, /Do not install `process-guard` by default/);
+  assert.match(onboarding, /engineering-os\.json/);
+  assert.match(onboarding, /Recommended solo default/);
   assert.doesNotMatch(onboarding, /repo verify \(typecheck, tests, build\)/);
 });
 
@@ -44,6 +49,15 @@ test("project brief template and repository brief carry the fixed structure", ()
   }
 });
 
+test("engineering-os governs itself with validated configuration", () => {
+  const config = JSON.parse(read("engineering-os.json"));
+  assert.equal(config.version, 1);
+  assert.equal(config.project.tier, "S");
+  assert.equal(config.commands.verify, "./scripts/verify");
+  assert.equal(config.optional.processGuard, true);
+  assert.match(read("scripts/verify"), /validate_config\.mjs engineering-os\.json/);
+});
+
 test("fleet-audit additions are connected to rules, lessons, prompts, and audit", () => {
   const baseline = read("BASELINE.md");
   const lessons = read("LESSONS.md");
@@ -51,31 +65,30 @@ test("fleet-audit additions are connected to rules, lessons, prompts, and audit"
   const audit = read("routines/monthly-audit-prompt.md");
   const guardReadme = read("process-guard/README.md");
 
-  for (const id of ["PC-32", "PC-33", "PC-34", "PC-35"]) {
+  for (const id of ["PC-32", "PC-33", "PC-34", "PC-35", "PC-36", "PC-37", "PC-38"]) {
     assert.match(baseline, new RegExp(`\\| ${id} \\|`));
   }
-  for (const id of ["L-016", "L-017", "L-018"]) {
+  for (const id of ["L-016", "L-017", "L-018", "L-019"]) {
     assert.match(lessons, new RegExp(`## ${id} `));
   }
-  assert.match(reviewer, /Reviewer Prompt — v2\.1/);
+  assert.match(reviewer, /Reviewer Prompt — v2\.2/);
+  assert.match(reviewer, /`process-stop`/);
   assert.match(reviewer, /code: string/);
   assert.match(reviewer, /`BRIEF\.md` changed/);
-  assert.match(audit, /Monthly Audit — agent prompt v2\.1/);
+  assert.match(audit, /Monthly Audit — agent prompt v2\.2/);
   assert.match(guardReadme, /## Small amendment flow/);
 });
 
-test("pipeline helper has one reviewer and no frozen default stage", () => {
+test("old pipeline helper only forwards to the configurable skill", () => {
   const skill = read("plugins/engineering-os/skills/pipeline/SKILL.md");
 
-  assert.match(skill, /v4\.1\.0/);
-  assert.match(skill, /Use one seat, never a panel/);
-  assert.match(skill, /repository verify command/);
-  assert.match(skill, /language-appropriate linter or static analyzer/);
-  assert.match(skill, /root `BRIEF\.md` exists/);
-  assert.match(skill, /REVIEWED_SHA: <full exact head SHA>/);
-  assert.match(skill, /Never commit the review result onto the branch/);
-  assert.doesNotMatch(skill, /Panel mode/);
-  assert.doesNotMatch(skill, /test\/acceptance/);
+  assert.match(skill, /v5\.0\.0/);
+  assert.match(skill, /Compatibility forwarder/);
+  assert.match(skill, /use the `engineering-os` skill/i);
+  assert.match(skill, /same questions, route floors, configuration/);
+  assert.match(skill, /`process-stop`/);
+  assert.match(skill, /status.*read-only/is);
+  assert.doesNotMatch(skill, /## Review stage/);
 });
 
 test("vendored prompts exactly match their canonical sources", () => {
@@ -92,6 +105,14 @@ test("vendored prompts exactly match their canonical sources", () => {
       .join("\n");
     assert.equal(vendored, canonical, `${name} drifted`);
   }
+});
+
+test("role prompts carry the configurable independent-test workflow", () => {
+  assert.match(read("prompts/acceptance-author.md"), /Independent Test Author Prompt — v3\.0/);
+  assert.match(read("prompts/critique.md"), /Critique Prompt — v2\.2/);
+  assert.match(read("prompts/implementer.md"), /Implementer Prompt — v2\.2/);
+  assert.match(read("prompts/implementer.md"), /Do not weaken, remove, or rewrite independent tests/);
+  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.2/);
 });
 
 test("prompt headers do not claim a stale source commit", () => {

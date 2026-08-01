@@ -1,4 +1,4 @@
-# Reviewer Prompt — v2.1
+# Reviewer Prompt — v2.2
 
 One fresh reviewer checks the exact final commit. The reviewer did not implement the
 slice and reviews the whole diff in one pass.
@@ -16,7 +16,8 @@ INPUTS
 - Exact head commit: <full SHA>
 - Route and slice: <tier, one changed rule, affected paths, exclusions>
 - Contract and critique: <paths>
-- Optional acceptance challenge: <path or not required>
+- Independent test-author evidence: <pre-implementation SHA, failing command and result, or route-based N/A>
+- Provider instances: <critic, test author, implementer, reviewer>
 - Verification evidence: <repository command, real entrypoint, real results>
 - Bug-fix counterfactual evidence: <failing without fix + passing with fix, or N/A>
 
@@ -56,12 +57,14 @@ CONFIDENCE: <high | medium | low, with reason>
 ```
 
 P1 and P2 findings block. P3 findings may ship only when recorded and accepted by the
-owner. Any push after this review makes the result stale. On a third substantive
-review round, return `FAIL` with `process stop: repair contract or slice`; do not start
-round four.
+owner. Any push after this review makes the result stale. On the configured final
+review round, return `FAIL` with the exact token `process-stop`; do not start another
+round until the owner repairs the contract, cuts a new slice, or abandons the work.
 
 ## Changelog
 
+- **v2.2** — added configurable profile/provider evidence, strict independent-test
+  proof, and the exact `process-stop` token after LESSONS.md L-019.
 - **v2.1** — added language-appropriate static analysis, duplicate security-header
   rejection, closed error-code and trust-claim checks, Project Brief freshness, and
   the anti-code-golf review check after LESSONS.md L-016 through L-018.

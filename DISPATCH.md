@@ -1,79 +1,67 @@
-# Dispatch Cheat Sheet
+# Start and run one change
 
-## Once per repository
+Use the `engineering-os` skill in `start` mode. It inspects the repository, reads
+`engineering-os.json`, and asks one unresolved question at a time.
 
-1. Create root `BRIEF.md` from `templates/project-brief.md`.
-2. Copy `templates/agent-context-block.md` into `AGENTS.md` and `CLAUDE.md`.
-3. Define one repository-owned verification command, including the linter or static
-   analyzer (a tool that inspects code without running it) that fits the language.
-4. Make CI run that command in a required check named `verify`.
-5. Protect `main`: pull requests and required checks only. For a solo owner, required
-   human approvals stay at zero.
+## What it closes before code
 
-`process-guard` is optional. Add it only when the repository deliberately uses
-hash-frozen acceptance tests and accepts its documented limitation.
+The routing record names:
 
-## For every behavior-changing slice
+- the changed behavior and explicit exclusions;
+- route T0, T1, T2, T3, or Docs;
+- the effective `basic`, `standard`, or `strict` profile;
+- affected files, callers, adapters, and mirror paths;
+- risk boundaries and production effects;
+- repository verify command and real entrypoint proof;
+- actual provider instances for critic, test author, implementer, and reviewer;
+- documentation changes and known gaps.
 
-### 0. Cut
+Do not code while a product decision remains. About 300 changed lines is a warning to
+recheck the cut, not a reason to compress code.
 
-State the one rule that changes, affected paths, dependencies, and exclusions. Around
-300 changed lines is a warning to reconsider the cut. Keep no more than two pull
-requests in active review.
+## Roles
 
-### 1. Contract
+Use one implementation. `standard` uses a fresh critic and fresh final reviewer.
+`strict` also uses an independent test author before implementation. T2 and T3 always
+use strict.
 
-Write what must happen, what must fail, every important input and exit path, and the
-real entrypoint that will prove the work. Do not code while a decision remains open.
+A provider may be a named human, fresh AI session, or multi-agent seat. Multi-agent
+support is not required. When it is unavailable, the skill prepares the exact prompt
+and evidence package for a fresh session. The final reviewer is a different provider
+instance from the implementer and other independent roles.
 
-### 2. Critique
+## Evidence order
 
-Give `prompts/critique.md` to one fresh AI critic. It finds missing decisions and
-unsafe silences. The critic never implements the change.
+1. Close and critique the contract.
+2. For strict work, add small independent behavior tests and prove they fail at the
+   pre-implementation commit.
+3. Write one implementation and its normal tests.
+4. Run the repository verify command and real entrypoint.
+5. Review the full diff at the exact current commit SHA.
+6. Let the owner decide whether to merge.
 
-T2 and T3 require this step. T1 uses it when behavior is not already clear.
+A later push makes verification and review stale. P1 and P2 findings block. At the
+configured last review round, an unresolved P1 or P2 returns the exact token
+`process-stop`. Another push does not clear the stop; repair the contract, cut a new
+slice, or abandon the work.
 
-### 3. Implement
+## Status
 
-Give `prompts/implementer.md` to one implementer with the contract, critique, exact
-files, and repository verify command. The implementer writes code and normal tests.
-It updates `BRIEF.md` when architecture, modules, or run/test commands change.
+Use the skill in `status` mode to inspect existing evidence. Status never runs a
+repository command and never changes a file, branch, comment, pull request, or other
+state. Missing or invalid configuration is the reported blocker.
 
-For a bug fix, prove the new test fails when the fix is removed.
+## Discovery lane
 
-For an unusually dangerous slice, first use `prompts/acceptance-author.md` as an
-optional acceptance challenger. It proposes a small set of hostile cases; it does not
-create a frozen suite or another implementation.
-
-### 4. Verify
-
-Run the repository-owned command and the real shipped entrypoint. Report the actual
-commands and exit results. A type check or unit suite alone is not enough.
-
-### 5. Review
-
-Give `prompts/reviewer.md` to one fresh AI reviewer. Include the contract, threat
-notes, full diff, verification evidence, and exact head SHA.
-
-P1 and P2 findings block. Fix all findings in one pass, sweep siblings, rerun verify,
-then review the new head. A third substantive round stops the change and sends it back
-to the contract or cut.
-
-### 6. Merge
-
-The owner confirms:
-
-- required CI is green;
-- no unresolved P1 or P2 finding remains;
-- the review names the current head SHA;
-- the real entrypoint ran;
-- the pull request still contains one reviewable slice.
-- `BRIEF.md` is current when the project shape or commands changed.
-
-Then the owner merges.
+When the behavior cannot be specified because source facts are missing, do one
+bounded read-only discovery pass. Record the question, owner, time or scope bound,
+permitted environment, prohibited actions, referenced experiments, observations, and
+stopping condition. Discovery ends in an explicit decision or blocker and returns to
+the contract. It does not become implementation, merge an experiment, deploy, use
+production credentials, mutate production, or authorize a write.
 
 ## When the process fails
 
-Add one class-level entry to `LESSONS.md`: what happened, where, how it was found, the
-defect class, and the check or rule it changed. Do not publish private repository
-details or identifying incident numbers.
+Add one public, class-level lesson only after the owner approves it. State what
+happened, where in general, how it was found, the defect class, and the check or rule
+it changed. Do not publish identifying details from private work.

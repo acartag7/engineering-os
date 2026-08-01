@@ -1,5 +1,5 @@
 <!-- vendored from repository prompts/critique.md; CI checks exact byte parity after this line -->
-# Critique Prompt — v2.1
+# Critique Prompt — v2.2
 
 One fresh critic runs before implementation. The critic finds decisions the contract
 forgot to make. It does not write code.
@@ -55,13 +55,15 @@ FINDINGS:
 PENDING DECISIONS:
 - <owner decision, or none>
 HOSTILE TEST CASES:
-- <case the implementer or optional acceptance challenger must cover>
+- <case the independent test author or implementer must cover>
 GOODHART:
 - <defective implementation | defect | what permits it>
 ```
 
 ## Changelog
 
+- **v2.2** — routed strict pre-implementation behavior cases to the independent test
+  author after LESSONS.md L-019.
 - **v2.1** — added duplicate security-header rejection, closed error-code types, and
   test-backed trust claims after LESSONS.md L-017.
 - **v2.0** — made the critic operate on one bounded, language-neutral slice; changed

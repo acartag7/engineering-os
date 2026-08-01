@@ -57,35 +57,35 @@ upstream.
 1. Rounds per merged PR (review event → fix push → re-review = one round).
    Median and worst. Every PR over 3 rounds must have a `LESSONS.md` entry — if it
    doesn't, that's the finding.
-2. `Process-Skip:` trailer count per repo. A rising skip rate is a finding.
-3. Red merges: any PR merged while a required check was failing (possible in
+2. Red merges: any PR merged while a required check was failing (possible in
    degraded mode on private repos — this is the honesty check for that mode).
-4. Slice shape: each behavior-changing PR states one changed rule and exclusions.
+3. Slice shape: each behavior-changing PR states one changed rule and exclusions.
    Flag mixed concerns and record whether the ~300-line warning was considered.
-5. Regression proof: each bug fix records a test that failed with the fix removed and
+4. Regression proof: each bug fix records a test that failed with the fix removed and
    passed with it present. Missing counterfactual evidence is a finding.
-6. Routing honesty: each PR has route, reason, slice, verify command, real-entrypoint
-   evidence, acceptance-challenger decision, and exact-head review SHA.
-7. Stage yield: count defects or unsafe ambiguities caught by critique,
+5. Routing honesty: each PR has route, reason, slice, effective profile, named
+   provider instances, verify command, real-entrypoint evidence, strict
+   pre-implementation test proof when required, and exact-head review SHA.
+6. Stage yield: count defects or unsafe ambiguities caught by critique,
    implementation tests, CI, and review; separately count escaped defects from new `LESSONS.md`
    entries plus false-green/silent-skip incidents. Unknown catch stage is reported as
    unknown, never guessed.
-8. Discovery boundary: verify each discovery record has question, owner, time-or-scope
+7. Discovery boundary: verify each discovery record has question, owner, time-or-scope
    bound, permitted environment, prohibited actions, experiment references,
    observations, and exit decision. Flag any
    experiment merged or deployed as delivery, production mutation/credentials, or
    delivery started without returning to the contract stage.
-9. Review limits: flag a third substantive round that did not stop, any review whose
+8. Review limits: flag a third substantive round that did not stop, any review whose
    SHA differs from the merged head, and more than two PRs simultaneously in active
    review for one solo owner.
-10. Readability: flag code compressed or split mechanically to satisfy a line target.
-11. Brief drift: architecture, module, or command changes must update `BRIEF.md` in
+9. Readability: flag code compressed or split mechanically to satisfy a line target.
+10. Brief drift: architecture, module, or command changes must update `BRIEF.md` in
     the same pull request.
 
 Artifact/file/test counts are conformance facts, not success metrics. A large suite or
 many review comments is not scored as process value by itself.
 
-**Output:** table per repo: PRs, median/worst rounds, skips, routing violations,
+**Output:** table per repo: PRs, median/worst rounds, routing violations,
 stage-yield counts (critique / implementation tests / CI / review / escaped / unknown),
 false-green/silent-skip count, stale reviews, missing regression proof, and slice or
 review-limit violations.

@@ -46,6 +46,25 @@ accuracy.
 Why: difficult wording hides unclear thinking and makes review and adoption harder.
 **Enforcement: Layer 2 prompt guidance + Layer 3 docs; not machine-enforced.**
 
+## Discover and configure the workflow
+
+Use the `engineering-os` skill to onboard a repository, explain the process, change
+settings, migrate the older process, start one change, or report status. It inspects
+the repository first, then asks every unresolved applicable question one at a time.
+Each recommendation explains what it enables, costs, weakens, and leaves unchanged.
+
+Accepted project defaults live in root `engineering-os.json`. The included
+deterministic validator rejects unknown fields, wrong types, unsafe keys, invalid
+providers, expired exceptions, symlinks, and paths outside the repository. The skill
+is guidance; validation becomes a hard wall only when required CI runs it.
+
+Multi-agent tools are optional. A fresh AI session, a named human, or a multi-agent
+seat may provide independent judgment. A solo owner never fabricates another human.
+
+**Enforcement: configuration validation is Layer 1 when required by branch
+protection; skill questions and recommendations are Layer 2 prompt guidance plus
+Layer 3 audit evidence.**
+
 ## The workflow for one slice
 
 A slice changes one clear rule that one reviewer can understand in one sitting.
@@ -54,14 +73,17 @@ A slice changes one clear rule that one reviewer can understand in one sitting.
 |---|---|---|
 | 0. Cut | Owner + agent | One bounded slice with dependencies and exclusions |
 | 1. Contract | Owner + agent | Required behavior, failures, and open questions resolved |
-| 2. Critique | One fresh AI critic | Missing decisions and unsafe silences found before code |
-| 3. Implement | One implementer | Code and normal tests written together |
-| 4. Verify | Repository CI | The repository's verification command and real entrypoint pass |
-| 5. Review | One fresh AI reviewer | Findings and reviewed final commit SHA recorded |
-| 6. Merge | Owner | The only human decides after checks and review are complete |
+| 2. Critique | Fresh human or AI context | Missing decisions and unsafe silences found before code |
+| 3. Independent tests | Strict profile only | Small behavior tests written and proven red before code |
+| 4. Implement | One implementer | One implementation plus its normal tests |
+| 5. Verify | Repository CI | The repository's verification command and real entrypoint pass |
+| 6. Review | Fresh human or AI context | Findings and reviewed final commit SHA recorded |
+| 7. Merge | Owner | The only required human decides after checks and review are complete |
 
-T0 mechanical work may skip the contract and critique. T1 uses the full path when the
-behavior is not already clear. T2 and T3 require the contract and critique.
+The `basic` profile is the smallest valid path. `standard` adds a fresh critic and
+fresh final reviewer. `strict` also adds an independent test author before
+implementation. T0 may use basic. T1 uses the configured default. T2 and T3 always
+use strict. Configuration may raise but never lower these route floors.
 
 ### Slice limits
 
@@ -77,13 +99,11 @@ behavior is not already clear. T2 and T3 require the contract and critique.
 
 ### Tests and regression proof
 
-The implementer writes normal tests alongside the code. For a bug fix, the new test
-must fail when the fix is removed. Record the command and result in the pull request.
-A test that passes with and without the fix proves nothing.
-
-For unusually dangerous work, the owner may add one fresh acceptance challenger. The
-challenger proposes a small set of hostile cases from the contract and threat notes.
-This is an escalation, not a default separate suite.
+The implementer writes normal tests alongside the code. Strict work first uses an
+independent test author. The independent tests are small, behavior-focused, and
+proven to fail at the pre-implementation commit. Other bug fixes should use the same
+separation when practical. Record the commit, command, failing result, and passing
+result. A test that passes before and after implementation proves nothing.
 
 ### Exact-head review
 

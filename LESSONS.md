@@ -256,3 +256,19 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Class:** repository knowledge depended on memory and scattered documents.
 - **Became:** the root `BRIEF.md` template, onboarding step, reviewer check, and
   monthly freshness audit; adds PC-35.
+
+## L-019 — The process was fixed when the projects and teams were not <a name="l-019"></a>
+
+- **What:** The written workflow assumed one agent-runner shape and one fixed set of
+  roles. A person onboarding a different language or working without multi-agent
+  seats had to translate the process by hand and could not see the cost or protection
+  changed by each choice.
+- **Where:** shared repository onboarding and delivery guidance.
+- **Caught by:** owner review before onboarding a new language and by an independent
+  test-author pass over the proposed replacement.
+- **Class:** hidden process defaults; discoverability and configurability were treated
+  as documentation problems instead of part of the workflow.
+- **Became:** an inference-driven Engineering OS skill, validated project
+  configuration, basic/standard/strict profiles with non-bypassable risk floors,
+  provider-neutral independent roles, strict pre-implementation tests, and a
+  two-phase migration path; adds PC-36 through PC-38 and updates PC-13.
