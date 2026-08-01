@@ -1,6 +1,6 @@
 # Configurable Engineering OS skill
 
-Status: owner accepted; round-two Fable corrections locally verified
+Status: owner accepted; one final-round cleanup check approved
 
 Route: T2
 
@@ -172,7 +172,11 @@ without allowing a project to configure away its safety floor.
   one exact stop token after the configured maximum review round. After
   `process-stop`, the skill refuses another review round until the owner repairs the
   contract, cuts a new slice, or abandons the work. A push never clears the stop; it
-  always requires new verification and review evidence.
+  always requires new verification and review evidence. When the final review passes
+  with only named P3 findings, the owner may approve one cleanup check. Fix only those
+  findings and their direct siblings, verify the new exact head, and ask the same
+  reviewer to confirm only those corrections. A remaining or new finding ends the
+  cleanup check with `process-stop`; no second cleanup check is allowed.
 - **CES-26 — Language-neutral.** The skill discovers and recommends repository-native
   tools. It never assumes TypeScript, `pnpm`, `package.json`, `src/`, a type checker,
   or a frozen acceptance directory.
