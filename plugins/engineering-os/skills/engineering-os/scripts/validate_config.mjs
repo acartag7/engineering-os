@@ -6,7 +6,7 @@ import {
   fstatSync,
   lstatSync,
   openSync,
-  readFileSync,
+  readSync,
 } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { TextDecoder } from "node:util";
@@ -254,6 +254,17 @@ function validateConfig(config) {
   validateProviderConflicts(providers);
 }
 
+function readBounded(descriptor) {
+  const buffer = Buffer.alloc(MAX_BYTES + 1);
+  let total = 0;
+  while (total < buffer.length) {
+    const count = readSync(descriptor, buffer, total, buffer.length - total, total);
+    if (count === 0) break;
+    total += count;
+  }
+  return buffer.subarray(0, total);
+}
+
 function loadConfig() {
   const args = process.argv.slice(2);
   if (args.length > 1) reject("argument-count");
@@ -302,7 +313,7 @@ function loadConfig() {
     if (!opened.isFile()) reject("not-file");
     if (opened.dev !== stats.dev || opened.ino !== stats.ino) reject("read-error");
     if (opened.size > MAX_BYTES) reject("too-large");
-    bytes = readFileSync(descriptor);
+    bytes = readBounded(descriptor);
   } catch (error) {
     if (error instanceof ConfigError) throw error;
     reject("read-error");

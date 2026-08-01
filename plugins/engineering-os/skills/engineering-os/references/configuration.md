@@ -65,6 +65,12 @@ P1 and P2 findings block. Before the configured final round, return all findings
 one fix pass, then verify and review the new head. Use `process-stop` only when a P1 or
 P2 remains at the configured final round.
 
+When the final review passes with only named P3 findings, the owner may approve one
+cleanup check. Fix only those findings and their direct siblings, verify the new
+exact head, and ask the same reviewer to confirm only those corrections. Any remaining
+or new finding ends the check with `process-stop`. A second cleanup check is not
+allowed.
+
 ## Configuration file
 
 Store accepted project defaults in root `engineering-os.json`. Start from

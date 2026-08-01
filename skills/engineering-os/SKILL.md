@@ -141,6 +141,12 @@ Do not output `process-stop` in an earlier round. Earlier P1 or P2 findings bloc
 change and return all findings for one complete fix pass, followed by new verification
 and review of the new head.
 
+If the final review passes with only named P3 findings, allow one cleanup check only
+after owner approval. Fix only those findings and their direct siblings, verify the
+new exact head, and ask the same reviewer to confirm only those corrections. A
+remaining or new finding ends the cleanup check with `process-stop`. Never start a
+second cleanup check.
+
 ## Finish honestly
 
 Onboarding produces a validated `engineering-os.json`, a real `BRIEF.md`, supported

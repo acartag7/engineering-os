@@ -123,6 +123,8 @@ test("review evidence becomes stale and the stop token is exact", () => {
   assert.match(skill, /`process-stop`/);
   assert.match(skill, /repair.*contract.*slice.*abandon/is);
   assert.match(skill, /push.*never.*clear/is);
+  assert.match(skill, /final review passes.*only named P3.*one cleanup check.*owner approval/is);
+  assert.match(skill, /remaining or new finding.*`process-stop`.*Never start a\s+second cleanup check/is);
 });
 
 test("onboarding is language-neutral and verification must run real tests", () => {

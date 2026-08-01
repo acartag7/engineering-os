@@ -1,4 +1,4 @@
-# Reviewer Prompt — v2.2
+# Reviewer Prompt — v2.3
 
 One fresh reviewer checks the exact final commit. The reviewer did not implement the
 slice and reviews the whole diff in one pass.
@@ -58,11 +58,19 @@ CONFIDENCE: <high | medium | low, with reason>
 
 P1 and P2 findings block. P3 findings may ship only when recorded and accepted by the
 owner. Any push after this review makes the result stale. On the configured final
-review round, return `FAIL` with the exact token `process-stop`; do not start another
-round until the owner repairs the contract, cuts a new slice, or abandons the work.
+review round, return `FAIL` with the exact token `process-stop` only when a P1 or P2
+remains; do not start another round until the owner repairs the contract, cuts a new
+slice, or abandons the work.
+
+When the owner approves one cleanup check after a final-round pass with only named P3
+findings, inspect only those corrections and their direct siblings at the new exact
+head. If a named finding remains or a new finding appears, return `FAIL` with
+`process-stop`. Otherwise return `PASS`. Do not start a second cleanup check.
 
 ## Changelog
 
+- **v2.3** — made final-round stopping conditional on a remaining P1 or P2 and added
+  the bounded cleanup check after a reviewer prompt contradicted the stop rule.
 - **v2.2** — added configurable profile/provider evidence, strict independent-test
   proof, and the exact `process-stop` token after LESSONS.md L-019.
 - **v2.1** — added language-appropriate static analysis, duplicate security-header
