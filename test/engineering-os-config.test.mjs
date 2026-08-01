@@ -325,6 +325,76 @@ test("an oversized file is rejected before its content is read", () => {
   }
 });
 
+test("a file that grows after its size check is read bounded and rejected", () => {
+  const repository = tempRoot();
+  try {
+    const configPath = join(repository, "engineering-os.json");
+    const preloadPath = join(repository, "grow-after-fstat.cjs");
+    writeFileSync(configPath, Buffer.alloc(1_024, 0x20));
+    writeFileSync(
+      preloadPath,
+      [
+        'const fs = require("node:fs");',
+        'const { syncBuiltinESMExports } = require("node:module");',
+        `const target = ${JSON.stringify(configPath)};`,
+        'const LIMIT = 65_537;',
+        'const original = {',
+        '  fstatSync: fs.fstatSync,',
+        '  readFileSync: fs.readFileSync,',
+        '  readSync: fs.readSync,',
+        '  statSync: fs.statSync,',
+        '  appendFileSync: fs.appendFileSync,',
+        '};',
+        'const identity = original.statSync(target);',
+        'const isTarget = (descriptor) => {',
+        '  if (typeof descriptor !== "number") return false;',
+        '  try {',
+        '    const stats = original.fstatSync(descriptor);',
+        '    return stats.dev === identity.dev && stats.ino === identity.ino;',
+        '  } catch {',
+        '    return false;',
+        '  }',
+        '};',
+        'let grown = false;',
+        'let consumed = 0;',
+        'fs.fstatSync = (descriptor, ...rest) => {',
+        '  const stats = original.fstatSync(descriptor, ...rest);',
+        '  if (!grown && isTarget(descriptor)) {',
+        '    grown = true;',
+        '    original.appendFileSync(target, Buffer.alloc(3 * 65_536, "GROWN-CANARY "));',
+        '  }',
+        '  return stats;',
+        '};',
+        'fs.readFileSync = (path, ...rest) => {',
+        '  if (isTarget(path) && original.fstatSync(path).size > LIMIT) {',
+        '    throw new Error("descriptor read to end of a grown file");',
+        '  }',
+        '  return original.readFileSync(path, ...rest);',
+        '};',
+        'fs.readSync = (descriptor, ...rest) => {',
+        '  const bytesRead = original.readSync(descriptor, ...rest);',
+        '  if (isTarget(descriptor)) {',
+        '    consumed += bytesRead;',
+        '    if (consumed > LIMIT) throw new Error("read past MAX_BYTES plus one byte");',
+        '  }',
+        '  return bytesRead;',
+        '};',
+        'syncBuiltinESMExports();',
+        '',
+      ].join("\n"),
+    );
+    const result = spawnSync(process.execPath, ["--require", preloadPath, VALIDATOR], {
+      cwd: repository,
+      encoding: "utf8",
+      env: {},
+    });
+    expectInvalid(result, "too-large");
+    assert.doesNotMatch(`${result.stdout}${result.stderr}`, /GROWN-CANARY/);
+  } finally {
+    rmSync(repository, { recursive: true, force: true });
+  }
+});
+
 test("errors are one fixed safe line and validation is read-only and deterministic", () => {
   const canary = "CANARY-9f3";
   const first = runValidator({

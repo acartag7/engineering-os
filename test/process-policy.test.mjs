@@ -71,7 +71,7 @@ test("fleet-audit additions are connected to rules, lessons, prompts, and audit"
   for (const id of ["L-016", "L-017", "L-018", "L-019"]) {
     assert.match(lessons, new RegExp(`## ${id} `));
   }
-  assert.match(reviewer, /Reviewer Prompt — v2\.2/);
+  assert.match(reviewer, /Reviewer Prompt — v2\.3/);
   assert.match(reviewer, /`process-stop`/);
   assert.match(reviewer, /code: string/);
   assert.match(reviewer, /`BRIEF\.md` changed/);
@@ -112,7 +112,7 @@ test("role prompts carry the configurable independent-test workflow", () => {
   assert.match(read("prompts/critique.md"), /Critique Prompt — v2\.2/);
   assert.match(read("prompts/implementer.md"), /Implementer Prompt — v2\.2/);
   assert.match(read("prompts/implementer.md"), /Do not weaken, remove, or rewrite independent tests/);
-  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.2/);
+  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.3/);
 });
 
 test("prompt headers do not claim a stale source commit", () => {
@@ -126,4 +126,14 @@ test("prompt headers do not claim a stale source commit", () => {
     assert.doesNotMatch(header, /engineering-os@[0-9a-f]{7,40}/);
     assert.match(header, /CI checks exact byte parity/);
   }
+});
+
+test("the final-round stop token requires a remaining P1 or P2", () => {
+  const reviewer = read("prompts/reviewer.md").replace(/\s+/g, " ");
+  assert.match(
+    reviewer,
+    /On the configured final review round[^.]*`process-stop` only when a P1 or P2 remains/,
+  );
+  assert.doesNotMatch(reviewer, /the exact token `process-stop`[;.]/);
+  assert.match(reviewer, /- \*\*v2\.3\*\* — [^.]*(P1 or P2|final round)/);
 });
