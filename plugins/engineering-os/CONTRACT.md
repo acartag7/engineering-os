@@ -23,7 +23,8 @@ the merge wall.
   least standard.
 - **R5 — Provider neutral.** Roles may use named humans, fresh AI sessions, or
   multi-agent seats. The final reviewer uses a different provider instance from the
-  critic, independent test author, and implementer.
+  critic, independent test author, and implementer. The independent test author uses
+  a different provider instance from the implementer.
 - **R6 — One implementation.** Strict work or matching configured coverage uses an
   independent test author before one implementation. The pre-implementation failing
   result is recorded.

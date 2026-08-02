@@ -49,6 +49,7 @@ test("project brief template and repository brief carry the fixed structure", ()
       assert.match(brief, new RegExp(`## ${heading}`), `${path}: ${heading}`);
     }
   }
+  assert.match(read("BRIEF.md"), /\| `docs\/` \| Standalone diagrams that explain the workflow \|/);
 });
 
 test("the README workflow diagram matches the configurable one-implementation process", () => {
@@ -68,9 +69,13 @@ test("the README workflow diagram matches the configurable one-implementation pr
     "Exact-head review",
     "PROFILE PICKS THE REVIEWER",
     "Owner merges",
-    "fresh AI session",
-    "T2 and T3 use Strict",
-    "Docs use at least Standard",
+    "fresh assistant session",
+    "Security-sensitive and high-risk work uses Strict",
+    "Documentation uses at least Standard",
+    "Prompts guide every step",
+    "Step 5 has required checks",
+    "review evidence and audits check the rest",
+    "full commit ID",
   ]) {
     assert.match(diagram, new RegExp(label, "i"), label);
   }
@@ -79,6 +84,11 @@ test("the README workflow diagram matches the configurable one-implementation pr
     /parallel implementation|hash (freeze|manifest)|frozen[- ]suite|build candidates|two-family/i,
   );
   assert.doesNotMatch(diagram, /\bproven red\b/i);
+  assert.doesNotMatch(diagram, /\b(CI|T0|T2|T3|SHA|AI)\b/);
+  assert.doesNotMatch(
+    readme,
+    /fresh AI sessions|T0 and closed low-risk work|Owner or CI review|T2, T3, and high-risk work|CI runs the same command|Repository tests, CI,/i,
+  );
 });
 
 test("generated host and brief templates label every rule's enforcement", () => {
@@ -166,6 +176,10 @@ test("the distributed plugin docs name complete modes and honest enforcement", (
   for (const priorRole of ["critic", "test author", "implementer"]) {
     assert.match(rule(5), new RegExp(priorRole, "i"), `R5 must separate the reviewer from the ${priorRole}`);
   }
+  assert.match(
+    rule(5),
+    /independent test author uses\s+a different provider instance from the implementer/i,
+  );
   assert.match(rule(6), /strict/i);
   assert.match(rule(6), /configured coverage/i);
 
