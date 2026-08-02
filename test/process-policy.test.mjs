@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { test } from "node:test";
 
 const read = (path) => readFileSync(path, "utf8");
@@ -302,6 +304,93 @@ test("the onboarding guide carries one honest enforcement statement", () => {
   const statement = statements[0] ?? "";
   for (const layer of ["prompt", "review", "audit", "verification", "hard"]) {
     assert.match(statement, new RegExp(layer, "i"), layer);
+  }
+});
+
+test("every Docs route carries the standard effective profile", () => {
+  // The Docs column of the required-path table demands a claims list and a fresh
+  // claims review. Those results exist only from the standard profile up, so the
+  // route floors must give every Docs change at least standard — not only
+  // documentation that makes security or operator promises.
+  const standardDocsFloor = (text) =>
+    text
+      .replace(/\s+/g, " ")
+      .split(/(?<=\.)\s+/)
+      .find((sentence) => {
+        if (!/\b(Docs|documentation)\b/i.test(sentence)) return false;
+        const floor = sentence.search(/at least[^.]{0,20}standard/i);
+        return floor !== -1 && !/promise/i.test(sentence.slice(0, floor));
+      });
+
+  const policy = read("POLICY.md");
+  assert.match(policy, /\| Small contract \|[^\n]*claims list \|/);
+  assert.match(policy, /\| Fresh critique before code \|[^\n]*claims review \|/);
+  assert.ok(
+    standardDocsFloor(policy),
+    "POLICY.md must state that every Docs route uses at least the standard profile",
+  );
+  assert.ok(
+    standardDocsFloor(read("OS.md")),
+    "the OS.md route floors must give Docs changes at least the standard profile",
+  );
+
+  const spec = read("specs/configurable-engineering-os-skill.md");
+  const ces10 = spec.match(/- \*\*CES-10[\s\S]*?(?=\n- \*\*CES-11)/)?.[0] ?? "";
+  assert.ok(ces10.trim(), "the spec must keep the CES-10 risk floor");
+  assert.ok(
+    standardDocsFloor(ces10),
+    "CES-10 must give every documentation change at least standard, not only promise-bearing documentation",
+  );
+});
+
+test("root verify runs a dedicated formatting check beside the correctness lint", async () => {
+  // POLICY.md's verification floor requires formatting checks, so the repository's
+  // own verify command must run an explicit ESLint formatting pass backed by a
+  // formatting-only configuration while the correctness lint stays.
+  assert.match(read("POLICY.md"), /formatting checks/);
+
+  const lines = read("scripts/verify")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
+
+  const correctness = lines.find((line) => /\beslint\b/.test(line) && !/(--config[= ]|-c )/.test(line));
+  assert.ok(correctness, "scripts/verify must keep the default-config correctness lint");
+
+  const formatting = lines.find((line) => /\beslint\b/.test(line) && /(--config[= ]|-c )/.test(line));
+  assert.ok(formatting, "scripts/verify must run an explicit ESLint formatting check with its own config");
+  const configPath = formatting.match(/(?:--config[= ]|-c )["']?([^\s"']+)/)?.[1];
+  assert.ok(configPath, "the formatting check must name its configuration file");
+
+  const [formatConfig, lintConfig] = await Promise.all([
+    import(pathToFileURL(resolve(configPath)).href),
+    import(pathToFileURL(resolve("eslint.config.mjs")).href),
+  ]);
+  const rulesOf = (flat) => Object.assign({}, ...flat.default.map((entry) => entry.rules ?? {}));
+  const severity = (value) => (Array.isArray(value) ? value[0] : value);
+
+  const lintRules = rulesOf(lintConfig);
+  assert.ok(
+    ["error", 2].includes(severity(lintRules["no-unused-vars"])),
+    "eslint.config.mjs must keep its correctness rules",
+  );
+
+  const formatRules = rulesOf(formatConfig);
+  const stylePattern =
+    /(^|\/)(indent|indent-binary-ops|semi|semi-spacing|semi-style|quotes|quote-props|comma-dangle|comma-spacing|comma-style|key-spacing|keyword-spacing|space-before-blocks|space-before-function-paren|space-in-parens|space-infix-ops|space-unary-ops|no-trailing-spaces|no-multi-spaces|eol-last|no-multiple-empty-lines|brace-style|object-curly-spacing|object-curly-newline|array-bracket-spacing|array-bracket-newline|arrow-spacing|arrow-parens|linebreak-style|max-len|padded-blocks|operator-linebreak|dot-location|func-call-spacing|function-call-spacing|rest-spread-spacing|template-curly-spacing|block-spacing|computed-property-spacing|no-whitespace-before-property|switch-colon-spacing|spaced-comment|new-parens)$/;
+  const enabledStyle = Object.entries(formatRules).filter(
+    ([name, value]) => stylePattern.test(name) && ["error", 2].includes(severity(value)),
+  );
+  assert.ok(
+    enabledStyle.length >= 2,
+    "the formatting config must enable real style rules as errors",
+  );
+
+  for (const name of Object.keys(lintRules)) {
+    assert.ok(
+      !(name in formatRules),
+      `${name} is a correctness rule; the formatting config must stay formatting-only`,
+    );
   }
 });
 

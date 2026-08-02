@@ -38,7 +38,8 @@ implementation and may add normal tests without weakening the independent ones.
 `basic`, `standard`, and `strict` are project defaults, not ways to lower risk. T2 and
 T3 always use strict. Standard and strict use fresh critic and reviewer contexts;
 strict also uses the independent test author. A fresh AI session, named human, or
-multi-agent seat can fill an independent role.
+multi-agent seat can fill an independent role. Every Docs route uses at least
+standard so its claims list receives a fresh claims review.
 
 **Enforcement: required roles and route floors are prompt + pull-request evidence +
 monthly audit. Repository verification is HARD only when branch protection requires

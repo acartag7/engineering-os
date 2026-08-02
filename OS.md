@@ -89,9 +89,9 @@ A slice changes one clear rule that one reviewer can understand in one sitting.
 The `basic` profile is the smallest valid path. `standard` adds a fresh critic and
 fresh final reviewer. `strict` also adds an independent test author before
 implementation. T0 may use basic. T1 uses the configured default. T2 and T3 always
-use strict. The configured independent-test coverage can add a test author to a lower
-route for security work, bug fixes, or all behavior changes. Configuration may raise
-but never lower these route floors.
+use strict. Every Docs route uses at least standard. The configured independent-test
+coverage can add a test author to a lower route for security work, bug fixes, or all
+behavior changes. Configuration may raise but never lower these route floors.
 
 **Enforcement: roles, route floors, and sequence are prompt + pull-request evidence +
 monthly audit. The verify step is HARD only when branch protection requires it; no

@@ -255,6 +255,32 @@ test("enforcement labels are honest about hard checks and audit rules", () => {
   assert.match(skill, /cannot enforce GitHub/i);
 });
 
+test("the skill floor and configuration guidance give every Docs change the standard profile", () => {
+  // POLICY.md routes every Docs change through a claims list and a fresh claims
+  // review, which only exist from the standard profile up. The skill floor and the
+  // configuration reference must state that unconditional floor, not only for
+  // documentation that makes security or operator promises. The vendored plugin
+  // copy must carry the same statement.
+  const standardDocsFloor = (text) =>
+    text
+      .replace(/\s+/g, " ")
+      .split(/(?<=\.)\s+/)
+      .find((sentence) => {
+        if (!/\b(Docs|documentation)\b/i.test(sentence)) return false;
+        const floor = sentence.search(/at least[^.]{0,20}standard/i);
+        return floor !== -1 && !/promise/i.test(sentence.slice(0, floor));
+      });
+
+  for (const pkg of [CANONICAL, VENDORED]) {
+    for (const path of ["SKILL.md", "references/configuration.md"]) {
+      assert.ok(
+        standardDocsFloor(read(join(pkg, path))),
+        `${join(pkg, path)} must say documentation changes always use at least the standard profile`,
+      );
+    }
+  }
+});
+
 test("repository verification runs a real JavaScript linter or static analyzer", () => {
   const verify = read("scripts/verify");
   assert.match(verify, /^[^#\n]*\b(eslint|oxlint|biome|quick-lint-js|jshint)\b/m);

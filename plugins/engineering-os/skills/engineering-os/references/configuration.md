@@ -15,9 +15,8 @@ nine.
 | `strict` | Standard plus an independent test author before implementation. | One more handoff and a required failing-test proof. Required for T2 and T3. |
 
 T0 may use basic. T1 uses the configured default. T2 and T3 always use strict.
-Documentation that makes security or operator promises uses at least standard.
-Configuration can raise or increase protection; it can never lower or reduce this
-floor.
+Every Docs route uses at least standard. Configuration can raise or increase
+protection; it can never lower or reduce this floor.
 
 Verification and final review record the full current commit SHA. A later push makes
 that evidence stale.
@@ -50,9 +49,10 @@ Allowed provider labels are:
 - `ci`
 - `not-required`
 
-The implementer cannot be CI or not required. Standard and strict critics and
-reviewers cannot be the current implementation session, CI, or not required. A strict
-test author has the same restriction. The final reviewer uses a different provider instance
+The implementer cannot be CI or not required. A reviewer can never be not required.
+Standard and strict critics and reviewers cannot be the current implementation
+session or CI; their critics also cannot be not required. A strict test author has
+the same restriction. The final reviewer uses a different provider instance
 from the critic, independent test author, and implementer. Record the actual
 person, fresh AI session, seat, or CI run in each change's routing record.
 

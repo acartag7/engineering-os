@@ -207,9 +207,10 @@ function validateWorkflow(workflow) {
 
 function validateProviderConflicts({ profile, critic, testAuthor, implementer, reviewer }) {
   if (["ci", "not-required"].includes(implementer)) reject("provider-conflict");
+  if (reviewer === "not-required") reject("provider-conflict");
   if (["standard", "strict"].includes(profile)) {
     if (["current-session", "ci", "not-required"].includes(critic)) reject("provider-conflict");
-    if (["current-session", "ci", "not-required"].includes(reviewer)) reject("provider-conflict");
+    if (["current-session", "ci"].includes(reviewer)) reject("provider-conflict");
   }
   if (profile === "strict" && ["current-session", "ci", "not-required"].includes(testAuthor)) {
     reject("provider-conflict");

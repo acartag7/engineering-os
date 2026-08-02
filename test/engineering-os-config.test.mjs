@@ -153,6 +153,24 @@ test("enums and profile provider rules are exact", () => {
   expectValid(runValidator({ config: basic }));
 });
 
+test("a basic profile keeps a real final reviewer while relaxing critic and test author", () => {
+  // Every profile requires a final review, so `reviewer: "not-required"` is a
+  // provider conflict even when the default profile is basic.
+  const conflicted = starter();
+  conflicted.workflow.defaultProfile = "basic";
+  conflicted.workflow.critic = "current-session";
+  conflicted.workflow.testAuthor = "not-required";
+  conflicted.workflow.reviewer = "not-required";
+  expectInvalid(runValidator({ config: conflicted }), "provider-conflict");
+
+  const valid = starter();
+  valid.workflow.defaultProfile = "basic";
+  valid.workflow.critic = "current-session";
+  valid.workflow.testAuthor = "not-required";
+  valid.workflow.reviewer = "owner";
+  expectValid(runValidator({ config: valid }));
+});
+
 test("numeric, array, and string bounds reject wrong values", () => {
   const cases = [
     ["out-of-bounds", (c) => { c.workflow.maxReviewRounds = 0; }],

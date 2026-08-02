@@ -79,8 +79,8 @@ without allowing a project to configure away its safety floor.
   before implementation. A project has one default profile; an individual change may
   become stricter.
 - **CES-10 — Risk floor.** T0 may use `basic`. T1 uses the configured default. T2 and
-  T3 always use `strict`. Documentation with security or operator promises uses at
-  least `standard`. The skill recommends a route from repository evidence and owner
+  T3 always use `strict`. Every Docs route uses at least `standard`. The skill
+  recommends a route from repository evidence and owner
   answers. The owner may raise it. When the owner disagrees with a higher recommended
   route, both routes and the evidence are recorded, but the higher route remains the
   workflow floor unless new evidence changes the recommendation. When it is unclear
@@ -294,8 +294,9 @@ Allowed values are exact:
 Provider rules are exact:
 
 - `implementer` rejects `ci` and `not-required`;
+- `reviewer` rejects `not-required` for every profile;
 - `standard` and `strict` reject `current-session`, `ci`, and `not-required` for
-  `critic` and `reviewer`;
+  `critic`, and reject `current-session` and `ci` for `reviewer`;
 - `strict` rejects `current-session`, `ci`, and `not-required` for `testAuthor`;
 - runtime evidence rejects a `testAuthor` or `reviewer` provider instance that also
   implemented the same change.

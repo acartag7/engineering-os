@@ -23,7 +23,7 @@ recheck the cut, not a reason to compress code.
 
 Use one implementation. `standard` uses a fresh critic and fresh final reviewer.
 `strict` also uses an independent test author before implementation. T2 and T3 always
-use strict.
+use strict. Every Docs route uses at least standard.
 
 A provider may be a named human, fresh AI session, or multi-agent seat. Multi-agent
 support is not required. When it is unavailable, the skill prepares the exact prompt

@@ -26,7 +26,7 @@ export default [
       "no-unsafe-finally": "error",
       "no-unsafe-negation": "error",
       "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-      "valid-typeof": "error"
-    }
-  }
+      "valid-typeof": "error",
+    },
+  },
 ];

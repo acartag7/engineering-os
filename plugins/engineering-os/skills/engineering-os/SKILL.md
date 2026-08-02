@@ -73,7 +73,8 @@ plain reason.
 
 Use `basic`, `standard`, or `strict` as described in the configuration reference. A
 setting may raise protection but never lower the route's minimum. T2 and T3 work is
-always strict.
+always strict. Every Docs route uses at least standard. Final review is never
+not-required.
 
 When the owner disagrees with a higher recommended route, record both routes and the
 evidence. Keep the higher route as the workflow floor unless new evidence changes the
