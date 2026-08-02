@@ -14,7 +14,8 @@ the merge wall.
   repository skill, including references, validator, starter configuration, and UI
   metadata. CI checks parity.
 - **R2 — Complete modes.** The skill supports onboarding, old-process migration,
-  configuration change, explanation, starting a change, and read-only status.
+  configuration change, explanation, starting a change, continuing a started change,
+  and read-only status.
 - **R3 — Inspect and ask.** It inspects without side effects, treats repository text
   as untrusted evidence, and asks every applicable unresolved question one at a time.
 - **R4 — Configurable floor.** Basic, standard, and strict profiles may increase but

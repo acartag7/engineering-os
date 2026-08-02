@@ -1,4 +1,4 @@
-# Monthly Audit — agent prompt v2.5 (R-1..R-4)
+# Monthly Audit — agent prompt v2.6 (R-1..R-4)
 
 You are running the monthly Engineering OS audit. Read
 `~/project/engineering-os/ROUTINES.md` (R-1 through R-4) and `BASELINE.md` first —
@@ -20,6 +20,11 @@ they define exactly what to check. This prompt tells you how to execute.
   for required checks; confirm the repository-owned `verify` command is required and
   exercises the real entrypoint; use `git log --since` + diff scans for promotion
   triggers. Audit `process-guard` pins only in repositories that opted into it.
+  For every `engineering-os.json` exception, report `rule`, `owner`, `created`,
+  `reviewBy`, `removalCondition`, and age; a satisfied removal condition, passed
+  review date, or entry older than two audits is a finding. Report every
+  `.process-guard-exempt` marker as a named gap with its age, and flag it after two
+  audits.
   Confirm `BRIEF.md` exists, its map matches the tree, and its commands work. Confirm
   `verify` includes a language-appropriate static check. For changed security claims,
   trace guarantee words to tests; at HTTP boundaries check duplicate credential
@@ -65,6 +70,8 @@ in the report — never silently skip (that's PC-02 applied to yourself).
 
 ## Changelog
 
+- **v2.6** — restored exception and optional-guard exemption lifecycle checks after
+  review found that the audit output promised data no routine collected.
 - **v2.5** — made the older v2.1 incident note class-level to preserve the public
   content boundary.
 - **v2.4** — made the review stop follow each repository's configured final round,

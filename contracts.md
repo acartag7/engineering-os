@@ -9,8 +9,8 @@
 - **Reason:** replace a TypeScript-shaped, freeze-first workflow with one bounded
   solo-owner path and a repository-owned language-neutral verify command.
 - **Required evidence:** `specs/solo-language-neutral-workflow.md`, process-policy
-  tests, real Go fixture, optional guard suite, full-diff review, exact-head Fable 5
-  review.
+  tests, real Go fixture, optional guard suite, full-diff review, and a fresh
+  independent exact-head review.
 - **Evidence links:** filled in the replacement pull request.
 
 **Normative invariants**

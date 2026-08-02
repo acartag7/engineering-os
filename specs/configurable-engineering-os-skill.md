@@ -22,7 +22,7 @@ workflow engine.
 
 Required evidence: skill validation, question-flow tests, malformed-configuration
 tests, migration tests, the repository verify command, the real Go fixture, full-diff
-review, and an exact-head Fable 5 review.
+review, and a fresh independent exact-head review.
 
 ## Problem
 
@@ -137,13 +137,14 @@ without allowing a project to configure away its safety floor.
   creation date, review date, and removal condition. An exception cannot weaken the
   T2/T3 profile, verification command, real-entrypoint proof, fail-closed security
   rules, current-head review, configuration validation, full preview, safe write
-  boundary, cancellation behavior, two-phase migration, or read-only status. The
-  validator rejects an exception that names a nonexistent CES rule or any protected
-  rule. An exception whose review date has passed is invalid until removed or renewed
-  with a new reason and date. An exception is active only when its entry is present
-  and the complete configuration validates when a mode reads it. An active exception
-  waives the whole obligation of only its named non-protected rule for this project
-  until `reviewBy`; its free-text reason never defines a replacement rule. Applying
+  boundary, cancellation behavior, two-phase migration, read-only status, or the rule
+  that onboarding never claims a GitHub setting changed without separate authorization
+  and verification. The validator rejects an exception that names a nonexistent CES
+  rule or any protected rule. An exception whose review date has passed is invalid
+  until removed or renewed with a new reason and date. An exception is active only
+  when its entry is present and the complete configuration validates when a mode reads
+  it. An active exception waives the whole obligation of only its named non-protected
+  rule for this project through `reviewBy`; its free-text reason never defines a replacement rule. Applying
   an exception is never silent: visible output names its rule, reason, and `reviewBy`.
   An exception never changes a protected rule, route floor, provider eligibility,
   validator behavior, or protected evidence order. When a protected rule independently

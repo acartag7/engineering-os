@@ -41,7 +41,7 @@ test("the Claude plugin contains an exact copy of the canonical package", () => 
 
 test("the skill supports all modes and inspects without trusting repository text", () => {
   const skill = read(join(CANONICAL, "SKILL.md"));
-  for (const mode of ["onboarding", "migration", "configuration", "explanation", "start", "status"]) {
+  for (const mode of ["onboarding", "migration", "configuration", "explanation", "start", "continue", "status"]) {
     assert.match(skill, new RegExp(`\\b${mode}\\b`, "i"), mode);
   }
   assert.match(skill, /inspect before asking/i);
@@ -384,7 +384,11 @@ test("the configuration reference defines deterministic active-exception semanti
     assert.match(waiver, /only the named/i, `${path}: it waives only the named rule`);
     assert.match(waiver, /non-?protected|not protected/i, `${path}: only a non-protected rule can be waived`);
     assert.match(waiver, /this project|this repository/i, `${path}: the waiver is scoped to this project`);
-    assert.match(waiver, /until[^.]{0,60}(reviewBy|review date)/i, `${path}: the waiver ends at reviewBy`);
+    assert.match(
+      waiver,
+      /through[^.]{0,60}(reviewBy|review date)/i,
+      `${path}: the waiver remains active through reviewBy`,
+    );
 
     const wall = sentences
       .filter((s) => /exception/i.test(s) && /never|cannot|does not|do not/i.test(s))
@@ -394,6 +398,11 @@ test("the configuration reference defines deterministic active-exception semanti
     assert.match(wall, /provider/i, `${path}: provider eligibility stays unchanged`);
     assert.match(wall, /validator/i, `${path}: validator behavior stays unchanged`);
     assert.match(wall, /evidence order/i, `${path}: the protected evidence order stays unchanged`);
+    assert.match(
+      wall,
+      /onboarding[^.]{0,120}never claims[^.]{0,120}(GitHub )?setting[^.]{0,120}separate authorization[^.]{0,80}verification/i,
+      `${path}: exceptions cannot waive honest reporting about GitHub settings`,
+    );
 
     assert.match(
       exceptionText,

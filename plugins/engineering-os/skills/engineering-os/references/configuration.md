@@ -141,15 +141,17 @@ canonical contract before proposing one.
 
 An exception is active only when its entry is present and the complete
 `engineering-os.json` is valid when a mode reads it. An active exception waives the
-whole obligation of only the named non-protected rule for this project until
+whole obligation of only the named non-protected rule for this project through
 `reviewBy`. Its reason explains the waiver; it never defines a replacement rule.
 
 An exception never changes a protected rule, route floor, provider eligibility,
 validator behavior, or protected evidence order. When a protected rule independently
-requires the same behavior, that protected obligation remains in force. Applying an
-exception is never silent: every visible output names its `rule`, `reason`, and
-`reviewBy`. An expired exception keeps the complete configuration invalid. Renew an
-exception only through a configuration change with a new reason and date.
+requires the same behavior, that protected obligation remains in force. An exception
+also cannot waive the rule that onboarding never claims a GitHub setting changed
+without separate authorization and verification. Applying an exception is never
+silent: every visible output names its `rule`, `reason`, and `reviewBy`. An expired
+exception keeps the complete configuration invalid. Renew an exception only through
+a configuration change with a new reason and date.
 
 Each mode applies this same meaning:
 

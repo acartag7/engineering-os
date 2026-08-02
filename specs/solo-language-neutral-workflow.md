@@ -16,7 +16,7 @@ Dependencies: the Go toolchain declared by the fixture and existing Node.js tool
 Exclusions: onboarding the external Go repository, changing `process-guard` behavior,
 building a fleet-wide GitHub review gate, and rolling `BRIEF.md` into other repositories.
 Required evidence: repository tests, a real Go verification run, full-diff review,
-and an independent Fable 5 review of the exact final commit.
+and a fresh independent review of the exact final commit.
 Evidence links: filled in the pull request before merge.
 
 The diff is larger than the normal warning because the old process was copied across
@@ -92,9 +92,10 @@ It also blocks a Go repository whose source and tests do not live under `src/` a
 - **SLW-17 — Small frozen amendment.** A repository that opted into frozen contract
   tests may update a small contract, its code, and affected frozen tests in one pull
   request. It still runs hash checks and freezes only externally visible behavior.
-- **SLW-18 — Explicit trust rejection.** HTTP boundaries reject duplicate security
-  headers with a fixed reason code; reason codes use a closed type; every written
-  security guarantee names its enforcing test.
+- **SLW-18 — Explicit trust rejection.** HTTP boundaries reject duplicated
+  credential, cookie, API-key, and forwarded-identity headers with a fixed reason
+  code; reason codes use a closed type; every written security guarantee names its
+  enforcing test.
 - **SLW-19 — Five-minute project map.** Every governed repository has a root
   `BRIEF.md`. Review and the monthly audit keep its map and commands current.
 

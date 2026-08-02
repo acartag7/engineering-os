@@ -25,7 +25,7 @@ fleet-wide mechanical classifier chooses the tier.**
 |---|---|---|---|---|---|
 | Small contract | — | when behavior is not already clear | required | required | claims list |
 | Fresh critique before code | — | configured; recommended | required | required | claims review |
-| Independent test author before implementation | when configured coverage matches | when configured coverage matches; recommended for other bugs | required | required | — |
+| Independent test author before implementation | strict profile or configured coverage | strict profile or configured coverage; recommended for other bugs | required | required | strict profile or configured coverage |
 | Implementations | 1 | 1 | 1 | 1 | 1 |
 | Tests | existing checks | code + tests | code + tests | code + tests | link or rendering checks |
 | Independent final review | owner or CI | configured owner or fresh context | fresh context | fresh context | claims against source |

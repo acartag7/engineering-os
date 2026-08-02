@@ -28,19 +28,25 @@ claude -p "$(cat engineering-os/routines/monthly-audit-prompt.md)"
    data handling (scan the month's merged diffs for these).
 2. CI exists and is required: the protected branch requires the repository-owned
    `verify` job, and the job exercises the real entrypoint or records why it cannot.
-3. If the repository opted into `process-guard`, its pinned SHA is current and its
+3. Exception lifecycle: for every `engineering-os.json` `exceptions` entry, report
+   `rule`, `owner`, `created`, `reviewBy`, `removalCondition`, and age. A satisfied
+   removal condition, a passed review date, or an exception older than two audits is
+   a finding.
+4. If the repository opted into `process-guard`, its pinned SHA is current and its
    broad re-freeze limitation is named. The guard is not required for other repos.
-4. Supply chain floor: lockfile committed, exact pins, frozen-lockfile install in
+   A `.process-guard-exempt` marker on the base branch is a named gap: report its age,
+   and flag it when it remains for more than two audits.
+5. Supply chain floor: lockfile committed, exact pins, frozen-lockfile install in
    CI, all GitHub Actions pinned by full SHA.
-5. Secret-history lint and anti-silent-skip present where the tier requires them
+6. Secret-history lint and anti-silent-skip present where the tier requires them
    (PC-01, PC-02).
-6. Prose honesty spot-check (PC-19): any doc claiming a tool/check exists that
+7. Prose honesty spot-check (PC-19): any doc claiming a tool/check exists that
    doesn't (grep guarantee verbs in docs changed this month against code).
-7. Project brief: `BRIEF.md` exists, its directory map matches the current tree, and
+8. Project brief: `BRIEF.md` exists, its directory map matches the current tree, and
    its run and test commands work.
-8. Static checks: the required `verify` job runs a language-appropriate linter or
+9. Static checks: the required `verify` job runs a language-appropriate linter or
    static analyzer; a type checker alone is not silently treated as lint.
-9. Trust claims: changed `fail closed`, `never`, `always`, and `cannot` claims point
+10. Trust claims: changed `fail closed`, `never`, `always`, and `cannot` claims point
    to enforcing tests. HTTP boundaries reject duplicate credential or identity
    headers, and error reason codes use a closed type.
 

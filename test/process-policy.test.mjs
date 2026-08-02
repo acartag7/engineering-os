@@ -85,8 +85,42 @@ test("fleet-audit additions are connected to rules, lessons, prompts, and audit"
   assert.match(reviewer, /`process-stop`/);
   assert.match(reviewer, /code: string/);
   assert.match(reviewer, /`BRIEF\.md` changed/);
-  assert.match(audit, /Monthly Audit — agent prompt v2\.5/);
+  assert.match(audit, /Monthly Audit — agent prompt v2\.6/);
   assert.match(guardReadme, /## Small amendment flow/);
+});
+
+test("the monthly audit checks exception and optional-guard exemption lifecycles", () => {
+  const routines = read("ROUTINES.md");
+  const r1 = routines.match(/## R-1[\s\S]*?(?=\n## R-2)/)?.[0] ?? "";
+  const prompt = read("routines/monthly-audit-prompt.md");
+
+  for (const text of [r1, prompt]) {
+    assert.match(text, /engineering-os\.json/i);
+    assert.match(text, /exceptions?/i);
+    for (const field of ["rule", "owner", "created", "reviewBy", "removalCondition"]) {
+      assert.match(text, new RegExp(field, "i"), `exception audit must report ${field}`);
+    }
+    assert.match(text, /satisfied/i, "a satisfied removal condition must be a finding");
+    assert.match(text, /two audits/i, "long-lived exceptions must be reported");
+    assert.match(text, /\.process-guard-exempt/);
+  }
+
+  assert.match(prompt, /^# Monthly Audit — agent prompt v2\.6/m);
+  assert.match(prompt, /\n- \*\*v2\.6\*\* — \S/);
+});
+
+test("the distributed plugin docs name complete modes and honest enforcement", () => {
+  const contract = read("plugins/engineering-os/CONTRACT.md");
+  const completeModes = contract.match(/- \*\*R2 — Complete modes\.\*\*[\s\S]*?(?=\n- \*\*R3)/)?.[0] ?? "";
+  assert.match(completeModes, /continu/i, "the binding mode list must include continue");
+
+  const readme = read("plugins/engineering-os/README.md");
+  const enforcement = readme.match(/\*\*Enforcement:[^*]*\*\*/)?.[0] ?? "";
+  assert.ok(enforcement, "the plugin README's workflow rules need an enforcement label");
+  assert.match(enforcement, /prompt/i);
+  assert.match(enforcement, /audit/i);
+  assert.match(enforcement, /hard/i);
+  assert.match(enforcement, /branch protection/i);
 });
 
 test("old pipeline helper only forwards to the configurable skill", () => {
@@ -236,6 +270,7 @@ test("every top-level policy section names enforcement and configured test cover
   }
 
   const row = policy.match(/\| Independent test author before implementation \|([^\n]*)/)?.[1] ?? "";
+  assert.match(row, /strict/i, "every strict effective profile must require the test author");
   assert.match(row, /configured coverage/i);
   assert.match(row, /required/);
 });
@@ -750,7 +785,7 @@ test("public incident narratives never use the security-header term", () => {
   // describe the class instead. Concrete enforceable checks — security-relevant
   // headers, duplicated credential headers — stay expressible; the exact-parity test
   // above covers the vendored prompt copies.
-  const term = /security[-\s]headers?/i;
+  const term = /security[-\s]+headers?/i;
   for (const allowed of [
     "rejects more than one value for a security-relevant HTTP header",
     "duplicated credential header rejection tests",
@@ -763,6 +798,7 @@ test("public incident narratives never use the security-header term", () => {
     "prompts/implementer.md",
     "prompts/reviewer.md",
     "routines/monthly-audit-prompt.md",
+    "specs/solo-language-neutral-workflow.md",
   ]) {
     assert.doesNotMatch(read(path), term, `${path} must not use the security-header term`);
   }
@@ -805,6 +841,10 @@ test("CES-19 and the validator keep the exception schema and whole-rule boundari
   const flat = ces19.replace(/\s+/g, " ");
   assert.match(flat, /records the rule, reason, owner, creation date, review date, and removal condition/);
   assert.match(flat, /cannot weaken/);
+  assert.match(
+    flat,
+    /onboarding never claims[^.]{0,120}(GitHub )?setting[^.]{0,120}separate authorization[^.]{0,80}verification/i,
+  );
   assert.match(flat, /validator rejects an exception that names a nonexistent CES rule or any protected rule/);
   assert.match(flat, /invalid until removed or renewed with a new reason and date/);
 
