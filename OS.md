@@ -22,6 +22,9 @@ exact commit reviewed.
 A check that ran against the wrong files, skipped its important suite, or reviewed an
 old commit is not green. It is missing evidence.
 
+**Enforcement: repository review + monthly audit; an individual principle becomes
+HARD only through the specific check named by the rule that applies it.**
+
 ## Where rules live
 
 | Layer | Place | Meaning |
@@ -32,6 +35,9 @@ old commit is not green. It is missing evidence.
 | **3** | Written docs | People can understand the rule, but nothing automatically checks it |
 
 Use the strongest practical layer. Always name weaker enforcement honestly.
+
+**Enforcement: documentation + repository review. Each operational rule below names
+its own real enforcement layer.**
 
 ## Plain language across every project
 
@@ -86,6 +92,10 @@ implementation. T0 may use basic. T1 uses the configured default. T2 and T3 alwa
 use strict. The configured independent-test coverage can add a test author to a lower
 route for security work, bug fixes, or all behavior changes. Configuration may raise
 but never lower these route floors.
+
+**Enforcement: roles, route floors, and sequence are prompt + pull-request evidence +
+monthly audit. The verify step is HARD only when branch protection requires it; no
+fleet-wide gate checks the whole sequence.**
 
 ### Slice limits
 
@@ -185,6 +195,9 @@ affected frozen tests in one pull request. The pull request names what changes, 
 and which tests move. Hash checks remain required. Only externally visible behavior
 belongs in a frozen suite; implementation details do not.
 
+**Enforcement: the `process-guard` hash check + review in repositories that enable
+it; no frozen-test guard applies when the repository leaves this option disabled.**
+
 ## Evolution loop
 
 1. A bug, false green, or dragged review becomes a class-level entry in `LESSONS.md`.
@@ -194,3 +207,6 @@ belongs in a frozen suite; implementation details do not.
 
 The goal is not more process. The goal is a smaller change, one independent second
 look, and evidence that the real thing works.
+
+**Enforcement: repository review + monthly audit; no fleet-wide machine check
+enforces the complete evolution loop yet.**

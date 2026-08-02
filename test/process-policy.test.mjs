@@ -198,6 +198,28 @@ test("the tests-and-regression-proof rules name their honest enforcement layer",
   );
 });
 
+test("every top-level OS section names its enforcement layer", () => {
+  const sections = read("OS.md").split(/^## /m).slice(1);
+  assert.ok(sections.length > 0, "OS.md must keep its source-of-truth sections");
+  for (const section of sections) {
+    const heading = section.split("\n", 1)[0];
+    assert.match(
+      section,
+      /\*\*Enforcement:/,
+      `OS.md section "${heading}" must name its enforcement layer`,
+    );
+  }
+
+  const workflowPrelude = sections
+    .find((section) => section.startsWith("The workflow for one slice\n"))
+    ?.split("\n### Slice limits", 1)[0] ?? "";
+  assert.match(
+    workflowPrelude,
+    /\*\*Enforcement:/,
+    "the main workflow table and route floors need their own enforcement label",
+  );
+});
+
 test("the final-round stop token requires a remaining P1 or P2", () => {
   const reviewer = read("prompts/reviewer.md").replace(/\s+/g, " ");
   assert.match(
