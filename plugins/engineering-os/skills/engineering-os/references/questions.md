@@ -22,7 +22,8 @@ When a safety-relevant group is not applicable, record that result and its reaso
 
 Establish the requested mode and authorization.
 
-- Is this onboarding, migration, configuration, explanation, start, or status?
+- Is this onboarding, migration, configuration, explanation, start, continue, or
+  status?
 - Is the request read-only, or may the skill prepare a write preview?
 - Which repository and branch are in scope?
 - Is any production, publishing, GitHub-setting, dependency, or deletion action
@@ -105,7 +106,8 @@ Use the configuration reference before asking.
 - Should independent tests cover security only, security and bug fixes, or every
   behavior change?
 - What review-round limit, from one to three, is affordable?
-- How many active pull requests, from one to nine, can the owner review safely?
+- How many active pull requests can the owner review safely? Solo ownership allows
+  one or two; a team allows one through nine.
 - Is hash protection with optional `process-guard` needed for named behavior tests?
 
 Recommend `standard` for a normal solo project. Use `strict` for T2 and T3 regardless
@@ -159,18 +161,23 @@ Missing cleanup proof blocks phase two. Record an irrelevant migration group und
 
 ## 10. Change
 
-For start mode, close one small routing record.
+For start mode, close one small routing record. For continue mode, use the accepted
+record and existing evidence to find the first required result that is not complete.
 
 - What user-visible or operator-visible behavior changes?
 - What is explicitly excluded?
 - Is this a bug or production failure? What exact regression proves it?
 - Which trust boundaries and risk classes are touched?
+- Does the effective route or configured independent-test coverage require a fresh
+  test author, and what fact triggered that result?
 - Which files, callers, adapters, and mirror paths are affected?
 - Is discovery needed before the contract can close?
 - What real input and shipped entrypoint prove the result?
 - Does this affect production, deployment, release, or public documentation?
 - Which provider instance fills critic, test author, implementer, verifier, and reviewer?
 - What full current SHA must verification and final review name?
+- Has every paginated review thread been read, and are any actionable threads still
+  unresolved at the current head?
 
 Record an inapplicable per-change group in the routing record, not project
 configuration. Record its reason. Do not start code while a product decision remains.

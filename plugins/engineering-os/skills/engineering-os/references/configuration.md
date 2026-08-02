@@ -1,8 +1,12 @@
 # Configuration and workflow
 
-Read this for onboarding, explanation, configuration changes, or starting a change.
+Read this for onboarding, explanation, configuration changes, or starting or
+continuing a change.
 
 ## Profiles
+
+Solo ownership permits one or two active pull requests. A team permits one through
+nine.
 
 | Profile | What it enables | What it costs |
 |---|---|---|
@@ -22,6 +26,17 @@ Strict work requires the independent test author to write small behavior tests b
 implementation and prove they are failing. Record the pre-implementation commit,
 exact command, and failing output. The implementer may add tests but cannot weaken the
 independent ones without a contract amendment.
+
+For a lower route, `independentTests` has these exact effects:
+
+- `security-only` requires an independent test author for a security or trust
+  boundary;
+- `security-and-bug-fixes` also requires one for every bug fix;
+- `all-behavior-changes` requires one for every behavior change.
+
+Configured coverage can add the role but never remove a route requirement. At start,
+derive the result from the effective route, bug answer, and risk answers. Record both
+the result and reason in the routing record, then validate the real provider instance.
 
 ## Providers
 
@@ -105,7 +120,8 @@ Workflow values:
 - `independentTests`: `security-only`, `security-and-bug-fixes`, or
   `all-behavior-changes`;
 - `maxReviewRounds`: integer one through three;
-- `maxActivePullRequests`: integer one through nine.
+- `maxActivePullRequests`: one or two for solo ownership, or one through nine for a
+  team.
 
 The optional `processGuard` Boolean stays false unless named behavior tests need hash
 protection. Process guard is optional. It adds maintenance cost and makes broad
@@ -123,7 +139,17 @@ canonical contract before proposing one.
 
 ## Validation
 
-From the repository root run:
+Before the first write, validate the complete candidate through standard input:
+
+```text
+node <skill>/scripts/validate_config.mjs --stdin
+```
+
+Send the proposed JSON bytes to that process without creating a temporary config file.
+This checks UTF-8, JSON, fields, types, bounds, dates, exceptions, and providers. It
+does not inspect or create a filesystem path.
+
+After writing the confirmed file, validate the real path from the repository root:
 
 ```text
 node <skill>/scripts/validate_config.mjs engineering-os.json

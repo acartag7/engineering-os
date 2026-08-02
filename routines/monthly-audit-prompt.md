@@ -1,4 +1,4 @@
-# Monthly Audit — agent prompt v2.2 (R-1..R-4)
+# Monthly Audit — agent prompt v2.3 (R-1..R-4)
 
 You are running the monthly Engineering OS audit. Read
 `~/project/engineering-os/ROUTINES.md` (R-1 through R-4) and `BASELINE.md` first —
@@ -31,7 +31,8 @@ they define exactly what to check. This prompt tells you how to execute.
   yield; use `unknown` when the catch stage is not evidenced. Check the one-rule slice,
   regression counterfactual, real-entrypoint evidence, exact-head review SHA,
   round-three stop, two-PR work-in-progress limit, false greens, silent skips, and
-  complete discovery records exactly as R-2 defines them.
+  complete discovery records exactly as R-2 defines them. Fetch the paginated review
+  threads and flag unread or unresolved actionable findings at the merged head.
   Check brief updates and line-cap-shaped code compression as R-2 defines them.
 - **R-3 (drift):** compare rule PRESENCE, not exact wording. The canonical rule
   list is `templates/agent-context-block.md`. For pins: grep workflow files for
@@ -62,6 +63,8 @@ in the report — never silently skip (that's PC-02 applied to yourself).
 
 ## Changelog
 
+- **v2.3** — added paginated current-head review-thread evidence after LESSONS.md
+  L-020.
 - **v2.2** — added configurable profiles, provider-instance evidence, strict
   pre-implementation test proof, safe migration checks, and a no-multi-agent fallback
   after LESSONS.md L-019.

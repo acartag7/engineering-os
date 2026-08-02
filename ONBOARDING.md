@@ -23,7 +23,7 @@ by source are shown for correction instead of asked again.
 - critic: fresh AI session;
 - implementer: current session;
 - reviewer: a different fresh AI session;
-- independent tests: required for T2/T3 and recommended for bug fixes;
+- independent tests: required for T2/T3, security boundaries, and bug fixes;
 - review limit: three rounds;
 - active pull requests: two;
 - `process-guard`: off.
@@ -85,7 +85,16 @@ Go code for suspicious mistakes. The final command exercises the real demo entry
 
 ## Configuration check
 
-From the repository root:
+Before creating the file, send the complete proposed JSON to the validator through
+standard input:
+
+```text
+node <engineering-os-skill>/scripts/validate_config.mjs --stdin
+```
+
+This checks the candidate without creating a temporary configuration file.
+
+After writing the confirmed file, run from the repository root:
 
 ```text
 node <engineering-os-skill>/scripts/validate_config.mjs engineering-os.json

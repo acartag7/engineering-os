@@ -3,7 +3,7 @@ name: pipeline
 description: Compatibility name for the Engineering OS guide. Use when an older prompt asks to run the pipeline, advance a stage, or report pipeline status.
 ---
 
-<!-- v5.0.0 · compatibility forwarder for the configurable Engineering OS skill. -->
+<!-- v5.1.0 · next stage now continues from recorded evidence instead of restarting. -->
 
 # Compatibility forwarder
 
@@ -17,8 +17,8 @@ validation, previews, evidence requirements, provider-independence rules, and
 Preserve the user's requested mode:
 
 - `pipeline status` becomes Engineering OS `status` and stays read-only;
-- `run the pipeline` or `next stage` becomes Engineering OS `start` for the named
-  change;
+- `run the pipeline` becomes Engineering OS `start` for the named change;
+- `next stage` becomes Engineering OS `continue` for the named change;
 - old-process conversion becomes Engineering OS `migration`.
 
 If the canonical skill is unavailable, stop with `engineering-os skill missing;

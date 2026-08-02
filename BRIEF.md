@@ -22,7 +22,8 @@ recommends a basic, standard, or strict workflow. T2 and T3 use strict: a fresh 
 an independent test author before code, one implementation, real verification, and a
 fresh exact-head reviewer. The included validator checks `engineering-os.json`. CI
 runs `scripts/verify`, including policy tests, skill tests, optional guard tests,
-prompt copies, and the real Go example. The owner still decides whether to merge.
+JavaScript linting, prompt copies, and the real Go example. The owner still decides
+whether to merge.
 
 ## The map
 
@@ -53,13 +54,15 @@ prompt copies, and the real Go example. The owner still decides whether to merge
 ## How to run and test it
 
 ```text
+pnpm install --frozen-lockfile --ignore-scripts
 ./scripts/verify
 cd test/fixtures/go-project && ./scripts/verify
 ```
 
-The first command ends after the policy tests, all guard tests, and the Go fixture are
-green. The second command prints `engineering-os-go-fixture` after Go formatting,
-code inspection, tests, and build succeed.
+The install uses the exact lockfile without dependency install scripts. The main
+verify command ends after JavaScript linting, policy tests, all guard tests, and the Go
+fixture are green. The Go-only command prints `engineering-os-go-fixture` after Go
+formatting, code inspection, tests, and build succeed.
 
 ## State and next milestone
 

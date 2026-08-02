@@ -51,11 +51,18 @@ test("project brief template and repository brief carry the fixed structure", ()
 
 test("engineering-os governs itself with validated configuration", () => {
   const config = JSON.parse(read("engineering-os.json"));
+  const packageJson = JSON.parse(read("package.json"));
+  const ci = read(".github/workflows/ci.yml");
   assert.equal(config.version, 1);
   assert.equal(config.project.tier, "S");
   assert.equal(config.commands.verify, "./scripts/verify");
   assert.equal(config.optional.processGuard, true);
   assert.match(read("scripts/verify"), /validate_config\.mjs engineering-os\.json/);
+  assert.equal(packageJson.packageManager, "pnpm@10.15.0");
+  assert.equal(packageJson.devDependencies.eslint, "9.39.5");
+  assert.deepEqual(packageJson.pnpm.onlyBuiltDependencies, []);
+  assert.match(read("pnpm-lock.yaml"), /eslint:\n\s+specifier: 9\.39\.5/);
+  assert.match(ci, /pnpm install --frozen-lockfile --ignore-scripts/);
 });
 
 test("fleet-audit additions are connected to rules, lessons, prompts, and audit", () => {
@@ -65,24 +72,25 @@ test("fleet-audit additions are connected to rules, lessons, prompts, and audit"
   const audit = read("routines/monthly-audit-prompt.md");
   const guardReadme = read("process-guard/README.md");
 
-  for (const id of ["PC-32", "PC-33", "PC-34", "PC-35", "PC-36", "PC-37", "PC-38"]) {
+  for (const id of ["PC-32", "PC-33", "PC-34", "PC-35", "PC-36", "PC-37", "PC-38", "PC-39"]) {
     assert.match(baseline, new RegExp(`\\| ${id} \\|`));
   }
-  for (const id of ["L-016", "L-017", "L-018", "L-019"]) {
+  for (const id of ["L-016", "L-017", "L-018", "L-019", "L-020"]) {
     assert.match(lessons, new RegExp(`## ${id} `));
   }
-  assert.match(reviewer, /Reviewer Prompt — v2\.3/);
+  assert.match(reviewer, /Reviewer Prompt — v2\.4/);
+  assert.match(reviewer, /paginated current-head thread inventory/i);
   assert.match(reviewer, /`process-stop`/);
   assert.match(reviewer, /code: string/);
   assert.match(reviewer, /`BRIEF\.md` changed/);
-  assert.match(audit, /Monthly Audit — agent prompt v2\.2/);
+  assert.match(audit, /Monthly Audit — agent prompt v2\.3/);
   assert.match(guardReadme, /## Small amendment flow/);
 });
 
 test("old pipeline helper only forwards to the configurable skill", () => {
   const skill = read("plugins/engineering-os/skills/pipeline/SKILL.md");
 
-  assert.match(skill, /v5\.0\.0/);
+  assert.match(skill, /v5\.1\.0/);
   assert.match(skill, /Compatibility forwarder/);
   assert.match(skill, /use the `engineering-os` skill/i);
   assert.match(skill, /same questions, route floors, configuration/);
@@ -112,7 +120,17 @@ test("role prompts carry the configurable independent-test workflow", () => {
   assert.match(read("prompts/critique.md"), /Critique Prompt — v2\.2/);
   assert.match(read("prompts/implementer.md"), /Implementer Prompt — v2\.2/);
   assert.match(read("prompts/implementer.md"), /Do not weaken, remove, or rewrite independent tests/);
-  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.3/);
+  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.4/);
+});
+
+test("one implementation and bug-fix proof name their enforcement", () => {
+  const policy = read("POLICY.md");
+  const oneImplementation = policy.match(/## One implementation([\s\S]*?)## Review limits/)?.[1] ?? "";
+  const bugFix = policy.match(/## Bug-fix proof([\s\S]*?)## Production changes/)?.[1] ?? "";
+
+  assert.match(oneImplementation, /\*\*Enforcement:/);
+  assert.match(bugFix, /\*\*Enforcement:/);
+  assert.doesNotMatch(read("LESSONS.md"), /HTTP credential ambiguity/);
 });
 
 test("prompt headers do not claim a stale source commit", () => {

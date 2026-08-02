@@ -61,12 +61,16 @@ Normal product work uses one implementation. Multiple candidates consume owner
 attention and do not repair an incomplete contract. Use competing implementations
 only for a named model evaluation with a fixed comparison plan.
 
+**Enforcement: prompt + monthly audit; no fleet-wide mechanical gate exists.**
+
 ## Review limits
 
 - Target one or two substantive rounds.
 - Round three stops the change. Update the contract or cut a smaller slice.
 - Keep at most two pull requests in active review for one owner.
 - Re-review the exact new head after every fix push.
+- After every push, fetch the complete paginated review-thread inventory. Read every
+  reviewer message and address every actionable thread before reporting ready.
 
 **Enforcement: prompt + monthly audit; mechanical fleet-wide gates are not built yet.**
 
@@ -126,6 +130,9 @@ ceremony, not the protection. **Enforcement: `process-guard` hash check + review
 A bug fix adds a test that fails when the fix is removed. Record the failing command
 and the passing command. Broad mutation testing remains a periodic report because it
 is too slow and noisy to block every pull request.
+
+**Enforcement: prompt + pull-request evidence. This is HARD only in a repository that
+has added its own counterfactual test gate; no fleet-wide gate exists yet.**
 
 ## Production changes
 

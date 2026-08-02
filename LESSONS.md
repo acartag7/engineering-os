@@ -234,10 +234,10 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 
 ## L-017 — Trust rules existed in prose but not at the boundary <a name="l-017"></a>
 
-- **What:** A fleet audit found HTTP credential ambiguity without a standing duplicate
-  rejection test, error reason codes that could accept arbitrary strings, static
-  checks missing from some required verification paths, and security promises that
-  did not name the test proving them.
+- **What:** A fleet audit found duplicated trust-boundary metadata ambiguity without a
+  standing rejection test, error reason codes that could accept arbitrary strings,
+  static checks missing from some required verification paths, and security promises
+  that did not name the test proving them.
 - **Where:** several public and security-sensitive project boundaries.
 - **Caught by:** a cross-project source and test audit.
 - **Class:** advisory security rules without a local mechanical rejection.
@@ -272,3 +272,14 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   configuration, basic/standard/strict profiles with non-bypassable risk floors,
   provider-neutral independent roles, strict pre-implementation tests, and a
   two-phase migration path; adds PC-36 through PC-38 and updates PC-13.
+
+## L-020 — Green checks hid unread review findings <a name="l-020"></a>
+
+- **What:** A change was treated as ready after repository checks and an independent
+  review passed, while actionable inline review feedback was still unread. The status
+  check looked only at headline results and did not fetch the complete thread state.
+- **Where:** shared public delivery workflow.
+- **Caught by:** owner follow-up after the readiness claim.
+- **Class:** incomplete review inventory presented as complete evidence.
+- **Became:** current-head paginated thread checks after every push and before readiness,
+  a reviewer prompt that names unresolved actionable threads, and PC-39.

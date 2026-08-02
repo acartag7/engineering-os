@@ -1,6 +1,6 @@
 ---
 name: engineering-os
-description: Guide a repository through Engineering OS onboarding, old-process migration, configuration changes, plain-English explanations, starting a governed change, and read-only workflow status. Use when a person asks how Engineering OS works, wants to set it up or change its strictness, needs a workflow that works without multi-agent tools, or wants to move an existing project from the older fixed pipeline.
+description: Guide a repository through Engineering OS onboarding, old-process migration, configuration changes, plain-English explanations, starting or continuing a governed change, and read-only workflow status. Use when a person asks how Engineering OS works, wants to set it up or change its strictness, needs a workflow that works without multi-agent tools, wants the next recorded workflow step, or wants to move an existing project from the older fixed pipeline.
 ---
 
 # Engineering OS guide
@@ -31,6 +31,8 @@ Support exactly these modes:
 - **configuration:** explain and propose a settings change;
 - **explanation:** explain how the current process works and what it needs;
 - **start:** choose the safe workflow for one change;
+- **continue:** move a started change to its first required result without valid
+  evidence;
 - **status:** report what evidence exists, is missing, or is stale.
 
 If the requested mode is unclear, ask. A request to inspect or explain does not
@@ -77,14 +79,27 @@ evidence. Keep the higher route as the workflow floor unless new evidence change
 recommendation.
 
 Use one implementation. Strict work needs an independent test author before
-implementation. The failing-test evidence names the pre-implementation commit, exact
-command, and failing output. A final reviewer uses a different provider instance from
-the critic, test author, and implementer. A label such as `fresh-ai-session` is not
-proof by itself; record the real session, person, or run.
+implementation. For lower routes, `security-only` requires that role for a security
+or trust boundary, `security-and-bug-fixes` also requires it for every bug fix, and
+`all-behavior-changes` requires it for every behavior change. Configured coverage can
+add the role but never remove a route requirement. Derive and record the result before
+choosing providers. The failing-test evidence names the pre-implementation commit,
+exact command, and failing output. A final reviewer uses a different provider instance
+from the critic, test author, and implementer. A label such as `fresh-ai-session` is
+not proof by itself; record the real session, person, or run.
 
 Multi-agent support is optional. When dispatch is unavailable, prepare the exact
 prompt and evidence package for a fresh AI session or a named human. Missing dispatch
 never becomes a fake pass.
+
+## Continue from evidence
+
+In continue mode, read the validated configuration, routing record, and existing
+evidence. Choose the first required result without valid evidence in this order:
+closed contract, critique, independent failing tests, implementation, verification,
+final review, then owner merge decision. Do not re-run completed roles or treat a
+handoff as completed work. Never invent missing evidence. When dispatch is unavailable,
+prepare the next provider's exact prompt and evidence package.
 
 ## Preview every write
 
@@ -97,9 +112,12 @@ Before any write, show one complete preview containing:
 - protections that will not be changed automatically;
 - exceptions, costs, and known gaps.
 
-Validate the full configuration before the first write. Write nothing until the owner
-confirms the complete preview. Cancellation, an unanswered required question, invalid
-configuration, or unresolved conflict means no writes.
+Validate the full candidate configuration before the first write by sending its exact
+bytes to `scripts/validate_config.mjs --stdin`. This read-only candidate check is the
+only command allowed before confirmation. After writing the confirmed file, validate
+its filesystem path before relying on it. Write nothing until the owner confirms the
+complete preview. Cancellation, an unanswered required question, invalid configuration,
+or unresolved conflict means no writes.
 
 Resolve every target from the repository root immediately before writing. Reject a
 symlink, a symlinked ancestor, or a target outside the repository. Never overwrite a
@@ -132,6 +150,12 @@ request, plan, or other state. Do not infer Git facts from a nested parent repos
 Verification and review name the full commit SHA, the complete commit identifier. A
 later push makes both stale. P1 and P2 findings block the change.
 
+Before reporting ready, fetch a paginated, thread-aware review inventory for the
+current head. Read every reviewer message, address every actionable finding, and
+confirm no unresolved actionable thread remains. Re-fetch after every push and
+immediately before reporting ready. A green check or separate review does not replace
+this inventory.
+
 At the configured final review round, output the exact token `process-stop` when a P1
 or P2 remains. Refuse another round until the owner repairs the contract, cuts a new
 slice, or abandons the work. A push never clears the stop; it always makes verification
@@ -162,8 +186,10 @@ contract-change limitation before recommending it.
 The skill is guidance. Configuration validation is a hard check only when required
 continuous integration runs it. Repository verification is hard only when branch
 protection requires it. Questions, recommendations, previews, safe-write behavior,
-migration order, provider independence, plain English, and review rules remain prompt
-plus audit rules until a repository adds a mechanical check.
+migration order, continuation, status, provider independence, plain English, and
+thread review remain prompt plus audit rules until a repository adds a mechanical
+check. P1 and P2 findings are a documented merge rule; the skill cannot enforce
+GitHub.
 
 Without Node, check the same fields by inference, say `deterministic validator did not
 run`, and treat onboarding as incomplete until required continuous integration runs

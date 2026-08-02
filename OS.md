@@ -83,7 +83,9 @@ A slice changes one clear rule that one reviewer can understand in one sitting.
 The `basic` profile is the smallest valid path. `standard` adds a fresh critic and
 fresh final reviewer. `strict` also adds an independent test author before
 implementation. T0 may use basic. T1 uses the configured default. T2 and T3 always
-use strict. Configuration may raise but never lower these route floors.
+use strict. The configured independent-test coverage can add a test author to a lower
+route for security work, bug fixes, or all behavior changes. Configuration may raise
+but never lower these route floors.
 
 ### Slice limits
 
@@ -110,6 +112,11 @@ result. A test that passes before and after implementation proves nothing.
 The reviewer receives the contract, threat notes, full diff, verification evidence,
 and exact commit SHA. P1 and P2 findings block merge. Any later push makes the review
 stale and requires another review of the new head.
+
+Read the complete paginated review-thread inventory after every push and immediately
+before reporting ready. Every reviewer message must be read, every actionable finding
+addressed, and no unresolved actionable thread left. Green CI and a separate review
+do not replace this check.
 
 The owner is the only required human. A solo repository does not require approval
 from a second human who does not exist. **Enforcement: prompt + review artifact today;

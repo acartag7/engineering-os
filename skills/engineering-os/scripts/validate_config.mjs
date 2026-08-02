@@ -164,7 +164,7 @@ function validateProject(project) {
   text(project.defaultBranch);
   boundedArray(project.languages, 1, 16);
   for (const language of project.languages) text(language);
-  enumValue(project.ownership, OWNERSHIP);
+  return enumValue(project.ownership, OWNERSHIP);
 }
 
 function validateCommands(commands) {
@@ -195,7 +195,14 @@ function validateWorkflow(workflow) {
   boundedInteger(workflow.maxReviewRounds, 1, 3);
   boundedInteger(workflow.maxActivePullRequests, 1, 9);
 
-  return { profile, critic, testAuthor, implementer, reviewer };
+  return {
+    profile,
+    critic,
+    testAuthor,
+    implementer,
+    reviewer,
+    maxActivePullRequests: workflow.maxActivePullRequests,
+  };
 }
 
 function validateProviderConflicts({ profile, critic, testAuthor, implementer, reviewer }) {
@@ -245,32 +252,62 @@ function validateConfig(config) {
   objectShape(config, ["version", "project", "commands", "workflow", "optional", "decisions", "exceptions"]);
   if (typeof config.version !== "number") reject("wrong-type");
   if (config.version !== 1) reject("bad-enum");
-  validateProject(config.project);
+  const ownership = validateProject(config.project);
   validateCommands(config.commands);
   const providers = validateWorkflow(config.workflow);
+  if (ownership === "solo" && providers.maxActivePullRequests > 2) reject("out-of-bounds");
   validateOptional(config.optional);
   validateDecisions(config.decisions);
   validateExceptions(config.exceptions);
   validateProviderConflicts(providers);
 }
 
-function readBounded(descriptor) {
+function readBounded(descriptor, positioned = true) {
   const buffer = Buffer.alloc(MAX_BYTES + 1);
   let total = 0;
   while (total < buffer.length) {
-    const count = readSync(descriptor, buffer, total, buffer.length - total, total);
+    const position = positioned ? total : null;
+    const count = readSync(descriptor, buffer, total, buffer.length - total, position);
     if (count === 0) break;
     total += count;
   }
   return buffer.subarray(0, total);
 }
 
-function loadConfig() {
-  const args = process.argv.slice(2);
-  if (args.length > 1) reject("argument-count");
+function decodeConfig(bytes) {
+  if (bytes.length > MAX_BYTES) reject("too-large");
+
+  let source;
+  try {
+    source = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    reject("invalid-utf8");
+  }
+
+  let config;
+  try {
+    config = JSON.parse(source);
+  } catch {
+    reject("parse-error");
+  }
+  safeTree(config);
+  return config;
+}
+
+function loadStdin() {
+  let bytes;
+  try {
+    bytes = readBounded(0, false);
+  } catch {
+    reject("read-error");
+  }
+  return decodeConfig(bytes);
+}
+
+function loadFile(path) {
 
   const repository = resolve(process.cwd());
-  const target = resolve(repository, args[0] ?? "engineering-os.json");
+  const target = resolve(repository, path);
   const fromRoot = relative(repository, target);
   if (isAbsolute(fromRoot) || fromRoot === ".." || fromRoot.startsWith(`..${sep}`)) {
     reject("outside-repository");
@@ -322,23 +359,16 @@ function loadConfig() {
       closeSync(descriptor);
     } catch {}
   }
-  if (bytes.length > MAX_BYTES) reject("too-large");
+  return decodeConfig(bytes);
+}
 
-  let source;
-  try {
-    source = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-  } catch {
-    reject("invalid-utf8");
+function loadConfig() {
+  const args = process.argv.slice(2);
+  if (args.length === 1 && args[0] === "--stdin") return loadStdin();
+  if (args.length > 1 || (args.length === 1 && args[0].startsWith("-"))) {
+    reject("argument-count");
   }
-
-  let config;
-  try {
-    config = JSON.parse(source);
-  } catch {
-    reject("parse-error");
-  }
-  safeTree(config);
-  return config;
+  return loadFile(args[0] ?? "engineering-os.json");
 }
 
 try {

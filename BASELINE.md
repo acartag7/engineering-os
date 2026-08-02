@@ -48,6 +48,7 @@ Audit results live with each repo, not in this file.
 | PC-36 | Every governed repository stores validated `engineering-os.json`; unknown fields, unsafe keys, wrong types, invalid providers, and expired exceptions fail closed | Hidden workflow defaults or malformed settings silently removing required work | S, I | HARD when validator runs in required CI | [L-019](LESSONS.md#l-019) |
 | PC-37 | Workflow providers are named by real instance; fresh sessions or humans replace unavailable multi-agent seats without fabricating approval | Self-review being relabeled as independent review or teams being unable to adopt the process | S, I | PROMPT + AUDIT | [L-019](LESSONS.md#l-019) |
 | PC-38 | Old-process migration keeps old checks until the new verify check is green at the current head and required by branch protection | Cleanup creating a window with no effective merge protection | S, I | PROMPT + PLATFORM EVIDENCE | [L-019](LESSONS.md#l-019) |
+| PC-39 | Read every paginated review thread after each push and immediately before readiness; unresolved actionable findings block | Green checks or a separate review hiding unread inline findings | S, I | PROMPT + REVIEW EVIDENCE; mechanical gate pending | [L-020](LESSONS.md#l-020) |
 
 ## How enforcement labels read
 

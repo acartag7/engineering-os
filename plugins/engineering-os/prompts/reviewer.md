@@ -1,5 +1,5 @@
 <!-- vendored from repository prompts/reviewer.md; CI checks exact byte parity after this line -->
-# Reviewer Prompt — v2.3
+# Reviewer Prompt — v2.4
 
 One fresh reviewer checks the exact final commit. The reviewer did not implement the
 slice and reviews the whole diff in one pass.
@@ -21,6 +21,8 @@ INPUTS
 - Provider instances: <critic, test author, implementer, reviewer>
 - Verification evidence: <repository command, real entrypoint, real results>
 - Bug-fix counterfactual evidence: <failing without fix + passing with fix, or N/A>
+- Review-thread evidence: <paginated current-head inventory, unresolved actionable
+  threads>
 
 CHECK THE FULL DIFF
 1. Contract: every promise is implemented; no behavior is invented from explanation.
@@ -46,6 +48,8 @@ CHECK THE FULL DIFF
     each true error-code field should be a union or enum instead.
 11. Maintainability: no line-target code compression or mechanical file split;
     `BRIEF.md` changed with architecture, module, or run/test command changes.
+12. Review completeness: every paginated reviewer message was read after the latest
+    push and no unresolved actionable thread remains at this exact head.
 
 OUTPUT
 REVIEWED_SHA: <full exact head SHA>
@@ -70,6 +74,8 @@ head. If a named finding remains or a new finding appears, return `FAIL` with
 
 ## Changelog
 
+- **v2.4** — required a paginated current-head thread inventory after an incomplete
+  review read was presented as ready; LESSONS.md L-020.
 - **v2.3** — made final-round stopping conditional on a remaining P1 or P2 and added
   the bounded cleanup check after a reviewer prompt contradicted the stop rule.
 - **v2.2** — added configurable profile/provider evidence, strict independent-test
