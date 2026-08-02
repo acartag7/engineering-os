@@ -1,7 +1,7 @@
 # Configuration and workflow
 
-Read this for onboarding, explanation, configuration changes, or starting or
-continuing a change.
+Read this for onboarding, explanation, configuration changes, starting or continuing
+a change, or status.
 
 ## Profiles
 

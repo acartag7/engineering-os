@@ -259,3 +259,47 @@ test("repository verification runs a real JavaScript linter or static analyzer",
   const verify = read("scripts/verify");
   assert.match(verify, /^[^#\n]*\b(eslint|oxlint|biome|quick-lint-js|jshint)\b/m);
 });
+
+test("status and continue load the configuration reference before interpreting engineering-os.json", () => {
+  // Both modes interpret engineering-os.json, so the schema, expiry, and provider
+  // rules in references/configuration.md must be loaded for them too.
+  const flatSkill = read(join(CANONICAL, "SKILL.md"))
+    .replace(/\s+/g, " ")
+    .replace(/\.md\b/g, "-md");
+  const loadSentences = flatSkill
+    .split(/(?<=\.)\s+/)
+    .filter((sentence) => sentence.includes("references/configuration-md"));
+  assert.ok(loadSentences.length > 0, "SKILL.md must say when to read references/configuration.md");
+  const loadText = loadSentences.join(" ");
+  assert.match(loadText, /\bstatus\b/i, "status mode must load references/configuration.md");
+  assert.match(loadText, /\bcontinu/i, "continue mode must load references/configuration.md");
+
+  const audience =
+    read(join(CANONICAL, "references/configuration.md"))
+      .replace(/\s+/g, " ")
+      .match(/Read this for[^.]*\./i)?.[0] ?? "";
+  assert.match(audience, /\bstatus\b/i, "the reference's own audience line must include status");
+  assert.match(audience, /\bcontinu/i, "the reference's own audience line must include continue");
+});
+
+test("dispatch keeps the basic T0 path: contract and critique depend on the effective route", () => {
+  const flat = read("DISPATCH.md").replace(/\s+/g, " ");
+  assert.match(flat, /critiqu/i, "dispatch must still describe the contract critique");
+
+  const sentences = flat.split(/(?<=\.)\s+/);
+  for (const sentence of sentences.filter((s) => /contract/i.test(s) && /critiqu/i.test(s))) {
+    assert.match(
+      sentence,
+      /\b(basic|standard|strict|T0|T1|T2|T3|profile|route|effective|unclear)\b/i,
+      `this step demands the contract critique on every route: "${sentence}"`,
+    );
+  }
+
+  const basicPath = sentences.find(
+    (sentence) =>
+      /\b(basic|T0)\b/i.test(sentence) &&
+      /criti/i.test(sentence) &&
+      /\b(not|no|only|when|unless|without|skip|unclear)\b/i.test(sentence),
+  );
+  assert.ok(basicPath, "dispatch must say when basic T0 work proceeds without the fresh critique");
+});

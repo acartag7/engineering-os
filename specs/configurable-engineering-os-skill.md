@@ -169,14 +169,16 @@ without allowing a project to configure away its safety floor.
   real proof, production effects, documentation, and role providers. It derives whether
   independent tests are required from the effective route and configured coverage,
   validates providers against that effective workflow, and records the reason. It
-  writes the routing record only after approval. Continuing a started change reads
+  writes the routing record only after approval. Continuing a started change loads
+  `references/configuration.md` before it interprets `engineering-os.json`, then reads
   the validated configuration and the existing routing and evidence records. It
   selects the first required result that does not yet have valid evidence, in this
   order: closed contract, critique, independent failing tests, implementation,
   verification, final review, then owner merge decision. It does not rerun completed
   roles, invent evidence, or treat a handoff as completion. When it cannot dispatch
   the next provider, it prepares that role's exact prompt and evidence package.
-- **CES-24 — Read-only status.** Status inspects configuration, artifacts, GitHub
+- **CES-24 — Read-only status.** Status loads `references/configuration.md` before it
+  interprets `engineering-os.json`, then inspects configuration, artifacts, GitHub
   evidence, and the current commit. It never creates or updates files, branches,
   comments, or pull requests. It never executes repository commands. Missing or
   invalid configuration is the reported status and stops further evaluation.

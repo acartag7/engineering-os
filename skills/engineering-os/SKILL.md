@@ -17,7 +17,8 @@ workflow recommendation.
 
 - Read [references/questions.md](references/questions.md) for every interactive mode.
 - Read [references/configuration.md](references/configuration.md) for onboarding,
-  explanation, configuration changes, or starting a change.
+  explanation, configuration changes, starting a change, continuing a change, or
+  status.
 - Read [references/migration.md](references/migration.md) completely before migration.
 - Run `scripts/validate_config.mjs` only as described in the configuration reference.
 - Copy `assets/engineering-os.json` only after adapting it and receiving confirmation.

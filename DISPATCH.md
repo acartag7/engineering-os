@@ -32,13 +32,15 @@ instance from the implementer and other independent roles.
 
 ## Evidence order
 
-1. Close and critique the contract.
-2. For strict work, add small independent behavior tests and prove they fail at the
+1. Close the contract when the effective route or profile requires one.
+2. Run a fresh critique when the effective route or profile requires one. Basic T0
+   work with already-clear behavior does not need a contract or fresh critique.
+3. For strict work, add small independent behavior tests and prove they fail at the
    pre-implementation commit.
-3. Write one implementation and its normal tests.
-4. Run the repository verify command and real entrypoint.
-5. Review the full diff at the exact current commit SHA.
-6. Let the owner decide whether to merge.
+4. Write one implementation and its normal tests.
+5. Run the repository verify command and real entrypoint.
+6. Review the full diff at the exact current commit SHA.
+7. Let the owner decide whether to merge.
 
 A later push makes verification and review stale. P1 and P2 findings block. At the
 configured last review round, an unresolved P1 or P2 returns the exact token
