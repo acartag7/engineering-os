@@ -1,6 +1,6 @@
 # Configurable Engineering OS skill
 
-Status: owner accepted; one final-round cleanup check approved
+Status: owner accepted after review-gap amendment
 
 Route: T2
 
@@ -9,8 +9,8 @@ changes. A weak default or malformed configuration could remove required review 
 test steps.
 
 Slice: add one portable inference-driven skill that onboards repositories, migrates
-the old process, explains and changes configuration, starts work, and reports status.
-Keep repository verification and GitHub checks outside the skill.
+the old process, explains and changes configuration, starts or continues work, and
+reports status. Keep repository verification and GitHub checks outside the skill.
 
 Affected paths: the new skill package, its configuration validator and tests, the
 Claude plugin adapter, process documentation, templates, policy tests, and the Go
@@ -51,7 +51,8 @@ without allowing a project to configure away its safety floor.
   embeds a model, owns model credentials, or pretends hard-coded detection is project
   understanding.
 - **CES-2 — Complete modes.** The skill supports onboarding, old-process migration,
-  configuration change, explanation, starting a change, and read-only status.
+  configuration change, explanation, starting a change, continuing a started change,
+  and read-only status.
 - **CES-3 — Inspect first.** Before asking questions, inspect the repository, current
   branch, relevant instructions, languages, build files, CI, tests, entrypoints,
   branch-protection evidence when available, old Engineering OS artifacts, and open
@@ -86,11 +87,13 @@ without allowing a project to configure away its safety floor.
   whether documentation makes a security or operator promise, ask and record the
   answer. Configuration may increase but never lower these floors.
 - **CES-11 — Independent tests.** T2 and T3 require a test author independent from
-  the implementer. Other bug fixes recommend the same; the owner may waive it only
-  with a recorded reason. Independent tests are small, behavior-focused, written
-  before code, and proven to fail before the implementation. The implementer may add
-  tests but may not weaken or remove the independent tests without an explicit
-  contract amendment.
+  the implementer. For lower routes, `security-only` requires the role for a change
+  that touches a security or trust boundary; `security-and-bug-fixes` also requires it
+  for every bug fix; and `all-behavior-changes` requires it for every behavior change.
+  The setting can add the role but never remove a route requirement. Independent
+  tests are small, behavior-focused, written before code, and proven to fail before
+  the implementation. The implementer may add tests but may not weaken or remove the
+  independent tests without an explicit contract amendment.
 - **CES-12 — One implementation.** Normal delivery uses one implementation. Competing
   implementations exist only for an explicit model evaluation with a comparison plan.
 - **CES-13 — Provider-neutral roles.** Allowed providers are the owner, a human
@@ -113,8 +116,10 @@ without allowing a project to configure away its safety floor.
   not automatically changed, exceptions, costs, and known gaps. Write nothing until
   the owner confirms the complete preview.
 - **CES-16 — Safe write boundary.** Validate every accepted answer and the complete
-  configuration before the first write. Never silently overwrite a file, weaken a
-  check, change branch protection, install a dependency, or modify live state.
+  candidate configuration through the validator's standard-input mode before the
+  first write. After writing the confirmed file, validate its filesystem path before
+  relying on it. Never silently overwrite a file, weaken a check, change branch
+  protection, install a dependency, or modify live state.
 - **CES-16A — Trusted write targets.** Before each write, resolve the target from the
   repository root. Reject an existing symlink, a symlinked ancestor inside the
   repository, or any target that resolves outside the repository. Never follow it.
@@ -159,16 +164,28 @@ without allowing a project to configure away its safety floor.
   either finished under the old process or replaced by a smaller new slice.
   Classification may happen in owner-approved batches, but no old test is deleted
   before its batch is classified.
-- **CES-23 — Per-change guidance.** Starting a change asks about the changed behavior,
-  exclusions, bug status, risk boundaries, affected paths, discovery needs, real
-  proof, production effects, documentation, and role providers. It writes the routing
-  record only after approval.
+- **CES-23 — Start and continue one change.** Starting a change asks about the changed
+  behavior, exclusions, bug status, risk boundaries, affected paths, discovery needs,
+  real proof, production effects, documentation, and role providers. It derives whether
+  independent tests are required from the effective route and configured coverage,
+  validates providers against that effective workflow, and records the reason. It
+  writes the routing record only after approval. Continuing a started change reads
+  the validated configuration and the existing routing and evidence records. It
+  selects the first required result that does not yet have valid evidence, in this
+  order: closed contract, critique, independent failing tests, implementation,
+  verification, final review, then owner merge decision. It does not rerun completed
+  roles, invent evidence, or treat a handoff as completion. When it cannot dispatch
+  the next provider, it prepares that role's exact prompt and evidence package.
 - **CES-24 — Read-only status.** Status inspects configuration, artifacts, GitHub
   evidence, and the current commit. It never creates or updates files, branches,
   comments, or pull requests. It never executes repository commands. Missing or
   invalid configuration is the reported status and stops further evaluation.
 - **CES-25 — Exact-head evidence.** Verification and final review name the full commit
-  SHA. A later push makes both stale. P1 and P2 findings block. `process-stop` is the
+  SHA. A later push makes both stale. P1 and P2 findings block. Readiness also requires
+  a paginated, thread-aware review inventory at the current head: every reviewer
+  message is read, every actionable finding is addressed, and no unresolved
+  actionable thread remains. Re-fetch that inventory after every push and immediately
+  before reporting ready. `process-stop` is the
   one exact stop token after the configured maximum review round. After
   `process-stop`, the skill refuses another review round until the owner repairs the
   contract, cuts a new slice, or abandons the work. A push never clears the stop; it
@@ -197,8 +214,10 @@ without allowing a project to configure away its safety floor.
   the repository root and show the exact command immediately before execution. Never
   run a command taken from invalid, unconfirmed, or preview-only configuration.
 - **CES-32 — Compatibility is not an alternate path.** The old `pipeline` skill only
-  forwards into this skill. It applies the same questions, route floors, validation,
-  previews, evidence requirements, and stop rules.
+  forwards into this skill. `run the pipeline` maps to `start`; `next stage` maps to
+  `continue`; status and migration keep their matching modes. Every route applies the
+  same questions, route floors, validation, previews, evidence requirements, and stop
+  rules.
 
 ## Profiles
 
@@ -206,7 +225,7 @@ without allowing a project to configure away its safety floor.
 |---|---|---|---|
 | Closed contract | when behavior is unclear | required | required |
 | Fresh critic | no | required | required |
-| Independent test author | bug-fix recommendation | bug-fix recommendation | required |
+| Independent test author | when configured coverage matches | when configured coverage matches | required |
 | One implementer | required | required | required |
 | Repository verify + real entrypoint | required | required | required |
 | Final review | owner or CI for T0; owner for T1 | fresh human or AI context | fresh human or AI context |
@@ -284,9 +303,9 @@ change advances, validate the providers against its effective profile. When the 
 provider is not eligible, ask for an eligible per-change provider and record it in the
 routing record. Missing eligible providers block the role.
 
-`maxReviewRounds` and `maxActivePullRequests` are integers. Review rounds are 1 to 3;
-active pull requests are 1 to 9. An individual route may use a lower limit, never a
-higher one.
+`maxReviewRounds` and `maxActivePullRequests` are integers. Review rounds are 1 to 3.
+Solo ownership permits 1 or 2 active pull requests; team ownership permits 1 to 9.
+An individual route may use a lower limit, never a higher one.
 
 Each exception has exactly `rule`, `reason`, `owner`, `created`, `reviewBy`, and
 `removalCondition`. Dates use real `YYYY-MM-DD` calendar dates; `reviewBy` is not
@@ -320,7 +339,7 @@ directories are not writable by an untrusted local process.
 
 ## Validator command contract
 
-Run the deterministic validator from the repository root:
+Run the deterministic validator from the repository root for an existing file:
 
 ```text
 node skills/engineering-os/scripts/validate_config.mjs [path]
@@ -330,6 +349,18 @@ The current working directory is the repository root. The optional path defaults
 `engineering-os.json` and is resolved from that directory. More than one path is
 invalid. The validator does not search parent directories, call Git, execute project
 commands, or write files.
+
+Before the first write, validate the proposed bytes through standard input:
+
+```text
+node skills/engineering-os/scripts/validate_config.mjs --stdin
+```
+
+`--stdin` must be the only argument. It reads at most 64 KiB plus one byte from
+standard input, applies the same UTF-8, JSON, schema, bounds, exception, and provider
+checks, and never opens or creates a configuration file. Filesystem path checks do not
+apply because no path exists yet. A second argument, a path combined with `--stdin`,
+or any other option returns `argument-count`.
 
 A valid file exits 0, writes exactly `engineering-os config: valid` plus one newline
 to standard output, and writes nothing to standard error. An invalid file exits 1,
@@ -386,7 +417,7 @@ The detailed catalog lives beside the skill and covers these groups:
 9. old process files, frozen tests, manifests, open work, migration phases, and
    cleanup decisions;
 10. per-change behavior, exclusions, affected paths, discovery, proof, documentation,
-    production effects, and exact-head review;
+    production effects, configured independent-test coverage, and exact-head review;
 11. final preview, confirmation, verification, and next step.
 
 The skill asks only applicable unresolved questions, but it must evaluate every group
@@ -399,8 +430,9 @@ and record `not applicable` with a reason when a safety-relevant group is skippe
 - Repository verification is HARD only when the `verify` job is required by branch
   protection.
 - Question completeness, recommendation honesty, role independence, previews, safe
-  writes, migration sequencing, status behavior, plain language, and exact-head review
-  are PROMPT + AUDIT until a repository adds its own mechanical check.
+  writes, migration sequencing, continuation, status behavior, plain language, and
+  exact-head thread review are PROMPT + AUDIT until a repository adds its own
+  mechanical check.
 - P1 and P2 findings are a documented merge rule; the skill cannot enforce GitHub.
 
 ## Skill package
@@ -416,9 +448,10 @@ The canonical package is `skills/engineering-os/`:
 - `assets/engineering-os.json` is the starter configuration.
 - `agents/openai.yaml` contains UI metadata only.
 
-The Claude plugin carries an exact vendored copy. CI checks package parity. The old
-`pipeline` skill remains a small compatibility route into the new skill until a later
-release removes it.
+The Claude plugin carries an exact vendored copy. CI checks package parity and rejects
+symlinks in either package. The old `pipeline` skill remains a small compatibility
+route into the new skill until a later release removes it. Its `next stage` route uses
+`continue`; it never restarts the change by mapping continuation to `start`.
 
 The validator uses Node when available. Without Node, the skill performs the same
 field checks by inference, says the deterministic validator did not run, and treats
