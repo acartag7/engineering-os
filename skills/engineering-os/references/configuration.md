@@ -10,7 +10,7 @@ nine.
 
 | Profile | What it enables | What it costs |
 |---|---|---|
-| `basic` | One implementation, real verification, and owner or CI review for T0. Use only for T0 or a closed low-risk T1 change. | Least ceremony; fewer fresh judgments. |
+| `basic` | One implementation, real verification, owner or CI review for T0, and owner review for a closed low-risk T1 change. | Least ceremony; fewer fresh judgments. |
 | `standard` | A closed contract, fresh critic, one implementation, real verification, and a fresh final reviewer. | Two fresh review sessions or people. Recommended normal solo default. |
 | `strict` | Standard plus an independent test author before implementation. | One more handoff and a required failing-test proof. Required for T2 and T3. |
 

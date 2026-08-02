@@ -80,7 +80,7 @@ test("fleet-audit additions are connected to rules, lessons, prompts, and audit"
   for (const id of ["L-016", "L-017", "L-018", "L-019", "L-020"]) {
     assert.match(lessons, new RegExp(`## ${id} `));
   }
-  assert.match(reviewer, /Reviewer Prompt — v2\.4/);
+  assert.match(reviewer, /Reviewer Prompt — v2\.5/);
   assert.match(reviewer, /paginated current-head thread inventory/i);
   assert.match(reviewer, /`process-stop`/);
   assert.match(reviewer, /code: string/);
@@ -118,11 +118,11 @@ test("vendored prompts exactly match their canonical sources", () => {
 });
 
 test("role prompts carry the configurable independent-test workflow", () => {
-  assert.match(read("prompts/acceptance-author.md"), /Independent Test Author Prompt — v3\.0/);
+  assert.match(read("prompts/acceptance-author.md"), /Independent Test Author Prompt — v3\.1/);
   assert.match(read("prompts/critique.md"), /Critique Prompt — v2\.2/);
-  assert.match(read("prompts/implementer.md"), /Implementer Prompt — v2\.2/);
+  assert.match(read("prompts/implementer.md"), /Implementer Prompt — v2\.3/);
   assert.match(read("prompts/implementer.md"), /Do not weaken, remove, or rewrite independent tests/);
-  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.4/);
+  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.5/);
 });
 
 test("one implementation and bug-fix proof name their enforcement", () => {
@@ -603,4 +603,142 @@ test("L-015's outcome describes the configurable workflow, not fixed requirement
       "fresh critic and reviewer must be described as the standard/strict addition, not a universal requirement",
     );
   }
+});
+
+const promptTemplate = (name) => read(`prompts/${name}`).match(/```text([\s\S]*?)```/)?.[1] ?? "";
+const contractInputLines = (template) =>
+  template
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("- ") && /\b(contract|critique)\b/i.test(line));
+
+test("the implementer prompt accepts route-based N/A contract and critique inputs", () => {
+  // A valid basic route reaches implementation without a closed contract or fresh
+  // critique, so the template's contract and critique inputs must accept the same
+  // route-based N/A its independent-tests input already carries, and ROLE must not
+  // demand the closed contract unconditionally.
+  const template = promptTemplate("implementer.md");
+  assert.ok(template.trim(), "implementer.md must keep its fill-in template");
+
+  const inputs = contractInputLines(template);
+  assert.ok(inputs.some((line) => /contract/i.test(line)), "the template must keep a contract input");
+  assert.ok(inputs.some((line) => /critique/i.test(line)), "the template must keep a critique input");
+  for (const line of inputs) {
+    assert.match(
+      line,
+      /route-based N\/A/i,
+      `implementer input "${line}" must accept a route-based N/A on a valid basic route`,
+    );
+  }
+
+  const role = template.match(/ROLE\n([\s\S]*?)\nINPUTS/)?.[1] ?? "";
+  assert.ok(role.trim(), "the template must keep its ROLE section");
+  if (/closed contract/i.test(role)) {
+    assert.match(
+      role,
+      /\b(basic|route|profile|when|if|unless|N\/A)\b/i,
+      "ROLE may demand the closed contract only conditionally; a valid basic route has none",
+    );
+  }
+});
+
+test("the reviewer prompt accepts route-based N/A contract and critique inputs", () => {
+  // Basic routes reach review without a closed contract or critique, so the
+  // reviewer's contract-and-critique input must accept a route-based N/A while the
+  // full-diff final review itself stays mandatory on every route.
+  const template = promptTemplate("reviewer.md");
+  assert.ok(template.trim(), "reviewer.md must keep its fill-in template");
+
+  const inputs = contractInputLines(template);
+  assert.ok(inputs.some((line) => /contract/i.test(line)), "the template must keep a contract input");
+  assert.ok(inputs.some((line) => /critique/i.test(line)), "the template must keep a critique input");
+  for (const line of inputs) {
+    assert.match(
+      line,
+      /route-based N\/A/i,
+      `reviewer input "${line}" must accept a route-based N/A on a valid basic route`,
+    );
+  }
+
+  assert.match(template, /CHECK THE FULL DIFF/, "the full-diff review stays mandatory");
+  assert.match(template, /VERDICT: PASS \| FAIL/, "the review verdict stays mandatory");
+});
+
+test("the independent test-author prompt triggers on strict routing or configured coverage", () => {
+  // OS.md, POLICY.md, and the dispatch guide require this role for strict routing OR
+  // when the configured independentTests coverage adds it on a lower route (security
+  // work, every bug fix, or every behavior change). The role prompt must state that
+  // required trigger instead of recommending separation "when practical".
+  const body = read("prompts/acceptance-author.md").split("## Changelog")[0];
+  const flat = body.replace(/\s+/g, " ");
+  const template = promptTemplate("acceptance-author.md");
+  const inputSection = template.match(/INPUTS\n([\s\S]*?)\nRULES/)?.[1] ?? "";
+  const inputs = contractInputLines(inputSection);
+
+  assert.match(flat, /\bstrict\b/i, "the prompt must keep strict routing as a trigger");
+  assert.match(
+    flat,
+    /configured|independentTests/i,
+    "the prompt must name matching configured independent-test coverage as the other trigger",
+  );
+  assert.match(flat, /requir/i, "matching configured coverage must be required, not suggested");
+  assert.match(flat, /security/i, "the trigger must cover configured lower-route security work");
+  assert.match(flat, /bug fix/i, "the trigger must cover configured bug-fix coverage");
+  assert.match(flat, /behavior change/i, "the trigger must cover configured all-behavior-changes coverage");
+  assert.ok(inputs.length > 0, "the prompt must keep its contract and critique input");
+  for (const line of inputs) {
+    assert.match(
+      line,
+      /route-based N\/A/i,
+      `test-author input "${line}" must accept a route-based N/A on a valid basic route`,
+    );
+  }
+  assert.doesNotMatch(
+    flat,
+    /should use the same separation when practical/i,
+    "configured coverage is a requirement, not a when-practical recommendation",
+  );
+});
+
+test("plugin acceptance-author agents trigger on strict routing or configured coverage", () => {
+  // Both agent front doors copy the role trigger, so they must carry the same
+  // strict-or-configured-coverage rule as the canonical prompt.
+  for (const path of [
+    "plugins/engineering-os/agents/acceptance-author.md",
+    "plugins/engineering-os/agents/eos-acceptance-author.md",
+  ]) {
+    const agent = read(path).replace(/\s+/g, " ");
+    assert.match(agent, /\bstrict\b/i, `${path} must keep strict routing as a trigger`);
+    assert.match(
+      agent,
+      /configured|independentTests|coverage/i,
+      `${path} must also trigger on matching configured independent-test coverage`,
+    );
+  }
+});
+
+test("route-based and coverage prompt fixes bump versions with changelog entries", () => {
+  // AGENTS.md: prompt changes bump the version and add a changelog line. The
+  // route-based N/A inputs and the strict-or-configured trigger change these three
+  // prompts, so each version must move past its pre-fix value with a matching
+  // changelog entry. The existing exact-parity test keeps the vendored
+  // plugins/engineering-os/prompts copies byte-identical to these sources.
+  const bumped = (name, title, major, minor) => {
+    const text = read(`prompts/${name}`);
+    const header = text.match(new RegExp(`^# ${title} — v(\\d+)\\.(\\d+)$`, "m"));
+    assert.ok(header, `${name} must keep its versioned title`);
+    const [maj, min] = [Number(header[1]), Number(header[2])];
+    assert.ok(
+      maj > major || (maj === major && min > minor),
+      `${name} changed for this fix, so its version must move past v${major}.${minor}`,
+    );
+    assert.match(
+      text,
+      new RegExp(`\\n- \\*\\*v${maj}\\.${min}\\*\\* — \\S`),
+      `${name} must add a changelog entry for v${maj}.${min}`,
+    );
+  };
+  bumped("implementer.md", "Implementer Prompt", 2, 2);
+  bumped("reviewer.md", "Reviewer Prompt", 2, 4);
+  bumped("acceptance-author.md", "Independent Test Author Prompt", 3, 0);
 });

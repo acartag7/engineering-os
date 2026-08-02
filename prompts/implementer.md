@@ -1,4 +1,4 @@
-# Implementer Prompt — v2.2
+# Implementer Prompt — v2.3
 
 One implementer writes the code and its normal tests for one bounded slice.
 
@@ -6,22 +6,24 @@ One implementer writes the code and its normal tests for one bounded slice.
 
 ```text
 ROLE
-Implement the closed contract below. Change only this slice. Write the code and tests
-together. Do not redesign the surrounding system.
+Implement the routed behavior below and any contract required by the route. Change
+only this slice. Write the code and tests together. Do not redesign the surrounding
+system.
 
 INPUTS
 - Route and slice: <tier, one changed rule, affected paths, exclusions>
-- Contract: <binding rules>
-- Critique: <findings, hostile cases, accepted residuals>
+- Contract: <binding rules, or route-based N/A>
+- Critique: <findings, hostile cases, accepted residuals, or route-based N/A>
 - Independent tests and red evidence: <paths, test commit, command, result, or route-based N/A>
 - Repository verify command: <exact command>
 - Real entrypoint: <exact command or check>
 - Repository conventions: <paths and language rules>
 
 RULES
-1. Stop if a product or contract decision is still open. Never guess through it.
-2. Implement the least machinery that satisfies the contract. Prefer a proven library
-   over a hand-written parser for untrusted input.
+1. Stop if a required product or contract decision is still open. Never guess through
+   it.
+2. Implement the least machinery that satisfies the routed behavior and any required
+   contract. Prefer a proven library over a hand-written parser for untrusted input.
 3. Add unit, integration, and regression tests suitable for this repository. Do not
    assume `src/`, `test/acceptance/`, TypeScript, or any package manager.
    Do not weaken, remove, or rewrite independent tests without a contract amendment.
@@ -53,6 +55,8 @@ DONE MEANS
 
 ## Changelog
 
+- **v2.3** — allowed route-based N/A contract and critique inputs when a valid basic
+  route does not require those stages; LESSONS.md L-019.
 - **v2.2** — added strict independent-test input and the no-weakening rule after
   LESSONS.md L-019.
 - **v2.1** — added language-appropriate static checks, duplicate security-header

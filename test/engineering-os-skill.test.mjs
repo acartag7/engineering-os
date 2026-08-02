@@ -349,3 +349,19 @@ test("dispatch triggers independent failing tests from strict routing or configu
   assert.match(step, /behavior change/i, "the step must cover configured all-behavior-changes coverage");
   assert.match(step, /(lower|route)/i, "the step must say the coverage applies on lower routes");
 });
+
+test("the configuration reference gives basic review to the owner or CI for T0 and the owner for T1", () => {
+  // The spec's final-review row makes basic review "owner or CI for T0; owner for
+  // T1". The reference states the T0 half but stays silent on who reviews a basic
+  // low-risk T1 change, and the vendored plugin copy must carry the same statement.
+  for (const pkg of [CANONICAL, VENDORED]) {
+    const path = join(pkg, "references/configuration.md");
+    const flat = read(path).replace(/\s+/g, " ");
+    assert.match(flat, /owner or CI review for T0/i, `${path}: basic T0 review stays owner or CI`);
+    assert.match(
+      flat,
+      /owner(?! or CI)[^.;|]{0,80}\bT1\b|\bT1\b[^.;|]{0,80}owner(?! or CI)/i,
+      `${path} must say basic T1 review is the owner, without extending CI review to T1`,
+    );
+  }
+});

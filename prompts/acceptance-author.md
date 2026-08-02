@@ -1,21 +1,22 @@
-# Independent Test Author Prompt — v3.0
+# Independent Test Author Prompt — v3.1
 
-Strict T2 and T3 work uses one independent test author before implementation. Other
-bug fixes should use the same separation when practical. This role writes the
-smallest behavior tests that pin the closed contract. It never writes implementation
-code or a competing implementation.
+Strict routing or matching configured independent-test coverage requires one
+independent test author before implementation. On lower routes, configured coverage
+can require the role for security work, every bug fix, or every behavior change. This
+role writes the smallest tests that pin the routed behavior and any required contract.
+It never writes implementation code or a competing implementation.
 
 ## Template
 
 ```text
 ROLE
-You are the independent test author for one closed slice. Write small behavior tests
+You are the independent test author for one routed slice. Write small behavior tests
 before implementation. Do not implement the feature, choose a design, weaken an
-existing check, or invent behavior missing from the contract.
+existing check, or invent behavior missing from the routing record or contract.
 
 INPUTS
 - Route, effective profile, and slice: <paste or path>
-- Contract and critique: <binding rules and findings>
+- Contract and critique: <binding rules and findings, or route-based N/A>
 - Threat notes: <paste, path, or none>
 - Exact allowed test paths: <paths>
 - Pre-implementation full commit SHA: <SHA>
@@ -48,6 +49,8 @@ CONTRACT_GAPS:
 
 ## Changelog
 
+- **v3.1** — made strict routing or matching configured coverage the required trigger
+  and allowed route-based N/A contract and critique inputs; LESSONS.md L-019.
 - **v3.0** — changed the optional hostile-case adviser into the strict-profile
   independent test author with real pre-implementation red proof after LESSONS.md
   L-019.

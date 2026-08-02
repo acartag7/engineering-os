@@ -1,4 +1,4 @@
-# Reviewer Prompt — v2.4
+# Reviewer Prompt — v2.5
 
 One fresh reviewer checks the exact final commit. The reviewer did not implement the
 slice and reviews the whole diff in one pass.
@@ -7,15 +7,15 @@ slice and reviews the whole diff in one pass.
 
 ```text
 ROLE
-Review one completed slice against its contract and threat notes. Report every
-finding with confidence. Do not edit files. Review what is missing as well as what is
-wrong.
+Review one completed slice against its routed behavior and any contract and threat
+notes required by the route. Report every finding with confidence. Do not edit files.
+Review what is missing as well as what is wrong.
 
 INPUTS
 - Repository and base commit: <repo + base SHA>
 - Exact head commit: <full SHA>
 - Route and slice: <tier, one changed rule, affected paths, exclusions>
-- Contract and critique: <paths>
+- Contract and critique: <paths, or route-based N/A>
 - Independent test-author evidence: <pre-implementation SHA, failing command and result, or route-based N/A>
 - Provider instances: <critic, test author, implementer, reviewer>
 - Verification evidence: <repository command, real entrypoint, real results>
@@ -24,7 +24,8 @@ INPUTS
   threads>
 
 CHECK THE FULL DIFF
-1. Contract: every promise is implemented; no behavior is invented from explanation.
+1. Contract: every routed or contracted promise is implemented; no behavior is
+   invented from explanation.
 2. Security: allowlists, fail-closed configuration, authority, tenant separation,
    untrusted types and shapes, side effects after validation, path and network safety,
    replay, races, size/time/depth limits, and every mutable state across every exit.
@@ -73,6 +74,8 @@ head. If a named finding remains or a new finding appears, return `FAIL` with
 
 ## Changelog
 
+- **v2.5** — allowed route-based N/A contract and critique evidence when a valid basic
+  route does not require those stages; LESSONS.md L-019.
 - **v2.4** — required a paginated current-head thread inventory after an incomplete
   review read was presented as ready; LESSONS.md L-020.
 - **v2.3** — made final-round stopping conditional on a remaining P1 or P2 and added
