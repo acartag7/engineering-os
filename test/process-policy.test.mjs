@@ -49,6 +49,46 @@ test("project brief template and repository brief carry the fixed structure", ()
       assert.match(brief, new RegExp(`## ${heading}`), `${path}: ${heading}`);
     }
   }
+  assert.match(read("BRIEF.md"), /\| `docs\/` \| Standalone diagrams that explain the workflow \|/);
+});
+
+test("the README workflow diagram matches the configurable one-implementation process", () => {
+  const readme = read("README.md");
+  const diagramPath = "docs/engineering-os-workflow.svg";
+  const diagram = read(diagramPath);
+
+  assert.match(readme, new RegExp(diagramPath.replaceAll(".", "\\.")));
+  assert.match(readme, /configured coverage/i);
+  for (const label of [
+    "Basic",
+    "Standard",
+    "Strict",
+    "STRICT OR COVERAGE",
+    "One implementer",
+    "Repository verify",
+    "Exact-head review",
+    "PROFILE PICKS THE REVIEWER",
+    "Owner merges",
+    "fresh assistant session",
+    "Security-sensitive and high-risk work uses Strict",
+    "Documentation uses at least Standard",
+    "Prompts guide every step",
+    "Step 5 has required checks",
+    "review evidence and audits check the rest",
+    "full commit ID",
+  ]) {
+    assert.match(diagram, new RegExp(label, "i"), label);
+  }
+  assert.doesNotMatch(
+    diagram,
+    /parallel implementation|hash (freeze|manifest)|frozen[- ]suite|build candidates|two-family/i,
+  );
+  assert.doesNotMatch(diagram, /\bproven red\b/i);
+  assert.doesNotMatch(diagram, /\b(CI|T0|T2|T3|SHA|AI)\b/);
+  assert.doesNotMatch(
+    readme,
+    /fresh AI sessions|T0 and closed low-risk work|Owner or CI review|T2, T3, and high-risk work|CI runs the same command|Repository tests, CI,/i,
+  );
 });
 
 test("generated host and brief templates label every rule's enforcement", () => {
@@ -126,8 +166,36 @@ test("the monthly audit checks exception and optional-guard exemption lifecycles
 
 test("the distributed plugin docs name complete modes and honest enforcement", () => {
   const contract = read("plugins/engineering-os/CONTRACT.md");
+  const skillSpec = read("specs/configurable-engineering-os-skill.md");
   const completeModes = contract.match(/- \*\*R2 — Complete modes\.\*\*[\s\S]*?(?=\n- \*\*R3)/)?.[0] ?? "";
   assert.match(completeModes, /continu/i, "the binding mode list must include continue");
+
+  const rule = (number) =>
+    contract.match(new RegExp(`- \\*\\*R${number} —[\\s\\S]*?(?=\\n- \\*\\*R${number + 1})`))?.[0] ?? "";
+  assert.match(rule(4), /Docs[^.]{0,80}at\s+least[^.]{0,40}standard/i);
+  assert.match(rule(5), /different\s+provider\s+instance/i);
+  assert.match(rule(5), /standard and strict[^.]*final reviewer[^.]*different\s+provider\s+instance/i);
+  assert.match(
+    skillSpec,
+    /standard` and\s+`strict` work[^.]*final reviewer[^.]*different\s+provider\s+instance/i,
+  );
+  assert.match(
+    skillSpec,
+    /runtime evidence rejects a `testAuthor` provider instance[^.]*implemented\s+the\s+same change/i,
+  );
+  assert.match(
+    skillSpec,
+    /standard` and\s+`strict`[^.]*runtime evidence rejects a `reviewer` provider instance[^.]*implemented\s+the\s+same change/i,
+  );
+  for (const priorRole of ["critic", "test author", "implementer"]) {
+    assert.match(rule(5), new RegExp(priorRole, "i"), `R5 must separate the reviewer from the ${priorRole}`);
+  }
+  assert.match(
+    rule(5),
+    /independent test author uses\s+a different\s+provider\s+instance from the implementer/i,
+  );
+  assert.match(rule(6), /strict/i);
+  assert.match(rule(6), /configured coverage/i);
 
   const readme = read("plugins/engineering-os/README.md");
   const enforcement = readme.match(/\*\*Enforcement:[^*]*\*\*/)?.[0] ?? "";
@@ -136,6 +204,11 @@ test("the distributed plugin docs name complete modes and honest enforcement", (
   assert.match(enforcement, /audit/i);
   assert.match(enforcement, /hard/i);
   assert.match(enforcement, /branch protection/i);
+  assert.match(enforcement, /required roles/i);
+
+  const contractEnforcement = contract.match(/## Enforcement([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  assert.match(contractEnforcement, /route floors/i);
+  assert.match(contractEnforcement, /required roles/i);
 });
 
 test("old pipeline helper only forwards to the configurable skill", () => {
@@ -336,6 +409,15 @@ test("the dispatch guide carries one honest enforcement statement", () => {
   );
 
   const statement = statements[0] ?? "";
+  assert.match(
+    dispatch,
+    /standard and strict work[^.]*final\s+reviewer[^.]*different provider instance/i,
+  );
+  assert.match(dispatch, /Basic may use owner review; T0 may use CI/i);
+  assert.match(
+    dispatch,
+    /independent test author[^.]*provider instance[^.]*different from the implementer/i,
+  );
   assert.match(statement, /prompt/i, "the statement must name prompt guidance");
   assert.match(statement, /review/i, "the statement must name review guidance");
   assert.match(statement, /audit/i, "the statement must name audit guidance");
@@ -593,7 +675,7 @@ test("copied agent rules and baseline rows follow the effective profile", () => 
   assert.match(slw3, /final review appropriate to that profile/);
   assert.match(
     read("skills/engineering-os/references/configuration.md"),
-    /A reviewer can never be not required/,
+    /A reviewer can never be the current\s+implementation session or not required/,
   );
 
   const finalReviewCells = (read("POLICY.md")

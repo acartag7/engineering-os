@@ -49,12 +49,24 @@ Allowed provider labels are:
 - `ci`
 - `not-required`
 
-The implementer cannot be CI or not required. A reviewer can never be not required.
+The implementer cannot be CI or not required. A reviewer can never be the current
+implementation session or not required.
 Standard and strict critics and reviewers cannot be the current implementation
 session or CI; their critics also cannot be not required. A strict test author has
-the same restriction. The final reviewer uses a different provider instance
-from the critic, independent test author, and implementer. Record the actual
-person, fresh AI session, seat, or CI run in each change's routing record.
+the same restriction. For standard and strict work, the final reviewer uses a
+different provider instance from the critic, independent test author, and implementer.
+The independent test author also uses a different provider instance from the
+implementer whenever that role is required, including when configured coverage adds
+it to Basic work. The labels `owner` and `current-session` each name one instance, so
+configuration rejects either label in both test-author and implementer roles. A human
+owner and the current assistant session are different providers and may fill those two
+roles. A repeatable label such as `fresh-ai-session` can appear in both fields only
+when the routing record names two real sessions. Record the actual person, fresh AI
+session, seat, or CI run in each change's routing record.
+
+Standard and strict work reject `owner` as the reviewer when `owner` fills the critic,
+test-author, or implementer role. Basic work may use owner review because that profile
+does not promise a different reviewer instance.
 
 When multi-agent seats do not exist, use a fresh AI session or a named human. Prepare
 one handoff with the closed contract, exact files, commands, current commit, and

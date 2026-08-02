@@ -7,9 +7,20 @@ and independent review a change needs. The `engineering-os` skill inspects the r
 project, asks the unresolved questions, recommends a safe default, and explains how
 each choice affects the work.
 
-It works without multi-agent tools. A solo developer can use fresh AI sessions for
-independent judgment. A team can use people. A host with multi-agent seats can use
-those. The safety result matters; the tool shape does not.
+It works without multi-agent tools. A solo developer can use fresh assistant
+sessions for independent judgment. A team can use people. A host with multi-agent
+seats can use those. The safety result matters; the tool shape does not.
+
+<p align="center">
+  <img src="docs/engineering-os-workflow.svg" alt="Engineering OS workflow: one owner scopes a change, the selected profile adds the needed contract, critique, and independent tests, one implementer builds it, repository verification and exact-head review check it, and the owner decides whether to merge." />
+</p>
+
+<p align="center"><a href="docs/engineering-os-workflow.svg">Open the full-size workflow diagram</a></p>
+
+The picture shows the normal path for one change. `basic`, `standard`, and `strict`
+control how much independent work is added. Risk can raise the profile but never lower
+it. Every path keeps one implementation, real repository verification, final review,
+and the owner-controlled merge.
 
 ## What it enables
 
@@ -17,7 +28,8 @@ those. The safety result matters; the tool shape does not.
   commands and layout.
 - Choose `basic`, `standard`, or `strict` project defaults without lowering the safety
   floor of a risky change.
-- Use one implementation, with an independent test author before T2/T3 work.
+- Use one implementation. Strict work and configured coverage add an independent test
+  author before implementation.
 - Keep verification and final review tied to the exact current commit.
 - Move an older governed repository to the new process without removing its old
   protection too early.
@@ -46,25 +58,26 @@ known gaps. Nothing is written until the owner confirms that preview.
 
 | Profile | Normal use | Independent work |
 |---|---|---|
-| `basic` | T0 and closed low-risk work | Owner or CI review where allowed |
+| `basic` | Changes that do not affect behavior, and closed low-risk work | Owner review; automated review only when behavior does not change |
 | `standard` | Recommended normal default | Fresh critic and final reviewer |
-| `strict` | T2, T3, and high-risk work | Fresh critic, independent test author, and final reviewer |
+| `strict` | Security-sensitive and high-risk work | Fresh critic, independent test author, and final reviewer |
 
-Configuration can make work stricter. It cannot lower the route floor.
+Configuration can make work stricter. It cannot reduce the required safety level.
 
 ## Language-neutral verification
 
-Every repository owns one verify command. CI runs the same command. It must run real
-tests and exercise the shipped command, service, library, package, or application
-where practical. Engineering OS does not guess the language, package manager, source
-directory, or test layout. See [`ONBOARDING.md`](ONBOARDING.md) for the real Go
-fixture.
+Every repository owns one verify command. Automated repository checks run the same
+command. It must run real tests and exercise the shipped command, service, library,
+package, or application where practical. Engineering OS does not guess the language,
+package manager, source directory, or test layout. See
+[`ONBOARDING.md`](ONBOARDING.md) for the real Go fixture.
 
 ## What remains enforcement
 
 The skill guides and records decisions. It does not approve its own work or merge.
-The deterministic configuration validator checks the settings. Repository tests, CI,
-and branch protection are the real walls. The owner makes the final merge decision.
+The deterministic configuration validator checks the settings. Repository tests,
+automated repository checks, and branch protection are the real walls. The owner
+makes the final merge decision.
 
 ## Where to go next
 

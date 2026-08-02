@@ -134,8 +134,38 @@ test("enums and profile provider rules are exact", () => {
     ["provider-conflict", (c) => { c.workflow.reviewer = "ci"; }],
     ["provider-conflict", (c) => { c.workflow.reviewer = "not-required"; }],
     ["provider-conflict", (c) => {
+      c.workflow.defaultProfile = "basic";
+      c.workflow.reviewer = "current-session";
+    }],
+    ["provider-conflict", (c) => {
       c.workflow.defaultProfile = "strict";
       c.workflow.testAuthor = "current-session";
+      c.workflow.implementer = "fresh-ai-session";
+    }],
+    ["provider-conflict", (c) => {
+      c.workflow.testAuthor = "owner";
+      c.workflow.implementer = "owner";
+    }],
+    ["provider-conflict", (c) => {
+      c.workflow.defaultProfile = "basic";
+      c.workflow.testAuthor = "owner";
+      c.workflow.implementer = "owner";
+    }],
+    ["provider-conflict", (c) => {
+      c.workflow.testAuthor = "current-session";
+      c.workflow.implementer = "current-session";
+    }],
+    ["provider-conflict", (c) => {
+      c.workflow.reviewer = "owner";
+      c.workflow.implementer = "owner";
+    }],
+    ["provider-conflict", (c) => {
+      c.workflow.reviewer = "owner";
+      c.workflow.critic = "owner";
+    }],
+    ["provider-conflict", (c) => {
+      c.workflow.reviewer = "owner";
+      c.workflow.testAuthor = "owner";
     }],
   ];
 
@@ -149,8 +179,28 @@ test("enums and profile provider rules are exact", () => {
   basic.workflow.defaultProfile = "basic";
   basic.workflow.critic = "current-session";
   basic.workflow.testAuthor = "not-required";
+  basic.workflow.implementer = "owner";
   basic.workflow.reviewer = "owner";
   expectValid(runValidator({ config: basic }));
+
+  const separateFreshSessions = starter();
+  separateFreshSessions.workflow.testAuthor = "fresh-ai-session";
+  separateFreshSessions.workflow.implementer = "fresh-ai-session";
+  expectValid(runValidator({ config: separateFreshSessions }));
+
+  const ownerWritesTests = starter();
+  ownerWritesTests.workflow.testAuthor = "owner";
+  ownerWritesTests.workflow.implementer = "current-session";
+  expectValid(runValidator({ config: ownerWritesTests }));
+
+  const ownerReviewsOtherWork = starter();
+  ownerReviewsOtherWork.workflow.reviewer = "owner";
+  expectValid(runValidator({ config: ownerReviewsOtherWork }));
+
+  const basicCiReview = starter();
+  basicCiReview.workflow.defaultProfile = "basic";
+  basicCiReview.workflow.reviewer = "ci";
+  expectValid(runValidator({ config: basicCiReview }));
 });
 
 test("a basic profile keeps a real final reviewer while relaxing critic and test author", () => {
@@ -521,6 +571,14 @@ test("standard input applies the same schema, bounds, and byte checks", () => {
   const conflicted = starter();
   conflicted.workflow.implementer = "ci";
   expectInvalid(runStdin(`${JSON.stringify(conflicted)}\n`), "provider-conflict");
+  const sameOwner = starter();
+  sameOwner.workflow.testAuthor = "owner";
+  sameOwner.workflow.implementer = "owner";
+  expectInvalid(runStdin(`${JSON.stringify(sameOwner)}\n`), "provider-conflict");
+  const selfReview = starter();
+  selfReview.workflow.reviewer = "owner";
+  selfReview.workflow.implementer = "owner";
+  expectInvalid(runStdin(`${JSON.stringify(selfReview)}\n`), "provider-conflict");
   expectInvalid(runStdin("{"), "parse-error");
   expectInvalid(runStdin('{"__proto__":{},"version":1}'), "unsafe-key");
   expectInvalid(runStdin(Buffer.from([0xff, 0xfe, 0xfd])), "invalid-utf8");

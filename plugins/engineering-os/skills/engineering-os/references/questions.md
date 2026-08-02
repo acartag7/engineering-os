@@ -92,6 +92,7 @@ Discover who can fill each independent role.
 - Does it support multi-agent seats? This is useful but never required.
 - Can a named human receive a prepared handoff?
 - What real provider instance will fill each role for this change?
+- Do the test author and implementer use different provider instances?
 
 For a solo owner, normally recommend fresh AI sessions for independent roles and the
 current session for implementation. Explain that separate context provides a fresh

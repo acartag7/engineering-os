@@ -34,6 +34,7 @@ whether to merge.
 | `BASELINE.md` | Auditable rules learned from incidents or proven practice |
 | `LESSONS.md` | Class-level record of failures and the checks they created |
 | `ONBOARDING.md` | Language-neutral setup, including a real Go example |
+| `docs/` | Standalone diagrams that explain the workflow |
 | `skills/engineering-os/` | Canonical guided skill, references, starter config, and validator |
 | `prompts/` | Versioned critic, implementer, independent test author, and reviewer instructions |
 | `templates/` | Files copied into governed repositories |
