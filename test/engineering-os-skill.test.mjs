@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { test } from "node:test";
 
@@ -169,4 +169,93 @@ test("root verification runs both skill suites", () => {
   const verify = read("scripts/verify");
   assert.match(verify, /engineering-os-config\.test\.mjs/);
   assert.match(verify, /engineering-os-skill\.test\.mjs/);
+});
+
+const CANONICAL_DOCS = [
+  "SKILL.md",
+  "references/questions.md",
+  "references/configuration.md",
+  "references/migration.md",
+];
+const canonicalText = () => CANONICAL_DOCS.map((path) => read(join(CANONICAL, path))).join("\n");
+
+function entryPathsBelow(current) {
+  return readdirSync(current, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(current, entry.name);
+    return entry.isDirectory() ? [path, ...entryPathsBelow(path)] : [path];
+  });
+}
+
+test("package parity rejects a symlink anywhere in either package", () => {
+  for (const pkg of [CANONICAL, VENDORED]) {
+    const entries = entryPathsBelow(pkg);
+    assert.ok(entries.length > 0, pkg);
+    for (const path of entries) {
+      assert.ok(!lstatSync(path).isSymbolicLink(), `${path} must not be a symlink`);
+    }
+  }
+});
+
+test("the skill continues a started change instead of restarting it", () => {
+  const skill = read(join(CANONICAL, "SKILL.md"));
+  assert.match(skill, /\*\*continue:?\*\*/);
+
+  const combined = canonicalText();
+  assert.match(
+    combined,
+    /closed contract.*critique.*independent failing tests.*implementation.*verification.*final review.*merge decision/is,
+  );
+  assert.match(combined, /first[^.]*required[^.]*(result|role)[^.]*evidence/is);
+  assert.match(combined, /(not|never)[^.]*re-?run[^.]*completed/is);
+
+  const pipeline = read("plugins/engineering-os/skills/pipeline/SKILL.md");
+  assert.match(pipeline, /`next stage`[^\n]*`continue`/);
+  assert.doesNotMatch(pipeline, /`next stage`[^\n]*`start`/);
+  assert.match(pipeline, /`run the pipeline`[^\n]*`start`/);
+});
+
+test("independent-test coverage is explained, derived, and never lowers a route", () => {
+  const combined = canonicalText();
+  for (const value of ["security-only", "security-and-bug-fixes", "all-behavior-changes"]) {
+    assert.match(combined, new RegExp(value), value);
+  }
+  assert.match(combined, /trust boundary/i);
+  assert.match(combined, /every bug fix/i);
+  assert.match(combined, /every behavior change/i);
+  assert.match(combined, /add[^.]*never remove/is);
+  assert.match(combined, /configured coverage/i);
+});
+
+test("the configuration reference documents candidate validation and the solo cap", () => {
+  const config = read(join(CANONICAL, "references/configuration.md"));
+  assert.match(config, /--stdin/);
+  assert.match(config, /before the first write/i);
+  assert.match(config, /solo[^.]*\b(one or two|two)\b/is);
+});
+
+test("review readiness needs a thread-aware inventory at the current head", () => {
+  const skill = read(join(CANONICAL, "SKILL.md"));
+  assert.match(skill, /paginated/i);
+  assert.match(skill, /thread/i);
+  assert.match(skill, /every reviewer message/i);
+  assert.match(skill, /actionable/i);
+  assert.match(skill, /(re-?fetch|refetch)[^.]*after every push/is);
+  assert.match(skill, /before reporting ready/i);
+});
+
+test("enforcement labels are honest about hard checks and audit rules", () => {
+  const skill = read(join(CANONICAL, "SKILL.md")).replace(/\s+/g, " ");
+  assert.match(skill, /hard check only when required continuous integration runs it/i);
+  assert.match(skill, /hard only when branch protection requires it/i);
+  const audited = skill.match(/[^.]*prompt (?:plus|\+) audit[^.]*\./i)?.[0] ?? "";
+  for (const item of ["continuation", "status", "thread"]) {
+    assert.match(audited, new RegExp(item, "i"), `prompt-plus-audit list names ${item}`);
+  }
+  assert.match(skill, /P1 and P2[^.]*documented merge rule/i);
+  assert.match(skill, /cannot enforce GitHub/i);
+});
+
+test("repository verification runs a real JavaScript linter or static analyzer", () => {
+  const verify = read("scripts/verify");
+  assert.match(verify, /^[^#\n]*\b(eslint|oxlint|biome|quick-lint-js|jshint)\b/m);
 });

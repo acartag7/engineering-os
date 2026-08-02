@@ -421,3 +421,91 @@ test("errors are one fixed safe line and validation is read-only and determinist
     rmSync(repository, { recursive: true, force: true });
   }
 });
+
+function runStdin(input, { args = ["--stdin"], setup } = {}) {
+  const repository = tempRoot();
+  try {
+    setup?.({ repository });
+    return spawnSync(process.execPath, [VALIDATOR, ...args], {
+      cwd: repository,
+      encoding: "utf8",
+      env: {},
+      input,
+    });
+  } finally {
+    rmSync(repository, { recursive: true, force: true });
+  }
+}
+
+test("standard input validates a complete candidate before any file exists", () => {
+  const repository = tempRoot();
+  try {
+    const result = spawnSync(process.execPath, [VALIDATOR, "--stdin"], {
+      cwd: repository,
+      encoding: "utf8",
+      env: {},
+      input: `${JSON.stringify(starter(), null, 2)}\n`,
+    });
+    expectValid(result);
+    assert.deepEqual(readdirSync(repository), []);
+  } finally {
+    rmSync(repository, { recursive: true, force: true });
+  }
+});
+
+test("standard input applies the same schema, bounds, and byte checks", () => {
+  const conflicted = starter();
+  conflicted.workflow.implementer = "ci";
+  expectInvalid(runStdin(`${JSON.stringify(conflicted)}\n`), "provider-conflict");
+  expectInvalid(runStdin("{"), "parse-error");
+  expectInvalid(runStdin('{"__proto__":{},"version":1}'), "unsafe-key");
+  expectInvalid(runStdin(Buffer.from([0xff, 0xfe, 0xfd])), "invalid-utf8");
+  expectInvalid(runStdin(Buffer.alloc(65_537, 0x20)), "too-large");
+
+  const json = JSON.stringify(starter());
+  const padded = `${json}${" ".repeat(65_536 - Buffer.byteLength(json))}`;
+  assert.equal(Buffer.byteLength(padded), 65_536);
+  expectValid(runStdin(padded));
+});
+
+test("stdin mode rejects combined arguments and never opens the configuration path", () => {
+  expectInvalid(runStdin("{}", { args: ["--stdin", "engineering-os.json"] }), "argument-count");
+  expectInvalid(runStdin("{}", { args: ["engineering-os.json", "--stdin"] }), "argument-count");
+  expectInvalid(runStdin("{}", { args: ["--stdin", "--stdin"] }), "argument-count");
+  expectInvalid(runStdin("{}", { args: ["--help"] }), "argument-count");
+
+  const valid = `${JSON.stringify(starter(), null, 2)}\n`;
+  const overSymlink = runStdin(valid, {
+    setup: ({ repository }) =>
+      symlinkSync(join(repository, "missing-target.json"), join(repository, "engineering-os.json")),
+  });
+  expectValid(overSymlink);
+
+  const overInvalidFile = runStdin(valid, {
+    setup: ({ repository }) => writeFileSync(join(repository, "engineering-os.json"), "{"),
+  });
+  expectValid(overInvalidFile);
+});
+
+test("solo ownership permits at most two active pull requests", () => {
+  const solo = (count) => {
+    const config = starter();
+    config.workflow.maxActivePullRequests = count;
+    return config;
+  };
+  expectValid(runValidator({ config: solo(1) }));
+  expectValid(runValidator({ config: solo(2) }));
+  expectInvalid(runValidator({ config: solo(3) }), "out-of-bounds");
+  expectInvalid(runValidator({ config: solo(9) }), "out-of-bounds");
+  expectInvalid(runStdin(`${JSON.stringify(solo(3))}\n`), "out-of-bounds");
+
+  const team = (count) => {
+    const config = solo(count);
+    config.project.ownership = "team";
+    return config;
+  };
+  expectValid(runValidator({ config: team(3) }));
+  expectValid(runValidator({ config: team(9) }));
+  expectInvalid(runValidator({ config: team(0) }), "out-of-bounds");
+  expectInvalid(runValidator({ config: team(10) }), "out-of-bounds");
+});
