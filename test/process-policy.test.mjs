@@ -164,6 +164,40 @@ test("project-tier minimum-process rules name their honest enforcement layer", (
   );
 });
 
+test("the workflow table routes independent tests by strict routing or configured coverage", () => {
+  const os = read("OS.md");
+  const who = os.match(/\| 3\. Independent tests \|([^|]*)\|/)?.[1] ?? "";
+  assert.ok(who.trim(), "OS.md must keep the Independent tests workflow row");
+  assert.match(who, /strict/i, "the Independent tests row must name strict routing");
+  assert.match(
+    who,
+    /configured|coverage/i,
+    "the Independent tests row must also admit matching configured independent-test coverage",
+  );
+  assert.doesNotMatch(
+    who,
+    /strict profile only/i,
+    "the Independent tests row must not claim the role belongs to strict alone",
+  );
+});
+
+test("the tests-and-regression-proof rules name their honest enforcement layer", () => {
+  const os = read("OS.md");
+  const section = os.match(/### Tests and regression proof([\s\S]*?)(?=\n#{2,3} )/)?.[1] ?? "";
+  assert.ok(section.trim(), "OS.md must keep the Tests and regression proof subsection");
+
+  const enforcement = section.match(/\*\*Enforcement:[^*]*\*\*/)?.[0] ?? "";
+  assert.ok(
+    enforcement,
+    "the Tests and regression proof subsection states proof rules, so it must carry an **Enforcement:** label before the next subsection",
+  );
+  assert.match(
+    enforcement,
+    /(prompt|audit|review|Layer|CI|branch protection|not (yet )?enforced)/i,
+    "the enforcement label must honestly name where the rules are checked",
+  );
+});
+
 test("the final-round stop token requires a remaining P1 or P2", () => {
   const reviewer = read("prompts/reviewer.md").replace(/\s+/g, " ");
   assert.match(

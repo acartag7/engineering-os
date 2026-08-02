@@ -74,7 +74,7 @@ A slice changes one clear rule that one reviewer can understand in one sitting.
 | 0. Cut | Owner + agent | One bounded slice with dependencies and exclusions |
 | 1. Contract | Owner + agent | Required behavior, failures, and open questions resolved |
 | 2. Critique | Fresh human or AI context | Missing decisions and unsafe silences found before code |
-| 3. Independent tests | Strict profile only | Small behavior tests written and proven red before code |
+| 3. Independent tests | Strict routing or matching configured coverage | Small behavior tests written and proven red before code |
 | 4. Implement | One implementer | One implementation plus its normal tests |
 | 5. Verify | Repository CI | The repository's verification command and real entrypoint pass |
 | 6. Review | Fresh human or AI context | Findings and reviewed final commit SHA recorded |
@@ -102,10 +102,14 @@ but never lower these route floors.
 ### Tests and regression proof
 
 The implementer writes normal tests alongside the code. Strict work first uses an
-independent test author. The independent tests are small, behavior-focused, and
-proven to fail at the pre-implementation commit. Other bug fixes should use the same
-separation when practical. Record the commit, command, failing result, and passing
-result. A test that passes before and after implementation proves nothing.
+independent test author. Configured coverage can also require that role on a lower
+route for security work, bug fixes, or all behavior changes. The independent tests
+are small, behavior-focused, and proven to fail at the pre-implementation commit.
+Record the commit, command, failing result, and passing result. A test that passes
+before and after implementation proves nothing.
+
+**Enforcement: prompt + pull-request evidence + monthly audit; no fleet-wide
+mechanical gate verifies author separation or the pre-implementation red proof yet.**
 
 ### Exact-head review
 
