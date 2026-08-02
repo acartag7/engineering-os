@@ -17,6 +17,9 @@
 
 - **SLW-1 through SLW-19** are binding as written in
   `specs/solo-language-neutral-workflow.md`.
+- CES-9, CES-10, and CES-23 supersede SLW-3's former fixed-profile requirement. The
+  effective configurable profile now decides whether contract and critique are
+  required.
 - CES-11 supersedes SLW-5: strict T2/T3 work requires an independent test author
   before implementation; the old optional challenger wording no longer governs.
 - The repository `verify` check is HARD when branch protection requires it.

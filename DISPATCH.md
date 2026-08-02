@@ -70,3 +70,7 @@ production credentials, mutate production, or authorize a write.
 Add one public, class-level lesson only after the owner approves it. State what
 happened, where in general, how it was found, the defect class, and the check or rule
 it changed. Do not publish identifying details from private work.
+
+**Enforcement: this guide is prompt + pull-request review + monthly audit. Repository
+verification is HARD only when branch protection requires it; no fleet-wide gate
+mechanically enforces role handoffs, status, discovery, or incident publication.**

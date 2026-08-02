@@ -41,9 +41,12 @@ It also blocks a Go repository whose source and tests do not live under `src/` a
   can understand in one sitting. About 300 changed lines is a warning to re-check the
   cut, not an automatic rejection. Generated files and necessary tests are explained
   rather than blindly counted.
-- **SLW-3 — One normal path.** A behavior-changing slice uses one contract, one fresh
-  critic before code, one implementer that writes code and tests, one real verification
-  run, and one fresh reviewer on the exact final commit.
+- **SLW-3 — One normal path.** The effective `basic`, `standard`, or `strict` profile
+  chooses the normal path. Already-clear basic work may omit the contract and fresh
+  critique. Standard and strict work use one contract and one fresh critic before
+  code. Every profile uses one implementer that writes code and tests, one real
+  verification run, and one final review appropriate to that profile on the exact
+  final commit.
 - **SLW-4 — One implementation.** Normal work uses one implementation. Competing
   implementations and reviewer panels are reserved for explicit model evaluations,
   not product delivery.

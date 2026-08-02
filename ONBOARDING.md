@@ -117,3 +117,8 @@ it. Missing proof blocks cleanup.
 Onboarding is complete only when local verify passes, CI passes at the current commit,
 branch protection requires it, the real entrypoint ran, configuration validation
 passes, host instructions exist, and `BRIEF.md` names the real project and commands.
+
+**Enforcement: onboarding questions and migration order are prompt + pull-request
+review + monthly audit. Configuration validation and repository verification are HARD
+only when required CI and branch protection enforce them; GitHub settings count only
+when their live state is verified.**

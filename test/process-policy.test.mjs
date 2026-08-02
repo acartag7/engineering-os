@@ -238,6 +238,73 @@ test("every top-level policy section names enforcement and configured test cover
   assert.match(row, /required/);
 });
 
+test("binding SLW-3 follows the effective configurable profile", () => {
+  const spec = read("specs/solo-language-neutral-workflow.md");
+  const slw3 = spec.match(/- \*\*SLW-3[\s\S]*?(?=\n- \*\*SLW-4)/)?.[0] ?? "";
+  assert.ok(slw3.trim(), "the spec must keep the SLW-3 binding rule");
+
+  assert.match(slw3, /profile/i, "SLW-3 must route the path by the effective configurable profile");
+  assert.match(slw3, /basic/, "SLW-3 must name the basic profile");
+  assert.match(slw3, /standard/, "SLW-3 must name the standard profile");
+  assert.match(slw3, /strict/, "SLW-3 must name the strict profile");
+  assert.match(
+    slw3,
+    /omit|skip|without|does not (need|require)|may drop/i,
+    "SLW-3 must let already-clear basic work omit the contract and critique",
+  );
+  assert.match(slw3, /contract/i, "SLW-3 must keep the contract for standard and strict");
+  assert.match(slw3, /criti/i, "SLW-3 must keep the fresh critique for standard and strict");
+  assert.match(slw3, /one implement/i, "SLW-3 must keep one implementation on every profile");
+  assert.match(slw3, /verification/i, "SLW-3 must keep one real verification run on every profile");
+  assert.match(slw3, /review/i, "SLW-3 must keep one final review on every profile");
+
+  const invariants =
+    read("contracts.md").match(
+      /## Solo, language-neutral workflow[\s\S]*?\*\*Normative invariants\*\*([\s\S]*?)\n\*\*Supporting rationale/,
+    )?.[1] ?? "";
+  assert.ok(invariants.trim(), "contracts.md must keep the solo-workflow normative summary");
+
+  const slw3Note = invariants.split(/\n- /).find((entry) => entry.includes("SLW-3")) ?? "";
+  assert.ok(slw3Note, "the normative summary must record what now governs SLW-3");
+  assert.match(
+    slw3Note,
+    /supersed|replac/i,
+    "the summary must say configurable profile rules replace the former fixed SLW-3 requirement",
+  );
+  assert.match(slw3Note, /profile/i, "the SLW-3 note must point at the configurable profile rules");
+});
+
+test("the dispatch guide carries one honest enforcement statement", () => {
+  const dispatch = read("DISPATCH.md");
+  const statements = dispatch.match(/\*\*Enforcement:[^*]*\*\*/g) ?? [];
+  assert.equal(
+    statements.length,
+    1,
+    "DISPATCH.md must carry exactly one explicit Enforcement statement covering the guide",
+  );
+
+  const statement = statements[0] ?? "";
+  assert.match(statement, /prompt/i, "the statement must name prompt guidance");
+  assert.match(statement, /review/i, "the statement must name review guidance");
+  assert.match(statement, /audit/i, "the statement must name audit guidance");
+  assert.match(statement, /verif/i, "the statement must name repository verification");
+  assert.match(
+    statement,
+    /hard/i,
+    "the statement must distinguish guidance from the hard repository verification wall",
+  );
+});
+
+test("the onboarding guide carries one honest enforcement statement", () => {
+  const onboarding = read("ONBOARDING.md");
+  const statements = onboarding.match(/\*\*Enforcement:[^*]*\*\*/g) ?? [];
+  assert.equal(statements.length, 1);
+  const statement = statements[0] ?? "";
+  for (const layer of ["prompt", "review", "audit", "verification", "hard"]) {
+    assert.match(statement, new RegExp(layer, "i"), layer);
+  }
+});
+
 test("the final-round stop token requires a remaining P1 or P2", () => {
   const reviewer = read("prompts/reviewer.md").replace(/\s+/g, " ");
   assert.match(
