@@ -12,19 +12,17 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 
 ## L-001 — Green tests laundered a trust-boundary defect <a name="l-001"></a>
 
-- **What:** Four independent model configs implemented the same spec in parallel. The
-  weakest shipped a null-input path that promoted an unverified claim to a confirmed
-  fact with a staged write — a blacklist predicate where the contract required an
-  allowlist. Its self-authored suite (100+ tests) was green; all four configs
-  self-reported APPROVE.
+- **What:** Parallel implementations of the same spec all reported success. One still
+  shipped a malformed-input path that promoted an unverified claim to a confirmed
+  fact because a deny list was used where the contract required an allowlist. Its
+  self-authored suite was green.
 - **Where:** internal application, trust-boundary state machine.
 - **Caught by:** independent adversarial review (a different model reading the code
   against the spec) — not by any test suite.
 - **Class:** insecure default at a trust boundary; self-authored tests cannot indict
   their own implementation; quality divergence traced to spec silence.
-- **Became:** the acceptance-split (stages 3–4 of the pipeline), PC-07, PC-08, PC-09,
-  PC-10, PC-13, PC-18; critique silence classes: domain completeness, closed positive
-  sets, Goodhart simulation.
+- **Became:** PC-07 through PC-10, PC-13, PC-18; a fresh critic before code; regression
+  proof; and an exact-head reviewer independent from the implementer.
 
 ## L-002 — Round-trip re-parsing widened a permission ceiling <a name="l-002"></a>
 
@@ -37,7 +35,7 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Class:** representation/round-trip invariant unstated; sibling instance nearly
   forgotten after the fix.
 - **Became:** PC-07, PC-17 (property tests at parser boundaries); critique silence
-  classes: round-trip invariants; the sibling-sweep rule in review discipline (OS §5).
+  classes: round-trip invariants; the sibling-sweep rule in review discipline.
 
 ## L-003 — Secrets survive in git history after the code is fixed <a name="l-003"></a>
 
@@ -124,7 +122,8 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Caught by:** dogfooding incidents + the founding audit; resolved by decision to
   rebuild with orchestration and enforcement as separate planes.
 - **Class:** enforcement inside an LLM-driven system is not enforcement.
-- **Became:** PC-20, the two-plane rule (OS §4).
+- **Became:** PC-20 and OS principle 2, which keeps enforcement outside the agent
+  runner.
 
 ## L-010 — Shared fixture-corpus pins diverged across consumers <a name="l-010"></a>
 
@@ -142,12 +141,10 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 
 ## L-011 — The before-picture: twin libraries, parity by memory <a name="l-011"></a>
 
-- **What:** An early pair of sibling libraries (same API, two languages, both
-  published to public registries) built five months before this OS: no specs, no
-  shared fixtures between the twins, a port written in about seventy minutes that
-  changed validation behavior with nothing to detect it, unpinned runtime deps with no
-  lockfile on the package that parses untrusted input, and a same-day three-major
-  dependency bump.
+- **What:** An early pair of sibling libraries shared an interface but not a contract
+  or fixture set. A rushed port changed validation behavior with nothing to detect it.
+  The package that parsed untrusted input also had unpinned runtime dependencies and
+  no lockfile, followed by a risky same-day dependency jump.
 - **Where:** an early project pair (retrospective).
 - **Caught by:** fleet harvest audit — kept as the dated "before" evidence.
 - **Class:** none of the baseline was innate; every item was learned. This entry is
@@ -155,71 +152,137 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Became:** validation of PC-05, PC-08, PC-21; the founding-harvest origin note in
   BASELINE.md.
 
-## L-012 — Review used as spec discovery: one small PR, over a dozen rounds <a name="l-012"></a>
+## L-012 — Review was used as spec discovery <a name="l-012"></a>
 
-- **What:** A PR audit found the worst PRs took well over a dozen review rounds. Almost none of
-  it was sloppy code: ~43% of findings were edge cases in a hand-rolled HTML/URL
-  parser (each fix revealed the next broken input), ~28% were behavior the contract
-  never specified (coding started while the design said "decisions pending" and
-  pointed at a file in /tmp), ~24% were missing guards. The review bot's false-positive
-  rate was ~0 — the reviewer was fine; the inputs to coding were not. ~93% of all
-  findings were preventable before review. Round count tracked the subsystem
-  (parsing, redaction), not the diff size: a small PR took the most rounds of all
-  while one several times larger merged in a few.
-- **Where:** two security-critical projects, parsing and network-egress code.
-- **Caught by:** PR-history audit (2026-07-09), prompted by the operator noticing the
-  review-round burn (and its real cost: a shared review quota).
+- **What:** A pull-request audit found repeated review rounds were discovering parser
+  edge cases, contract decisions that remained open, and missing guards. The reviewer
+  was doing design work that should have finished before coding. Small changes could
+  cost more review than larger changes when the subsystem and contract were harder.
+- **Where:** security-critical parsing and network-boundary work.
+- **Caught by:** pull-request history audit after the owner noticed review capacity
+  being consumed without convergence.
 - **Class:** review verifying → review discovering. Wrong tool chosen at design time;
   contracts shipped to implementers with open decisions.
 - **Became:** critique v1.1 (SC-8: no hand-rolled parsers over untrusted input
   without a bounded contract; SC-9: contracts with pending decisions or out-of-repo
-  references are not implementable), PC-15 (>3 rounds = process failure, recorded),
-  and the review-stance line: review verifies, it never discovers.
+  references are not implementable), PC-15 (continuing after the configured final
+  review round is a recorded process failure), and the review-stance line: review
+  verifies, it never discovers.
 
-## L-013 — The prompt already said it — and the code shipped wrong anyway <a name="l-013"></a>
+## L-013 — The prompt said it and the code still shipped wrong <a name="l-013"></a>
 
-- **What:** A PR audit in the most process-mature repo found three review findings
-  whose rule was stated **verbatim in the implementation prompt** (how identities
-  must be keyed, a mandatory security mode, a required token validation) — and the
-  code violated all three. In the same repo, a natural experiment: a large PR whose
-  spec section was locked in the contract beforehand merged in **one review round**;
-  a comparable PR with a spec gap took **nearly twenty**. Two further round-multipliers: fixes that didn't sweep
-  sibling code paths (one decision alone consumed several rounds as siblings resurfaced),
-  and an implementer that **built a parser nobody asked for** and defended it for several
-  rounds before the owner deleted it.
-- **Where:** an identity/login layer in a security-critical service.
-- **Caught by:** PR-history audit (2026-07-09).
+- **What:** A pull-request audit found code violating security rules that were already
+  explicit in its implementation prompt. Closed contracts converged quickly; contracts
+  with gaps caused repeated review. Missing sibling sweeps and an unnecessary parser
+  made the cycle worse.
+- **Where:** an identity boundary in a security-critical service.
+- **Caught by:** pull-request history audit.
 - **Class:** prompts are guidance, not enforcement — even correct, explicit prompts
-  get ignored under implementation pressure. Only a red test binds. ~85–90% of the
-  audited findings were preventable before review.
-- **Became:** confirmation that the acceptance-split is the only reliable carrier of
-  stated requirements (a rule the prompt states must ALSO be a frozen test);
-  implementer prompt v1.1 (standing fail-closed hygiene checklist — the same
-  guard-class mistake repeated many times in one PR); sibling-sweep required before
-  re-requesting review; SC-8 validated from the opposite direction (unnecessary
-  hand-rolled parser, not just a risky one).
+  get ignored under implementation pressure. Only a failing test binds the rule.
+- **Became:** confirmation that prompt text is advisory and a required rule needs a
+  failing test or other repository check; the implementer fail-closed checklist;
+  sibling sweeps before re-review; and SC-8 against unnecessary hand-written parsers.
 
 ## L-014 — The freeze-gate shipped a fail-open, and a green suite hid more <a name="l-014"></a>
 
-- **What:** A first hardening pass on the artifact-chain freeze-gate left a fail-open:
-  deleting the manifest that *defines* the freeze read as "no suite, pass" — dissolving
-  the freeze by removing the file that enforces it. A pinned consumer carried that
-  released version. A re-derivation under contract-first discipline then produced a
-  guard that passed its own frozen acceptance suite green — while cross-family
-  adversarial review reproduced several more exit-0 bypasses the suite never exercised:
-  an empty manifest that permanently satisfied the gate with no test; an unlisted
-  test-shaped symlink read as intact; a Unicode-normalization collision that silently
-  dropped a path; a non-canonical config value that selected an empty scope and
-  disabled the freeze.
-- **Where:** the shared CI freeze-gate that governs every repo (this OS's own tooling).
-- **Caught by:** contract-first critique caught the shipped fail-open *before* code;
-  cross-family adversarial review caught the rest *after* a green suite had laundered
-  them — the same shape as [[l-001]] (self-passing tests cannot indict their own code).
-- **Class:** fail-open at a trust boundary; working-tree state trusted for a freeze
-  decision; a green suite is necessary, not sufficient. Every guard input is
-  attacker-influenced and must be read from the base tree and hashed from git bytes.
+- **What:** A shared test-freeze gate treated a missing definition as no suite and
+  passed, so removing the thing that enforced the freeze could disable it. A later
+  green suite still missed related malformed-tree and configuration paths that could
+  weaken the decision.
+- **Where:** shared CI guard tooling.
+- **Caught by:** contract-first critique found the shipped class; independent
+  adversarial review found siblings after the suite was green.
+- **Class:** fail-open at a trust boundary; change-controlled state was trusted from
+  the wrong revision; a self-passing suite could not prove its own completeness.
 - **Became:** a re-derived guard (base-tree sourcing, git-blob hashing, fail-closed
   config/git/schema/symlink/collision handling, empty-suite rejection) with its own
   frozen acceptance suite carrying a regression row per reproduced bypass; the guard
   now gates its own code via a base-materialized trusted-bootstrap job; strengthens
   PC-08, PC-09, PC-10, PC-23.
+
+## L-015 — The safety process became the delivery failure <a name="l-015"></a>
+
+- **What:** A security-sensitive change was run through oversized tasks, a mandatory
+  separately authored frozen suite, repeated review, and multi-model comparison. The
+  process consumed the owner's attention and review capacity while required stage
+  artifacts were absent and lower-level checks still reported green. The process
+  mechanics became more visible than whether one small user-facing change worked.
+- **Where:** a security-critical library and the shared process repository that was
+  meant to govern it.
+- **Caught by:** the solo owner auditing the complete delivery history after the work
+  failed as a usable process, not by the process's own stop rules.
+- **Class:** oversized work plus manual ceremony; advisory steps presented as a
+  pipeline; language- and directory-specific assumptions treated as universal.
+- **Became:** one bounded slice under a configured basic, standard, or strict profile;
+  a fresh critic and reviewer where standard or strict requires them; one implementer
+  writing code and tests; one repository-owned language-neutral verify command; a
+  stop at the configured final review round, with three as the maximum; optional
+  independent tests where routing or configured coverage requires them; and
+  `process-guard` moved from default onboarding to an explicit optional tool. Updates
+  PC-08 through PC-15.
+
+## L-016 — A costly safety rule created its own bypass <a name="l-016"></a>
+
+- **What:** A frozen contract was useful, but even a small amendment required a
+  separate ceremony. Work routed around it. In another form of the same failure, a
+  soft file-length signal was treated as a hard target and produced compressed lines
+  and mechanical file splits that were harder to review than the original code.
+- **Where:** shared delivery rules used across security-sensitive repositories.
+- **Caught by:** fleet audit and owner review of the code produced under the rules.
+- **Class:** a proxy measure became more important than the safety outcome; the safe
+  path cost more than the bypass.
+- **Became:** a one-pull-request amendment lane for small frozen-contract changes,
+  frozen tests limited to externally visible behavior, and an explicit anti-code-golf
+  review rule; strengthens PC-08.
+
+## L-017 — Trust rules existed in prose but not at the boundary <a name="l-017"></a>
+
+- **What:** A fleet audit found duplicated trust-boundary metadata ambiguity without a
+  standing rejection test, error reason codes that could accept arbitrary strings,
+  static checks missing from some required verification paths, and security promises
+  that did not name the test proving them.
+- **Where:** several public and security-sensitive project boundaries.
+- **Caught by:** a cross-project source and test audit.
+- **Class:** advisory security rules without a local mechanical rejection.
+- **Became:** language-appropriate static checks in `verify`, duplicate-metadata
+  rejection tests, closed error-code types, and test-backed security claims; adds
+  PC-32 through PC-34 and strengthens PC-04.
+
+## L-018 — The owner could not re-orient from the repository <a name="l-018"></a>
+
+- **What:** Project documentation explained individual commands and features, but no
+  short artifact showed why a project exists, how one real action crosses its files,
+  which areas are sharp, and what milestone comes next. That understanding decayed
+  between work sessions.
+- **Where:** the governed project fleet.
+- **Caught by:** owner review during a fleet audit.
+- **Class:** repository knowledge depended on memory and scattered documents.
+- **Became:** the root `BRIEF.md` template, onboarding step, reviewer check, and
+  monthly freshness audit; adds PC-35.
+
+## L-019 — The process was fixed when the projects and teams were not <a name="l-019"></a>
+
+- **What:** The written workflow assumed one agent-runner shape and one fixed set of
+  roles. A person onboarding a different language or working without multi-agent
+  seats had to translate the process by hand and could not see the cost or protection
+  changed by each choice.
+- **Where:** shared repository onboarding and delivery guidance.
+- **Caught by:** owner review before onboarding a new language and by an independent
+  test-author pass over the proposed replacement.
+- **Class:** hidden process defaults; discoverability and configurability were treated
+  as documentation problems instead of part of the workflow.
+- **Became:** an inference-driven Engineering OS skill, validated project
+  configuration, basic/standard/strict profiles with non-bypassable risk floors,
+  provider-neutral independent roles, strict pre-implementation tests, and a
+  two-phase migration path; adds PC-36 through PC-38 and updates PC-13.
+
+## L-020 — Green checks hid unread review findings <a name="l-020"></a>
+
+- **What:** A change was treated as ready after repository checks and an independent
+  review passed, while actionable inline review feedback was still unread. The status
+  check looked only at headline results and did not fetch the complete thread state.
+- **Where:** shared public delivery workflow.
+- **Caught by:** owner follow-up after the readiness claim.
+- **Class:** incomplete review inventory presented as complete evidence.
+- **Became:** current-head paginated thread checks after every push and before readiness,
+  a reviewer prompt that names unresolved actionable threads, and PC-39.

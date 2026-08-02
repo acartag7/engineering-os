@@ -1,148 +1,153 @@
 # Speed vs. Safety Policy
 
-Three levers are set per change, by change tier: **which model/config implements**,
-**how much verification**, and **how many independent implementations**. The tier is
-determined by trust-boundary proximity — not by how big the diff is.
-
-Agent-hours are cheap; the operator's attention is the constraint. Every rule below is
-designed so the expensive resource being spent is machine time, and human attention is
-reserved for judgment.
+The route depends on what can go wrong. It does not depend only on line count.
 
 ## Change tiers
 
-| Tier | Definition | Examples |
+| Tier | Meaning | Examples |
 |---|---|---|
-| **T0** | Mechanical, no behavior change | renames, dep bumps, formatting, chores |
-| **T1** | Behavior change, no trust boundary | features, UI, non-boundary logic |
-| **T2** | Touches a trust boundary | auth, tenancy, tokens, scopes, redaction, egress, writebacks, state machines guarding data integrity |
-| **T3** | Security-critical parser/state machine, or a *novel* boundary being implemented for the first time | input parsers on untrusted data, permission evaluation, claim/evidence promotion logic |
-| **Docs** | Deployer- or user-facing prose | READMEs, guides, API docs |
+| **T0** | Mechanical, no behavior change | rename, formatting, dependency update |
+| **T1** | Ordinary behavior change | feature, UI, business logic without a security decision |
+| **T2** | Security or sensitive-data decision | login, permissions, tenant separation, secrets, network access, writes |
+| **T3** | New or unusually dangerous boundary | untrusted parser, policy engine, authorization state machine, irreversible operation |
+| **Docs** | User- or operator-facing writing | README, guide, API documentation |
 
-## The policy matrix
+Before coding, confirm that the slice changes one clear rule, has no open decision,
+lists every affected path, and can be reviewed in one sitting. Around 300 changed
+lines is a warning to check the cut, not a block.
 
-| | T0 | T1 | T2 | T3 | Docs |
+**Enforcement: route selection is prompt + pull-request evidence + monthly audit; no
+fleet-wide mechanical classifier chooses the tier.**
+
+## Required path
+
+| Step | T0 | T1 | T2 | T3 | Docs |
 |---|---|---|---|---|---|
-| **Critique stage** | — | default-on¹ | **mandatory** | **mandatory** | — |
-| **Independent acceptance suite** | — | default-on¹ | **mandatory** (hash-frozen) | **mandatory** (hash-frozen) | — |
-| **Implementations (N)** | 1 | 1 | 1 | **2–3, judged by the frozen suite + blind review** | 1 |
-| **Implementer config** | fast config | default config | strongest config | strongest config | any |
-| **Review** | bot only | 1 independent reviewer, different family | different family + parallel lenses (security / claims / wiring) | two families + parallel lenses | claims-vs-enforcement pass (PC-04) |
-| **Extra verification** | CI floor | CI floor | property tests if parser/encoding is touched; threat rows updated first | abuse fixtures derived from threat rows; property tests mandatory | guarantee-verb grep |
+| Small contract | — | when behavior is not already clear | required | required | claims list |
+| Fresh critique before code | — | configured; recommended | required | required | claims review |
+| Independent test author before implementation | strict profile or configured coverage | strict profile or configured coverage; recommended for other bugs | required | required | strict profile or configured coverage |
+| Implementations | 1 | 1 | 1 | 1 | 1 |
+| Tests | existing checks | code + tests | code + tests | code + tests | link or rendering checks |
+| Independent final review | owner or CI | configured owner or fresh context | fresh context | fresh context | claims against source |
+| Real entrypoint | when relevant | required | required | required | examples when relevant |
 
-¹ *Default-on with an explicit skip:* generated prompts include the stages unless the
-task carries a `Process-Skip: acceptance — <reason>` trailer. Skips are counted by the
-monthly audit; a rising skip rate is a process finding, not a convenience.
+The independent test author is not a second implementer. It writes a small set of
+behavior tests before code and proves they fail. The implementer then writes one
+implementation and may add normal tests without weakening the independent ones.
 
-**Tier assignment is part of the contract stage** and recorded in the spec. When in
-doubt between two tiers, take the higher one — misclassifying down is how boundary
-code ships on implementer-authored tests.
+`basic`, `standard`, and `strict` are project defaults, not ways to lower risk. T2 and
+T3 always use strict. Standard and strict use fresh critic and reviewer contexts;
+strict also uses the independent test author. A fresh AI session, named human, or
+multi-agent seat can fill an independent role. Every Docs route uses at least
+standard so its claims list receives a fresh claims review.
 
-### Change routing record
+**Enforcement: required roles and route floors are prompt + pull-request evidence +
+monthly audit. Repository verification is HARD only when branch protection requires
+it; no fleet-wide gate checks the whole route table.**
 
-Every change records this compact header in its spec, or in the PR body when no spec
-is needed:
+## Routing record
+
+Put this in the spec or pull request:
 
 ```text
 Route: <T0 | T1 | T2 | T3 | Docs>
-Reason: <why this route fits>
-Required evidence: <stages, tests, review, runtime evidence>
-Evidence links: <filled before merge>
-Acceptance-criteria version: <AC-n | not applicable>
+Reason: <why>
+Slice: <one rule changed; explicit exclusions>
+Effective profile: <basic | standard | strict>
+Providers: <critic, test author, implementer, reviewer; name real instances>
+Verify command: <repository-owned command>
+Real entrypoint evidence: <command or not-applicable reason>
+Review: <reviewer + exact commit SHA, filled before merge>
 ```
 
-This makes the selected process inspectable without making supporting rationale part
-of the binding contract. **Enforcement: PROMPT + AUDIT, not HARD.** The monthly audit
-flags missing records on all changes; `process-guard` does not parse this header.
+**Enforcement: prompt + monthly audit. The repository's verify command is HARD only
+when branch protection requires it.**
 
-### Discovery is a lane, not a delivery tier
+## One implementation
 
-Discovery is allowed when a decision cannot be made honestly without an experiment.
-Its record lives at `specs/<feature>.discovery.md` and states: the question, owner,
-time or scope bound, permitted environment, prohibited actions, experiment references,
-observations, and exit decision. Discovery has no production credentials or
-mutations, produces observations rather than completion claims, and cannot be merged
-or deployed as the delivery implementation. Once the unknown is resolved, delivery
-starts at the normal contract stage; experimental code is discarded or re-authored
-against that contract.
+Normal product work uses one implementation. Multiple candidates consume owner
+attention and do not repair an incomplete contract. Use competing implementations
+only for a named model evaluation with a fixed comparison plan.
 
-**Enforcement: PROMPT + AUDIT, not HARD.** Repository-specific sandbox or credential
-denies may make parts HARD, but no fleet-wide isolation gate is claimed.
+**Enforcement: prompt + monthly audit; no fleet-wide mechanical gate exists.**
 
-## Model routing (quality-based defaults)
+## Review limits
 
-Routing is decided by measured quality on real slices, wall-clock, and fit — re-baked
-whenever a new model ships. Current defaults:
+- Target one or two substantive rounds.
+- The configured final review round stops the change; three is the maximum. Update
+  the contract or cut a smaller slice.
+- Keep at most two pull requests in active review for one owner.
+- Re-review the exact new head after every fix push.
+- After every push, fetch the complete paginated review-thread inventory. Read every
+  reviewer message and address every actionable thread before reporting ready.
 
-- **Default implementer:** the strongest available coding config — currently GLM 5.2
-  at maximum effort with workflow orchestration. Bake-off evidence: effort and
-  orchestration mattered as much as model identity; the same model at a lower effort
-  tier produced the worst of four implementations, including a trust-boundary defect.
-- **Speed-sensitive T0/T1:** GPT 5.5 at high effort (2nd in quality, ~4× faster in the
-  reference bake-off).
-- **Acceptance author:** any strong model from a **different harness/family than the
-  implementer** — the split is the point, not the specific model.
-- **Reviews:** a different family than the implementer, always. Currently Claude for
-  review and adjudication.
-- **Never** route T2+ implementation to a low/medium-effort config, regardless of model.
+**Enforcement: prompt + monthly audit; mechanical fleet-wide gates are not built yet.**
 
-## Redundancy policy
+## Language-neutral verification floor
 
-N>1 independent implementations are reserved — they are cheap in agent-hours but
-expensive in adjudication unless the frozen acceptance suite exists to act as judge:
+Every repository provides one command that performs the checks appropriate to its
+language and runs the real shipped entrypoint where practical. CI runs that exact
+command. A type check is used when available; it is not a universal requirement.
 
-- **T3 changes:** 2–3 candidates, same prompt, parallel worktrees. The frozen suite
-  scores first; a blind review ranks the survivors; best ideas from runners-up get
-  grafted deliberately, never from memory.
-- **New-model evaluation** (see below).
-- Everywhere else: N=1. Redundancy without a pre-authored judge converts free agent
-  time into expensive human comparison time.
+The command must cover:
 
-## New-model evaluation protocol
+- formatting checks;
+- a language-appropriate linter or static analyzer;
+- tests, with required suites proving they executed;
+- build or package creation;
+- the real command, service, library, or installed artifact;
+- supply-chain and secret checks required by the repository tier.
 
-A new model is never adopted on launch-day vibes:
+The static check is mandatory, but the tool is not universal. Go may use `go vet`
+and a repository-selected linter; Python may use Ruff; TypeScript may use Biome or
+ESLint with rules for ignored promises. External tools and CI actions use exact,
+reviewed versions. **Enforcement: the required repository `verify` check.**
 
-1. It takes the **implementer seat as an extra candidate** on the next real T1/T2
-   slice — same generated prompt as the incumbent, parallel worktree.
-2. The frozen acceptance suite judges mechanically; the independent review ranks
-   quality (structure, boundary handling, test honesty).
-3. Adoption requires **two consecutive clean slices**: quality ≥ incumbent and no
-   unique review findings against it.
-4. Losing candidates cost nothing but compute; the comparison artifacts (tags per
-   candidate) are kept for later re-baking.
+## Trust-boundary rules
 
-The same protocol re-runs for the *incumbent* when its provider ships a major version.
+- Reject a request that carries more than one value for a security-relevant HTTP
+  header, including credentials, cookies, API keys, and forwarded identity. Do not
+  choose the first or last value. Return a fixed reason code. Each HTTP boundary has
+  a negative test proving the duplicate is rejected.
+- Error reason codes use a closed language type, such as an enum or union. A free-form
+  string field is not an error-code type. The type checker or compiler catches typos;
+  review checks the boundary when the language cannot express the rule directly.
+- Every security claim using words such as `fail closed`, `never`, `always`, or
+  `cannot` points to a test that fails if the protection is removed. Build the test
+  before publishing the claim.
 
-## Review capacity is a budget, not a backstop
+**Enforcement: boundary tests + repository static checks + independent review. A
+repository without the named negative tests has a declared baseline gap.**
 
-AI review (Codex, CodeRabbit, Greptile, any of them) runs on shared quotas — per-seat
-limits, rate limits, or plan caps. One PR that burns 16 rounds starves every other PR
-and future review of the same capacity. So:
+## Readability over line counts
 
-- Review exists to **verify**, never to **discover**. A round that teaches you what
-  the spec should have said is the most expensive possible way to write a spec:
-  serialized, quota-billed, and after the code already exists.
-- Target: 1–2 rounds per PR. More than 3 is recorded as a process failure (PC-15) —
-  the question is never "why did review find so much" but "why did so much reach
-  review."
-- Round burn is tracked per repo by the audit, like cost. A repo trending up is a
-  signal its contracts or upstream gates are weakening.
+File length is a signal to consider a split around a real domain concept. Never join
+statements, compress declarations, or create mechanical `part2` or `internals` files
+to satisfy a line target. A longer cohesive file is safer than two fragments that
+hide one concept. **Enforcement: prompt + independent review.**
 
-## Production-mutation overlay
+## Small frozen-contract amendment
 
-Passing the artifact chain proves properties of a software revision; it does not prove
-that one production action is safe. For a system that changes live state, the change
-contract names the runtime evidence needed before and after each mutation: target and
-deployed revision, observed preconditions, accountable authorization, stop conditions,
-rollback readiness, and postcondition evidence. Approval/evidence state belongs outside
-the AI orchestrator.
+A repository that opted into frozen contract tests may change a small contract and
+its code in one pull request. The pull request states what behavior changes, why, and
+which frozen tests move. Only externally visible behavior belongs in the frozen set;
+implementation structure does not. Hash checks still run. This fast path reduces the
+ceremony, not the protection. **Enforcement: `process-guard` hash check + review.**
 
-**Enforcement: NOT YET ENFORCED fleetwide (Layers 2–3).** Each operational repository
-must push these items into runtime gates before claiming HARD enforcement; until then,
-the gap is named in its threat model or accepted risks.
+## Bug-fix proof
 
-## Verification floor (all tiers, every repo — see BASELINE.md)
+A bug fix adds a test that fails when the fix is removed. Record the failing command
+and the passing command. Broad mutation testing remains a periodic report because it
+is too slow and noisy to block every pull request.
 
-Frozen-lockfile installs, exact pins, SHA-pinned actions, secret-history lint,
-anti-silent-skip, and the repo's full verify (typecheck + tests + build) as required
-status checks. Merges happen only via PR with review; never a direct push to a
-protected branch; never `--no-verify`; never weaken a check to get green.
+**Enforcement: prompt + pull-request evidence. This is HARD only in a repository that
+has added its own counterfactual test gate; no fleet-wide gate exists yet.**
+
+## Production changes
+
+Green software tests do not authorize a live operation. Repositories that change live
+state separately record the target, deployed revision, starting conditions,
+authorization, stop condition, rollback, and result.
+
+**Enforcement: not yet fleet-wide. Each operational repository must add its own
+runtime gate before claiming this is enforced.**

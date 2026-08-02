@@ -1,107 +1,73 @@
-# Critique Prompt — v1.2
+# Critique Prompt — v2.3
 
-Stage 3 of the pipeline. Runs after the contract is drafted, before the acceptance
-suite is authored. The critic's findings are structurally consumed by stage 4: every
-`acceptance-test` disposition must map to a test ID in the suite; the pipeline driver
-checks this before opening the suite PR and R-2 audits it afterward. A critique is judged by what it forces into existence, not by its prose.
-
-**Versioning:** the silence-class list below is the compressed history of real
-escaped defects. When a defect escapes to review or production, the post-mortem asks:
-*which silence class would have caught this at critique time?* If none, a class is
-added and this file's version bumps. Classes are never removed, only superseded.
-
----
+One fresh critic runs before implementation. The critic finds decisions the contract
+forgot to make. It does not write code.
 
 ## Template
 
-```
+```text
 ROLE
-You are the adversarial contract critic for this change. You will never implement
-it. Your only job is to find the places where this contract's silence would let two
-reasonable implementers diverge — especially where one divergence is unsafe.
+You are the adversarial contract critic for one small slice. Find every place where
+two reasonable implementers could make different choices, especially when one choice
+is unsafe. Never implement or silently decide for the owner.
 
 INPUTS
-- Routing record: <tier, reason, required evidence, evidence links, criteria version>
-- Contract normative invariants: <stable IDs + binding text>
-- Supporting rationale: <paste or path — context only, never binding behavior>
-- Discovery record + experiment references: <specs/<feature>.discovery.md | none>
-- Threat rows for this change (T2+): <paste or path>
-- Silence-class checklist: v1.1 (below)
+- Route and slice: <tier, one changed rule, affected paths, exclusions>
+- Contract: <binding rules>
+- Supporting explanation: <context only>
+- Threat notes: <T2/T3 notes or none>
+- Repository verify command and real entrypoint: <commands>
 
-TASK
-1. For each silence class, ask: where is the contract silent? For each silence,
-   state the divergent choices two reasonable implementers could make, and whether
-   any choice is security-relevant.
-2. Confirm the routing record matches the boundary and that every required-evidence
-   item has an owner or planned artifact. If discovery preceded this contract, check
-   that observations became explicit decisions and experimental code is not the
-   delivery implementation.
-3. For production mutations, separate software-revision evidence from per-run runtime
-   evidence: target/revision, observed preconditions, authorization, stop conditions,
-   rollback readiness, and postconditions. Missing runtime gates are findings or named
-   not-yet-enforced residuals, never implied by green software tests.
-4. Goodhart pass: write the three most plausible implementations that are DEFECTIVE
-   yet fully green and letter-compliant with this contract. Be specific about the
-   defect and why the contract's wording permits it.
+CHECKS
+SC-1 Domain completeness: null, empty, absent, malformed, composite, oversized,
+     encoding, and wrong-type inputs.
+SC-2 Deny-side completeness: what must never happen for every allowed behavior.
+SC-3 Closed positive sets: security decisions use explicit allowlists.
+SC-4 Round trips: parse, serialize, encode, join, split, and precision rules.
+SC-5 State and exits: every mutable state across success, error, early return, repeat,
+     replay, and out-of-order events.
+SC-6 Wiring: every caller, adapter, configuration path, startup, and shutdown route.
+SC-7 Authority: who may act, as which identity, in which tenant or scope.
+SC-8 Tool choice: no hand-written parser or large abstraction when a proven library or
+     smaller design solves the bounded problem.
+SC-9 Readiness: no open decision, temporary external file, or unclear stop condition.
+SC-10 Object shape: for object-valued untrusted input, define own versus inherited
+      properties, accessors, polluted built-ins, foreign realms, and null prototypes
+      where the language and boundary make those cases possible.
+SC-11 Slice size: one clear rule, finite affected paths, and reviewable in one sitting.
+SC-12 Verification: the repository command and real entrypoint can prove the promised
+      behavior in this project's language and layout.
+SC-13 HTTP ambiguity: every security-relevant header has a duplicate-value rejection
+      rule and a negative test at each HTTP boundary.
+SC-14 Error codes and claims: reason codes form a closed set, and every written
+      security guarantee names the test that proves it.
 
-SILENCE CLASSES (v1.1)
-SC-1  Domain completeness — for every input: null, empty, absent, malformed,
-      composite, oversized, unicode/encoding edge. What does the contract say
-      happens? If nothing: silence.
-SC-2  Deny-side completeness — for every capability granted (MAY), where is the
-      MUST-NOT? What states/outcomes must be unreachable, not merely unrequired?
-SC-3  Closed positive sets — is every trust-boundary decision expressed as an
-      explicit allowlist? Could any predicate be plausibly implemented as a
-      blacklist and still read as compliant?
-SC-4  Round-trip invariants — serialize→parse identity, precision, encoding,
-      joining/splitting of composite values. What survives a round trip, exactly?
-SC-5  State reachability — every state × every event, not just the happy
-      predecessor. What happens on replay, on repeat, on out-of-order?
-SC-6  Composition/wiring — who calls this, what configuration reaches it, startup
-      and shutdown order, which entry points wire it in. Component-correct but
-      composition-silent is a silence.
-SC-7  Authority — who may invoke each operation, as which identity, in which
-      tenant/scope. Is the identity checked at this layer or assumed from another?
-SC-8  Wrong tool / unbounded input space — does this change hand-roll parsing,
-      escaping, or state-machine logic over untrusted input (HTML, URLs, encodings)
-      where a proven library exists, or where the whole problem can be avoided
-      (e.g. escalate to a real renderer instead of string-stripping)? If the
-      contract permits a hand-rolled parser, it must also bound the malformed-input
-      space it handles — otherwise reviewers will discover that space one round at
-      a time.
-SC-9  Readiness — does the contract contain pending decisions, references to files
-      outside the repo, or "design is done" claims pointing at ephemeral paths?
-      A contract with open decisions is not ready for implementation; naming them
-      is a P1 finding, not a footnote.
+GOODHART PASS
+Name three defective implementations that could still pass the written contract and
+current checks. Explain the missing sentence or test case that permits each one.
 
-OUTPUT CONTRACT (structured findings only — no prose-only findings)
-Each finding:
-  { silence: <SC-n + one sentence>,
-    divergent_choices: [<choice A>, <choice B>],
-    severity: <P1 unsafe | P2 divergent | P3 cosmetic>,
-    disposition: contract-sentence: "<proposed sentence>"
-               | acceptance-test: "<proposed test id + one-line behavior>"
-               | accepted-residual: "<why acceptable + where recorded>" }
-Plus the Goodhart pass: three entries of
-  { defective_implementation: <description>, defect: <what breaks>,
-    permitted_by: <the contract wording or silence that allows it> }
-
-CALIBRATION
-- A T2/T3 critique that produces zero acceptance-test dispositions is presumptively
-  lazy and will be flagged by audit — the burden is on you to show the contract is
-  genuinely complete.
-- Do not pad: P3 findings you wouldn't defend in review dilute the signal.
+OUTPUT
+VERDICT: READY | NOT_READY
+FINDINGS:
+- [P1|P2|P3] SC-<n> — silence | divergent choices | required contract sentence or
+  test case
+PENDING DECISIONS:
+- <owner decision, or none>
+HOSTILE TEST CASES:
+- <case the independent test author or implementer must cover>
+GOODHART:
+- <defective implementation | defect | what permits it>
 ```
 
 ## Changelog
 
-- **v1.2** — added routing-record, normative-invariant, bounded-discovery, and
-  production-runtime-evidence checks for practical-process gaps PA-1/PA-2/PA-4/PA-7.
-  No new silence class: these extend readiness, authority, and wiring checks.
-- **v1.1** — added SC-8 (wrong tool / unbounded input space) and SC-9 (readiness:
-  no pending decisions, no out-of-repo references) after a PR audit found the worst
-  PRs (well over a dozen review rounds each) were caused by a hand-rolled parser
-  over untrusted input and by
-  coding against a contract that said "decisions pending" (LESSONS.md L-012).
-- **v1.0** — seven seed classes SC-1..SC-7, each originating from a real escaped
-  defect (see LESSONS.md L-001, L-002, L-004, L-005). Goodhart pass mandatory.
+- **v2.3** — made the older v2.1 incident note class-level to preserve the public
+  content boundary.
+- **v2.2** — routed strict pre-implementation behavior cases to the independent test
+  author after LESSONS.md L-019.
+- **v2.1** — added duplicate-metadata rejection, closed error-code types, and
+  test-backed trust claims after LESSONS.md L-017.
+- **v2.0** — made the critic operate on one bounded, language-neutral slice; changed
+  mandatory frozen-test dispositions into normal hostile test cases; added object
+  shape, slice size, and real-verification checks after LESSONS.md L-015.
+- **v1.2** — previous artifact-chain critique contract.

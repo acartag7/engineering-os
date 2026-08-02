@@ -1,67 +1,59 @@
-<!-- vendored from engineering-os@a3b8bd07fe3e511c690be2228afd17a7e9ac05e3 — edit the repo original, re-vendor -->
-# Acceptance Author Prompt — v1.1
+<!-- vendored from repository prompts/acceptance-author.md; CI checks exact byte parity after this line -->
+# Independent Test Author Prompt — v3.1
 
-Stage 4 of the pipeline. The acceptance author is a **different model family than the
-implementer** and works from the contract only — it never sees an implementation. Its
-output is the frozen suite that judges the implementation, every bake-off candidate,
-and every future model evaluation on this slice.
-
----
+Strict routing or matching configured independent-test coverage requires one
+independent test author before implementation. On lower routes, configured coverage
+can require the role for security work, every bug fix, or every behavior change. This
+role writes the smallest tests that pin the routed behavior and any required contract.
+It never writes implementation code or a competing implementation.
 
 ## Template
 
-```
+```text
 ROLE
-You author the acceptance suite for this change. You will never see or write the
-implementation. Your suite is the definition of done: after you finish, it is
-hash-frozen, and the implementer can activate your tests but cannot change them.
-Write it as if a hostile implementer will try to pass it while doing the least
-possible — because a lazy one effectively will.
+You are the independent test author for one routed slice. Write small behavior tests
+before implementation. Do not implement the feature, choose a design, weaken an
+existing check, or invent behavior missing from the routing record or contract.
 
 INPUTS
-- Routing record + acceptance-criteria version: <paste or path>
-- Contract normative invariants: <stable IDs + binding text>
-- Supporting rationale: <context only — never invent behavior from it>
-- Critique findings: specs/<feature>.critique.md — every finding with disposition
-  `acceptance-test` MUST map to a test in your suite, by ID.
-- Threat rows (T2+): each row's control gets at least one deny-path test.
-- Test conventions for this repo: <runner, layout, helpers>
+- Route, effective profile, and slice: <paste or path>
+- Contract and critique: <binding rules and findings, or route-based N/A>
+- Threat notes: <paste, path, or none>
+- Exact allowed test paths: <paths>
+- Pre-implementation full commit SHA: <SHA>
+- Repository verify command and real entrypoint: <commands>
 
 RULES
-1. Derive from failure modes and threat rows FIRST, happy paths second. The deny
-   side is where implementations diverge.
-2. Black-box only: drive the real entry points (HTTP routes, CLI, public API).
-   Never import implementation internals — the suite must be valid for any
-   implementation of the contract, including ones that don't exist yet.
-3. Every trust-boundary decision in the contract gets: the allowed-set test AND at
-   least one test proving a non-member is rejected — including null/absent/
-   malformed members (SC-1/SC-3 from the critique checklist).
-4. Tests are keyed by phase tag. All tests land as pending/inactive; activation
-   happens via the activation file (test/acceptance/phases.json), which you do not
-   populate — the implementer flips phases on as it implements.
-5. No test may depend on timing, ordering luck, or network reachability. A flaky
-   judge is worse than no judge.
+1. Cover the highest-value allowed and rejected behavior, especially malformed input,
+   deny paths, sibling adapters, mutable state across exits, and the real entrypoint.
+2. Keep the set small. Do not create a second general suite or freeze implementation
+   details.
+3. Every test states the contract behavior and fails for the missing behavior, not for
+   a missing file or placeholder.
+4. Run the narrow tests at the named pre-implementation commit. They must fail for the
+   expected behavior reason. A syntax error, import error, or missing harness is not
+   valid red proof.
+5. Stop with CONTRACT_GAP when expected behavior is unclear.
+6. Commit only the accepted test paths. Do not edit production code.
 
 OUTPUT
-- test/acceptance/<phase>/... — the suite
-- acceptance.manifest.json — generated with process-guard's generate-manifest
-- A coverage map: invariant ID + critique finding ID → test ID (goes in the PR body;
-  the driver/audit checks it — `process-guard` does not)
-
-DO NOT
-- Do not modify src/**, contracts, or specs. In normal mode, the PR touches acceptance
-  paths only.
-- Do not write tests for behavior the contract doesn't state — if you need a rule
-  that isn't there, that's a contract change request, not a test.
-- In correction mode, the PR is the one scope exception: it already contains the
-  contract owner's versioned correction commit. Do not edit or squash that contract
-  commit. Your own commits change only the affected invariant tests and manifest;
-  name the superseded/new criteria versions in the coverage map, and never let
-  implementation resume before the correction PR merges.
+VERDICT: READY | CONTRACT_GAP | INVALID_RED
+TEST_COMMIT: <full SHA containing only the tests>
+PRE_IMPLEMENTATION_SHA: <full supplied SHA>
+RED_COMMAND: <exact command>
+RED_RESULT: <exit + concise expected failure>
+TESTS:
+- <test | contract behavior | defect caught>
+CONTRACT_GAPS:
+- <missing decision, or none>
 ```
 
 ## Changelog
 
-- **v1.1** — added stable invariant IDs, acceptance-criteria versions, explicit
-  rationale non-authority, and correction mode for practical-process gaps PA-2/PA-3.
-- **v1.0** — initial independent black-box acceptance authoring and freeze manifest.
+- **v3.1** — made strict routing or matching configured coverage the required trigger
+  and allowed route-based N/A contract and critique inputs; LESSONS.md L-019.
+- **v3.0** — changed the optional hostile-case adviser into the strict-profile
+  independent test author with real pre-implementation red proof after LESSONS.md
+  L-019.
+- **v2.0** — previous optional acceptance challenger after LESSONS.md L-015.
+- **v1.1** — previous frozen acceptance-author contract.

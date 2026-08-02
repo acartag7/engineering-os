@@ -1,62 +1,124 @@
-# Onboarding a Repo
+# Onboarding a repository
 
-Prerequisites for putting an existing project under the OS. Split by who can fulfill
-them — most are machine work; the operator items are few, explicit, and one-time.
+Use the `engineering-os` skill. It makes this process discoverable while you use it:
+it inspects the repository, asks only unresolved questions, recommends defaults, and
+explains what every choice enables, costs, weakens, and leaves unchanged.
 
-## Operator items (only a human can decide these)
+The skill is not a command-line program with a model inside it. The AI host does the
+inspection and conversation. A small Node script checks the final configuration
+without making recommendations.
 
-| # | Prerequisite | Why |
-|---|---|---|
-| O-1 | Repo has a GitHub remote | Layer 0 lives server-side; a local-only repo has no wall |
-| O-2 | Branch protection is *available*: repo is public, or the account/org plan supports required checks on private repos | On free plans, private repos cannot require status checks — without this, enforcement downgrades from HARD to SEMI (see below) |
-| O-3 | Specs and contracts live **in the repo** (`specs/`, `contracts.md`) — not in a sibling directory or external docs tree | The artifact chain gates on committed files; the guard's contract-path unlock must point at something in-diff |
-| O-4 | Tier declared (`S` / `I` / `X`) in the repo's policy/context file | Filters which baseline items apply |
-| O-5 | The habit: stage prompts are dispatched from `prompts/` templates, never improvised | The one rule that cannot be pushed below layer 2 |
+## What the skill asks
 
-**O-2 degraded mode (private repo, free plan):** wire CI + guard anyway. Checks run
-and go red; they just can't block the merge button. Since a solo operator is the only
-merger, "never merge red" is self-enforced and the monthly audit reads merged history
-for red-merged PRs. This is SEMI, not HARD — a named gap in every audit until the
-plan or visibility changes.
+It evaluates project purpose, languages, shipped entrypoint, real test and build
+commands, security boundaries, available humans or AI sessions, workflow strictness,
+CI, branch protection, project documentation, migration state, and final confirmation.
 
-## Machine items (agents do these; operator reviews once)
+It asks one short question at a time. The recommended answer comes first. Facts proved
+by source are shown for correction instead of asked again.
 
-| # | Step |
+## Recommended solo default
+
+- profile: `standard`;
+- critic: fresh AI session;
+- implementer: current session;
+- reviewer: a different fresh AI session;
+- independent tests: required for T2/T3, security boundaries, and bug fixes;
+- review limit: three rounds;
+- active pull requests: two;
+- `process-guard`: off.
+
+This gives one owner independent judgment without pretending another human exists.
+Teams may use named humans. Hosts with multi-agent seats may use them. Neither is
+required.
+
+## Complete output
+
+After the owner confirms one complete preview, onboarding creates or proposes:
+
+1. validated root `engineering-os.json`;
+2. a real `BRIEF.md` from `templates/project-brief.md`;
+3. clear `AGENTS.md` and `CLAUDE.md` instructions for supported hosts;
+4. one repository-owned verify command;
+5. CI that runs verify and configuration validation;
+6. branch protection that requires the checks;
+7. proof still missing.
+
+The skill does not silently install a dependency, overwrite a file, change GitHub
+settings, or run a live operation. CI and branch protection are proposals until a
+separately authorized action changes and verifies them.
+
+## Verification command
+
+The repository owns one command, such as `./scripts/verify` or `make verify`. It uses
+the language's real tools and runs at least the tests. It also proves the shipped
+entrypoint where practical.
+
+The process does not assume TypeScript, `pnpm`, `src/`, `package.json`, or a special
+test directory. Examples:
+
+| Project | Repository-owned command may run |
 |---|---|
-| M-1 | `.github/workflows/ci.yml`: repo verify (typecheck, tests, build) + `process-guard` job, actions SHA-pinned, frozen-lockfile installs |
-| M-2 | `.process-guard-exempt` marker committed with lifecycle metadata (repo predates the pipeline; stage-artifact stays quiet until the first suite lands) |
-| M-3 | Branch protection / ruleset: require PR, required checks (verify + guard), required review — where O-2 allows |
-| M-4 | `.githooks/pre-commit` running the same guard checks locally; setup command runs `git config core.hooksPath .githooks` |
-| M-5 | Governed-repo block in the repo's agent context docs (`AGENTS.md` / `CLAUDE.md`): frozen acceptance tests, contract-first, PR-only — guidance so agents understand the walls, not enforcement |
-| M-6 | `test/acceptance/` location wired into the repo's test runner; `phases.json` activation convention |
-| M-7 | Harness-native deny rules where supported (e.g. pre-tool-use hooks blocking edits to acceptance paths and pushes to protected branches) |
+| Go | formatting, `go vet`, tests, build, real command |
+| Python | formatter or linter, static checks, tests, package or command |
+| Rust | formatting, `clippy`, tests, build, binary |
+| TypeScript | lint, type check, tests, build, installed command or application |
 
-The marker is machine-readable YAML:
+When no tests exist, onboarding names that gap and proposes the smallest real test.
+A pure library uses a public API integration test as its closest real entrypoint and
+records why.
 
-```yaml
-owner: <accountable owner>
-reason: <why the first suite cannot land yet>
-created: <YYYY-MM-DD>
-review_by: <YYYY-MM-DD>
-removal_condition: <observable condition that removes the marker>
+## Go example
+
+The working fixture at `test/fixtures/go-project` runs:
+
+```bash
+gofmt -l .
+go vet ./...
+go test ./...
+go build ./...
+go run ./cmd/demo
 ```
 
-`process-guard` checks only that the marker exists on the base tree; that presence
-check is Layer 1. Field completeness, review dates, and removal conditions are
-**AUDIT-enforced** by R-1. An empty legacy marker remains an explicit audit gap rather
-than being silently treated as compliant.
+Run `test/fixtures/go-project/scripts/verify` to prove the example. `go vet` inspects
+Go code for suspicious mistakes. The final command exercises the real demo entrypoint.
 
-## The ratchet (after onboarding)
+## Configuration check
 
-Onboarding installs the wall; it does not retrofit history. The next trust-boundary
-change goes through the full pipeline (contract → critique → frozen suite →
-implementation), the first manifest lands, and the exempt marker comes out. Old code
-is grandfathered **visibly**: every audit lists exempt markers and ungoverned
-boundaries as named gaps.
+Before creating the file, send the complete proposed JSON to the validator through
+standard input:
 
-## Order of onboarding across a fleet
+```text
+node <engineering-os-skill>/scripts/validate_config.mjs --stdin
+```
 
-Highest leverage first: (1) the lab repo where process experiments run — unreliable
-labs produce unreliable conclusions; (2) Tier-S repos with active development;
-(3) everything else as touched. Batch by check, not by repo, when sweeping portable
-items (secret-history lint, anti-silent-skip) so each review pass is homogeneous.
+This checks the candidate without creating a temporary configuration file.
+
+After writing the confirmed file, run from the repository root:
+
+```text
+node <engineering-os-skill>/scripts/validate_config.mjs engineering-os.json
+```
+
+The validator is read-only and prints one fixed result. Without Node, the skill can
+review the same fields, but onboarding remains incomplete until required CI runs the
+deterministic validator.
+
+## Moving from the old process
+
+Use the skill's migration mode. Phase one adds and proves the new verify path while
+all old checks remain. Phase two removes only owner-approved old files after proof
+shows the new verify check is green at the current commit and required by branch
+protection. Read every old test before deciding to keep, protect, rewrite, or remove
+it. Missing proof blocks cleanup.
+
+## Completion proof
+
+Onboarding is complete only when local verify passes, CI passes at the current commit,
+branch protection requires it, the real entrypoint ran, configuration validation
+passes, host instructions exist, and `BRIEF.md` names the real project and commands.
+
+**Enforcement: onboarding questions and migration order are prompt + pull-request
+review + monthly audit. Configuration validation and repository verification are HARD
+only when required CI and branch protection enforce them; GitHub settings count only
+when their live state is verified.**

@@ -1,72 +1,69 @@
-# Implementer Prompt — v1.2
+# Implementer Prompt — v2.4
 
-Stage 5 of the pipeline. The implementer inherits a frozen acceptance suite and a
-contract; its job is to make the suite pass without touching it.
-
----
+One implementer writes the code and its normal tests for one bounded slice.
 
 ## Template
 
-```
+```text
 ROLE
-Implement the contract below. The acceptance suite for this change already exists,
-is hash-frozen, and defines done. You activate its phases as you complete them; you
-cannot modify it — CI recomputes the manifest hashes on every push.
+Implement the routed behavior below and any contract required by the route. Change
+only this slice. Write the code and tests together. Do not redesign the surrounding
+system.
 
 INPUTS
-- Routing record + acceptance-criteria version: <paste or path>
-- Contract normative invariants: <stable IDs + binding text — these win over inference>
-- Supporting rationale: <context only, not an additional requirement>
-- Acceptance suite: test/acceptance/<phase>/ (read it; it is your target)
-- Critique residuals: <accepted-residual items — honor them, don't "fix" them>
-- Repo conventions: <paths, style, verify commands>
+- Route and slice: <tier, one changed rule, affected paths, exclusions>
+- Contract: <binding rules, or route-based N/A>
+- Critique: <findings, hostile cases, accepted residuals, or route-based N/A>
+- Independent tests and red evidence: <paths, test commit, command, result, or route-based N/A>
+- Repository verify command: <exact command>
+- Real entrypoint: <exact command or check>
+- Repository conventions: <paths and language rules>
 
 RULES
-1. Activate phases via test/acceptance/phases.json as you complete them. Editing
-   any acceptance test file fails CI (freeze-hash). If you believe a test is wrong,
-   STOP and report — implementation pauses while the versioned contract + acceptance
-   correction path runs; never patch around or continue against disputed criteria.
-2. Add your own unit/integration tests freely — they supplement, never replace,
-   the acceptance suite.
-3. Trust-boundary decisions are allowlists. Guards run before side effects. Fail
-   closed on missing/invalid configuration.
-4. Untrusted-input hygiene (a PR audit found this exact class repeated many times
-   in a single PR — it is checked on every review):
-   - Present-but-empty counts as missing: config set to "" fails closed, same as
-     unset.
-   - Type-check every externally-sourced value (claims, headers, API responses)
-     before use. A non-string where a string is expected is a rejection, not a
-     crash.
-   - Malformed structures (arrays, discovery documents) fail closed, never
-     best-effort.
-5. Build the least machinery that satisfies the contract. Do not write parsers,
-   validators, or abstractions the contract didn't ask for — an unrequested parser
-   once cost several review rounds before being deleted entirely. If the simple approach
-   feels insufficient, STOP and report; that's a design question for upstream.
-6. Never weaken a fail-closed control to make any test pass.
-7. After fixing any defect, sweep for siblings BEFORE re-requesting review: every
-   parallel code path touching the same resource or mirroring the same pattern gets
-   checked and fixed or explicitly cleared. Partial fixes are the #1 review-round
-   multiplier — one unswept decision once consumed several rounds on its own.
-8. PR carries a `Spec: <path§>` trailer. Conventional commit subjects. Feature
-   branch; never push to protected branches.
+1. Stop if a required product or contract decision is still open. Never guess through
+   it.
+2. Implement the least machinery that satisfies the routed behavior and any required
+   contract. Prefer a proven library over a hand-written parser for untrusted input.
+3. Add unit, integration, and regression tests suitable for this repository. Do not
+   assume `src/`, `test/acceptance/`, TypeScript, or any package manager.
+   Do not weaken, remove, or rewrite independent tests without a contract amendment.
+4. For a bug fix, run the new regression test with the fix removed and record the
+   failure. Restore the fix and record the passing result.
+5. Exercise the real shipped entrypoint. A type check, build, or unit suite alone is
+   not completion.
+6. At security and sensitive-data boundaries: allowlists only; empty means missing;
+   validate untrusted types and shapes before side effects; fail closed; check every
+   mutable state and exit path.
+7. After any defect fix, sweep sibling callers, adapters, and mirrored paths before
+   requesting review.
+8. Never weaken a check to get green. Never push directly to a protected branch.
+9. Use conventional commits. Keep the pull request to this one slice.
+10. Run the language-appropriate linter or static analyzer inside the repository
+    verify command. Do not assume one tool works for every language.
+11. At an HTTP trust boundary, reject duplicate security-relevant headers with a fixed
+    reason code and a negative test. Model error reason codes as a closed type.
+12. Update `BRIEF.md` when the slice changes architecture, modules, or run/test
+    commands. Never compress code or split it mechanically to meet a line target.
 
 DONE MEANS
-- All activated acceptance phases green, full repo verify green (typecheck, tests,
-  build), guards green — in CI, on the head SHA.
-- Anything not verified is reported as not verified. Never claim green from memory.
-- For production mutations, report software verification separately from per-run
-  operational evidence. Tests cannot authorize or prove a specific live action.
+- The repository verify command passes with real output.
+- The real entrypoint passes with real output.
+- Bug-fix counterfactual proof is recorded when applicable.
+- The full diff was re-read and contains no unrelated change.
+- Anything not run is stated plainly as not run.
 ```
 
 ## Changelog
 
-- **v1.2** — added routing/criteria-version inputs, normative-vs-rationale authority,
-  the frozen-criteria correction stop, and software-vs-runtime evidence separation
-  for practical-process gaps PA-1/PA-2/PA-3/PA-7.
-- **v1.1** — added the untrusted-input hygiene checklist (present-but-empty,
-  type-check external values, malformed fails closed), the least-machinery rule,
-  and sibling-sweep-before-re-review — all from the 2026-07-09 PR audit
-  (LESSONS.md L-013).
-- **v1.0** — initial: frozen suite, activation via phases.json, allowlists,
-  never-weaken, spec trailer.
+- **v2.4** — made the older v2.1 incident note class-level to preserve the public
+  content boundary.
+- **v2.3** — allowed route-based N/A contract and critique inputs when a valid basic
+  route does not require those stages; LESSONS.md L-019.
+- **v2.2** — added strict independent-test input and the no-weakening rule after
+  LESSONS.md L-019.
+- **v2.1** — added language-appropriate static checks, duplicate-metadata
+  rejection, closed error codes, Project Brief freshness, and the anti-code-golf rule
+  after LESSONS.md L-016 through L-018.
+- **v2.0** — replaced the frozen-suite workflow with language-neutral code-and-tests,
+  regression counterfactual proof, and a real-entrypoint check after LESSONS.md L-015.
+- **v1.2** — previous frozen-suite implementer contract.

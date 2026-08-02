@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "project": {
+    "tier": "S",
+    "defaultBranch": "main",
+    "languages": [
+      "Go"
+    ],
+    "ownership": "solo"
+  },
+  "commands": {
+    "verify": "./scripts/verify",
+    "entrypoint": "go run ./cmd/server",
+    "entrypointReason": "Runs the shipped server through its real command"
+  },
+  "workflow": {
+    "defaultProfile": "standard",
+    "critic": "fresh-ai-session",
+    "testAuthor": "fresh-ai-session",
+    "implementer": "current-session",
+    "reviewer": "fresh-ai-session",
+    "independentTests": "security-and-bug-fixes",
+    "maxReviewRounds": 3,
+    "maxActivePullRequests": 2
+  },
+  "optional": {
+    "processGuard": false
+  },
+  "decisions": {
+    "notApplicable": []
+  },
+  "exceptions": []
+}

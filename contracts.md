@@ -1,74 +1,72 @@
 # Contracts
 
-## Practical process amendments (T1)
+## Solo, language-neutral workflow (T2)
 
 **Routing record**
 
-- **Route:** T1 — process behavior changes without a trust-boundary change
-- **Reason:** make routing, contracts, discovery, acceptance correction, exemptions,
-  operational evidence, and process outcomes explicit
-- **Required evidence:** claims-vs-enforcement review, prompt/vendor parity, link and
-  SVG validation, existing acceptance suite, and `process-guard`
-- **Evidence links:** PR #6 checks and review threads
-- **Acceptance-criteria version:** PA-1
-- **Process-Skip: acceptance** — these changes alter policy and prompts but add no
-  executable product behavior; existing guard acceptance and drift checks remain the
-  mechanical verification.
+- **Route:** T2 — changes the process used to review security-sensitive work and the
+  CI contract used to onboard repositories.
+- **Reason:** replace a TypeScript-shaped, freeze-first workflow with one bounded
+  solo-owner path and a repository-owned language-neutral verify command.
+- **Required evidence:** `specs/solo-language-neutral-workflow.md`, process-policy
+  tests, real Go fixture, optional guard suite, full-diff review, and a fresh
+  independent exact-head review.
+- **Evidence links:** filled in the replacement pull request.
 
 **Normative invariants**
 
-- **PA-1 — visible routing.** Each change records its tier/route, reason, required
-  evidence, and final evidence links in its spec or PR body. Enforcement: **PROMPT +
-  AUDIT**, not HARD.
-- **PA-2 — compact contract surface.** New or changed contracts identify stable
-  normative invariant IDs and keep supporting rationale explicitly non-normative.
-  Enforcement: **PROMPT + AUDIT**, not HARD.
-- **PA-3 — corrected acceptance criteria.** Changing frozen criteria stops
-  implementation, increments the criteria version, identifies the superseded version
-  and reason, and re-critiques affected invariants. The contract owner commits the
-  correction; the independent acceptance author adds only tests + manifest on that
-  branch before implementation resumes. `process-guard` enforces only
-  the contract-path and hash mechanics; semantics and authorship remain **PROMPT +
-  AUDIT**.
-- **PA-4 — bounded discovery.** Discovery records a question, owner, boundary,
-  prohibited actions, experiment references, observations, and exit decision. It cannot use production mutation or be
-  presented as delivery. Enforcement: **PROMPT + AUDIT**, not HARD.
-- **PA-5 — exemption lifecycle.** An onboarding exemption records owner, reason,
-  review date, and removal condition. Marker presence is Layer 1; metadata is
-  **AUDIT**.
-- **PA-6 — outcome measurement.** Audits report where defects were caught, escapes,
-  false greens, criteria churn, skips, exemptions, and review burn. Artifact count is
-  not a success metric. Enforcement: **AUDIT**.
-- **PA-7 — operational evidence boundary.** Passing software checks does not prove
-  that one production mutation is safe. Production-changing systems define per-run
-  preconditions, authorization, stop conditions, rollback readiness, and observed
-  postconditions outside the agent orchestrator. Enforcement: **NOT YET ENFORCED
-  fleetwide**; Layer 2–3 guidance until repo-specific runtime gates exist.
+- **SLW-1 through SLW-19** are binding as written in
+  `specs/solo-language-neutral-workflow.md`.
+- CES-9, CES-10, and CES-23 supersede SLW-3's former fixed-profile requirement. The
+  effective configurable profile now decides whether contract and critique are
+  required.
+- CES-11 supersedes SLW-5: strict T2/T3 work requires an independent test author
+  before implementation; the old optional challenger wording no longer governs.
+- The repository `verify` check is HARD when branch protection requires it.
+- Slice size, work-in-progress, the configured review-round stop, plain language,
+  independent-test routing, and exact-head review are PROMPT + AUDIT until a
+  repository adds mechanical checks.
+- `process-guard` remains optional and retains its own T2 contract below.
 
 **Supporting rationale (non-normative)**
 
-These amendments reduce ambiguity and false confidence without applying maximum
-process to every change. They extend existing tiering, freeze, audit, and two-plane
-mechanics; they do not add a new baseline control or modify `process-guard`.
+The normal path optimizes the scarce resource: one owner's attention. Independent
+judgment remains, but default panels, competing implementations, frozen-suite
+ceremony, and language-specific paths do not.
+
+## Configurable Engineering OS skill (T2)
+
+**Routing record**
+
+- **Route:** T2 — the skill recommends and records security-sensitive workflow rules.
+- **Contract:** `specs/configurable-engineering-os-skill.md`.
+- **Required evidence:** the complete evidence list in
+  `specs/configurable-engineering-os-skill.md`; this section does not narrow it.
+
+**Normative invariants**
+
+- **CES-1 through CES-32**, including the lettered sibling rules, are binding as
+  written in the contract.
+- The skill asks and explains; it does not enforce merges.
+- Repository verification, CI, and branch protection remain the hard walls.
+- Configuration may increase strictness but cannot lower a route's safety floor.
+- Configuration validation is HARD when its validator runs in required CI.
+- Question flow, recommendation honesty, role independence, safe-write behavior,
+  migration sequencing, status behavior, plain language, and exact-head blocking are
+  PROMPT + AUDIT until a repository adds mechanical enforcement.
 
 ## process-guard hardening (T2)
 
-Origin: a rushed hardening attempt was found by cross-family review to slip
-`process-guard` several ways; this contract governs a re-derived fix. Two cross-family
-critique rounds of THIS contract (Claude + GPT + xAI seats) found ~30 defects —
-tautological red tests, an unimplementable glob boundary, a completeness lockout,
-unhardened classes (schema, symlink, byte-source, NFC, config, log-injection), an
-impossible git probe, a laundering recovery path, and an unspecified message
-vocabulary. This is the freeze-ready contract that folds them all in. The completeness
-model was independently verified sound (recoverable base holes, non-launderable
-deletions, opt-in silent-unfreeze closed, TOCTOU, re-freeze discrimination).
+Origin: a rushed hardening attempt was found by independent review to leave several
+fail-open paths. This contract governs the re-derived fix. Repeated critique found
+weak test proof, unsafe parsing and file handling, incomplete recovery paths, and an
+unclear result vocabulary. This is the reviewed contract that folds those classes in.
 
-`process-guard` gates every governed repo. The **acceptance suite is the executable
-contract**; this prose pins the model, the mechanics, the reason-code vocabulary, and
-the test classification so an acceptance author and an implementer working in separate
-harnesses cannot disagree. The pre-fix guard is
-`process-guard/scripts/check.mjs` at `origin/main` (94 lines); "pre-fix" always means
-that file.
+`process-guard` gates only repositories that explicitly opt into hash-frozen tests.
+For those repositories, the **acceptance suite is the executable contract**; this
+prose pins the model, mechanics, reason-code vocabulary, and test classification. The
+pre-fix guard is the reviewed base version of `process-guard/scripts/check.mjs`;
+"pre-fix" always means that version.
 
 ---
 
@@ -84,9 +82,8 @@ a bypass — a PR points its workflow at a no-match pattern and unfreezes everyt
   and the `.spec.` equivalents. `SUFFIXES.some(s => name.endsWith(s))` — no glob, no
   regex, no parser. Subdir-agnostic (basename only). Not PR-configurable.
 - **Single source (a shared MODULE).** The predicate + suffix set live in ONE new
-  module `process-guard/scripts/freeze-set.mjs`, imported by `check.mjs`,
-  `generate-manifest.mjs`, and the vendored plugin copy. A shared function, not a
-  shared string.
+  module `process-guard/scripts/freeze-set.mjs`, imported by `check.mjs` and
+  `generate-manifest.mjs`. A shared function, not a shared string.
 - **Opt-in freeze.** A non-matching file MAY be listed; the guard hash-checks every
   listed key. The predicate defines the *mandatory* set; the manifest may be a
   superset. `acceptance.manifest.json` and `phases.json` are NEVER valid keys.
@@ -365,8 +362,8 @@ NOT any acceptance-dir file.
 
 The **frozen suite asserts FIXED behaviour** against the guard under test, resolved
 from `PG_CHECK_PATH` (default: the repo's `process-guard/scripts/check.mjs`). It does
-NOT compare against a moving reference — `origin/main:check.mjs` becomes the fixed
-guard once PR #2 merges, so freezing a comparison against it would self-break. Every
+NOT compare against a moving reference — the base branch eventually becomes the fixed
+guard, so freezing a comparison against it would self-break. Every
 row asserts exit code AND `<check>: <reason-code>` (D4) against the repo guard.
 
 Red-then-green is verified **once, by the author, out of band** (not frozen into CI):
@@ -388,7 +385,7 @@ tautological). Report the table. Classify every row:
   edit-plus-register, base-hole registration positive, NFC blob-read, NFC-collision,
   non-hex hash, log-injection filename, blank PG_SRC_PATHS, src+fixture passes,
   src+frozen fails, malformed-base recovery, H8 self-gating fixture.
-- **FIXED-ONLY regression rows added after round-1 review** (each pins a reproduced
+- **FIXED-ONLY regression rows added after independent review** (each pins a reproduced
   bypass — see addenda A1–A7): empty-base steady-state (base `{files:{}}` + a src PR →
   `stage-artifact: manifest-on-base` but overall exit 1 via `freeze-hash: empty-suite`);
   re-freeze-to-empty (delete all tests + `{files:{}}` + contract → `empty-suite`, not
@@ -405,7 +402,7 @@ Every test strips inherited `PG_*` from env, setting only what the fixture needs
 fail-closed-on-error case asserts a clean `✗ freeze-hash: manifest-malformed` verdict
 (no raw stack), not merely non-zero.
 
-### Review-hardening addenda (round-1 adversarial review — fold into the clauses)
+### Review-hardening addenda (fold into the clauses)
 
 A cross-family review reproduced several exit-0 bypasses a green suite had laundered.
 These tighten the clauses above; each gets a fixed-only regression row.
@@ -439,14 +436,13 @@ These tighten the clauses above; each gets a fixed-only regression row.
   (`[\x00-\x1f\x7f]`).
 - **A8 — internal errors labeled honestly.** D4: an unexpected non-git throw aborts
   `✗ process-guard: internal` + exit 1 (fail-closed); `git-error` is git failures only.
-- **A9 — generator filesystem trust.** Deliverables: the generator rejects a symlinked
+- **A9 — generator filesystem trust.** The generator rejects a symlinked
   acceptance directory or any symlinked ancestor of the manifest output path (not only
   the final component); `headManifestKeys` aborts on any git/decode/schema error (never
-  silently drops opt-in keys). Mirror in the vendored copy.
-- **A10 — CI enforces the mirror + suite + self-gating.** PG-H8/Deliverables: the CI
-  drift guard compares vendored `scripts/*.mjs` against originals (not only prompts);
-  CI runs the acceptance suite; `src-paths` + trusted-bootstrap wired (guard PR).
-- **A11 — a structurally-corrupt BASE is recoverable, not a wedge** (round-2 review).
+  silently drops opt-in keys).
+- **A10 — CI enforces the suite + self-gating.** PG-H8/Deliverables: CI runs the
+  acceptance suite; `src-paths` + trusted-bootstrap are wired in the guard PR.
+- **A11 — a structurally-corrupt BASE is recoverable, not a wedge.**
   The A2/A3/D3 base-side checks must not permanently wedge the repo. HEAD structural
   checks stay UNCONDITIONAL (a PR can never commit a symlink, NFC collision, or empty
   suite). But a PRE-EXISTING corrupt base — a matched/listed symlink, an NFC collision,
@@ -462,14 +458,12 @@ These tighten the clauses above; each gets a fixed-only regression row.
 ### Deliverables (mirror + surface)
 
 - `process-guard/scripts/freeze-set.mjs` (predicate + suffix set), imported by
-  `check.mjs`, `generate-manifest.mjs`, and the vendored plugin copy.
+  `check.mjs` and `generate-manifest.mjs`.
 - `generate-manifest.mjs`: hash only mandatory-matched regular blobs (staged index
   blob) by default; preserve pre-existing opt-in keys read from the **HEAD** manifest
   (abort, don't silently drop, if an opt-in target is missing/non-regular); reject
   symlinks; NFC keys with collision check; write the manifest no-follow/atomically
   (reject a symlinked output path).
-- Vendored mirror `plugins/engineering-os/scripts/generate-manifest.mjs` re-vendored in
-  lockstep (CI vendored-drift guard stays green).
 - `action.yml`: no new freeze input (predicate fixed); document it. `README`: rewrite
   checks table + onboarding order (exempt-from-base), freeze predicate, base sourcing,
   fail-closed errors, and the engineering-os `src-paths` dogfood example.

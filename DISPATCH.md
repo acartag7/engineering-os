@@ -1,105 +1,76 @@
-# Dispatch Cheat Sheet
+# Start and run one change
 
-How to actually use this when starting a piece of work. One page, no theory.
+Use the `engineering-os` skill in `start` mode. It inspects the repository, reads
+`engineering-os.json`, and asks one unresolved question at a time.
 
-## 0. Once per repo (setup — see ONBOARDING.md for the full list)
+## What it closes before code
 
-1. Copy the block from `templates/agent-context-block.md` into the repo's
-   `CLAUDE.md` and `AGENTS.md`, set the tier.
-2. Wire `process-guard` into CI and make it a required check.
-3. Commit a `.githooks/pre-commit` that runs the guard locally; setup runs
-   `git config core.hooksPath .githooks`.
+The routing record names:
 
-After this, every agent in every tool hits the same walls, whether or not it reads
-anything.
+- the changed behavior and explicit exclusions;
+- route T0, T1, T2, T3, or Docs;
+- the effective `basic`, `standard`, or `strict` profile;
+- affected files, callers, adapters, and mirror paths;
+- risk boundaries and production effects;
+- repository verify command and real entrypoint proof;
+- actual provider instances for critic, test author, implementer, and reviewer;
+- documentation changes and known gaps.
 
-## 1. Every piece of work: decide the tier first
+Do not code while a product decision remains. About 300 changed lines is a warning to
+recheck the cut, not a reason to compress code.
 
-Ask one question: **does this touch a trust boundary?** (logins, tokens, tenancy,
-redaction, network egress, data writebacks, parsers over untrusted input.)
+## Roles
 
-- No, and it's mechanical (rename, dep bump) → **T0**: just do it. Normal PR + CI.
-- No, but behavior changes → **T1**: pipeline is default-on; you may skip stages
-  with a `Process-Skip:` trailer (the audit counts skips).
-- Yes → **T2**. Parser over untrusted input, or a brand-new boundary → **T3**.
-- Docs that make promises to users → run the claims check (every "never/always/
-  cannot" must point at enforcing code).
+Use one implementation. `standard` uses a fresh critic and fresh final reviewer.
+`strict` also uses an independent test author before implementation. T2 and T3 always
+use strict. Every Docs route uses at least standard.
 
-Record the route before dispatching:
+A provider may be a named human, fresh AI session, or multi-agent seat. Multi-agent
+support is not required. When it is unavailable, the skill prepares the exact prompt
+and evidence package for a fresh session. The final reviewer is a different provider
+instance from the implementer and other independent roles.
 
-```text
-Route: <T0 | T1 | T2 | T3 | Docs>
-Reason: <why>
-Required evidence: <stages, tests, review, runtime evidence>
-Evidence links: <fill before merge>
-Acceptance-criteria version: <AC-n | not applicable>
-```
+## Evidence order
 
-This record is **PROMPT + AUDIT**, not a `process-guard` check. If the route cannot be
-decided without an experiment, use [`POLICY.md`](POLICY.md)'s bounded discovery lane,
-write `specs/<feature>.discovery.md`, and pass it to the critic when delivery resumes;
-do not let experimental code become the delivery implementation.
+1. Close the contract when the effective route or profile requires one.
+2. Run a fresh critique when the effective route or profile requires one. Basic T0
+   work with already-clear behavior does not need a contract or fresh critique.
+3. Add small independent behavior tests and prove they fail at the pre-implementation
+   commit whenever strict routing or configured independent-test coverage requires
+   them. On a lower route, these independent failing tests cover a security boundary
+   under `security-only`, a bug fix under `security-and-bug-fixes`, and every behavior
+   change under `all-behavior-changes`.
+4. Write one implementation and its normal tests.
+5. Run the repository verify command and real entrypoint.
+6. Review the full diff at the exact current commit SHA.
+7. Let the owner decide whether to merge.
 
-## 2. T2/T3: the four dispatches, in order
+A later push makes verification and review stale. P1 and P2 findings block. At the
+configured last review round, an unresolved P1 or P2 returns the exact token
+`process-stop`. Another push does not clear the stop; repair the contract, cut a new
+slice, or abandon the work.
 
-Each seat gets its template with the blanks filled. Different tools for different
-seats — the test author must NOT be the coder's model/harness.
+## Status
 
-| Order | Seat | Template | Give it | It produces |
-|---|---|---|---|---|
-| 1 | Critic | `prompts/critique.md` | contract section + threat notes + tier | `specs/<feature>.critique.md` |
-| 2 | Test author (different harness than coder) | `prompts/acceptance-author.md` | contract + critique findings | `test/acceptance/<phase>/` + manifest, merged as its own PR |
-| 3 | Coder(s) | `prompts/implementer.md` | contract + pointer to frozen suite | one T2 implementation or 2–3 independent T3 candidates |
-| 4 | Reviewer(s), different family from coder(s) | `prompts/reviewer.md` | the PR/candidates + contract claims + threat notes | T2 verdict or T3 blind ranking + verdicts |
+Use the skill in `status` mode to inspect existing evidence. Status never runs a
+repository command and never changes a file, branch, comment, pull request, or other
+state. Missing or invalid configuration is the reported blocker.
 
-T2 uses one implementation and a different-family review with parallel lenses. **T3
-escalates the table:** dispatch 2–3 strongest implementers with identical inputs in
-separate worktrees; let the frozen suite score first; blind-rank surviving candidates;
-then run two reviewer families with the parallel security/claims/wiring lenses. Graft
-runner-up ideas only deliberately, never from memory.
+## Discovery lane
 
-Rules of thumb:
-- Don't dispatch step 3 until step 2's PR is merged. The driver checks per-feature
-  sequencing; `process-guard` only proves a global manifest exists on base.
-- If the critic returns "pending decisions" (SC-9): stop, decide, update the
-  contract, re-run. Never code through it.
-- If review goes past 3 rounds: stop pushing fixes. Write down what the spec was
-  missing (`LESSONS.md`), fix the contract or suite, then continue.
+When the behavior cannot be specified because source facts are missing, do one
+bounded read-only discovery pass. Record the question, owner, time or scope bound,
+permitted environment, prohibited actions, referenced experiments, observations, and
+stopping condition. Discovery ends in an explicit decision or blocker and returns to
+the contract. It does not become implementation, merge an experiment, deploy, use
+production credentials, mutate production, or authorize a write.
 
-### If a frozen criterion is wrong
+## When the process fails
 
-Stop the implementation. The contract owner increments the acceptance-criteria
-version, names the superseded version and affected invariant IDs, and re-runs critique
-for those invariants on a correction branch. The independent acceptance author then
-adds only the affected tests + manifest to that same branch without editing the
-contract. Merge the reviewed contract+acceptance PR before implementation resumes. The
-mechanical freeze is HARD; the semantic/version/authorship checks are **PROMPT +
-AUDIT**. See [`OS.md`](OS.md#correcting-frozen-acceptance-criteria).
+Add one public, class-level lesson only after the owner approves it. State what
+happened, where in general, how it was found, the defect class, and the check or rule
+it changed. Do not publish identifying details from private work.
 
-For production mutations, also fill the runtime-evidence overlay from
-[`POLICY.md`](POLICY.md#production-mutation-overlay). It is **NOT YET ENFORCED
-fleetwide** and must not be presented as a HARD gate until the target repository wires
-it outside the orchestrator.
-
-## 3. Where the prompts go, per tool
-
-- **Claude Code**: paste the filled template as the task message (repo CLAUDE.md
-  carries the standing block).
-- **Codex**: same, as the task prompt; AGENTS.md carries the standing block.
-- **OpenCode / GLM**: same, as the session prompt.
-
-The template text is the source of truth — never retype the rules from memory.
-If you notice yourself writing a task prompt from scratch, stop and start from the
-template; improvised prompts are how stated rules get dropped.
-
-## 4. When something goes wrong anyway
-
-A bug escaped, a review dragged, a gate was skipped:
-
-1. Five lines in `LESSONS.md` (abstract — no identifying details).
-2. Decide what it becomes: a guard check, a baseline item, or a new critique
-   question. Bump the version of whatever changed.
-3. Sweep the new check across repos in one batch.
-
-That's the whole loop. The process gets smarter every time it fails; nothing
-depends on anyone remembering.
+**Enforcement: this guide is prompt + pull-request review + monthly audit. Repository
+verification is HARD only when branch protection requires it; no fleet-wide gate
+mechanically enforces role handoffs, status, discovery, or incident publication.**

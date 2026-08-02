@@ -1,91 +1,94 @@
 # Engineering OS
 
-**Ship software with AI agents—without trusting them to follow rules.**
+**A configurable, understandable delivery process for one developer or a team.**
 
-This repository contains a risk-based delivery process, agent prompts, onboarding
-templates, and a CI guard for AI-assisted software development. When its status checks
-are required by branch protection, GitHub—not the agent that produced the work—holds
-the merge boundary.
+Engineering OS helps a repository decide how much contract, testing, verification,
+and independent review a change needs. The `engineering-os` skill inspects the real
+project, asks the unresolved questions, recommends a safe default, and explains how
+each choice affects the work.
 
-<p align="center">
-  <img src="docs/engineering-os-overview.svg" alt="The shared T2 and T3 trust-boundary path: contract, independent critique, separately authored acceptance tests, and a hash freeze. T2 then uses one implementation and a different-family review. T3 branches to two or three parallel implementations, frozen-suite scoring, and blind two-family review before required CI checks." />
-</p>
+It works without multi-agent tools. A solo developer can use fresh AI sessions for
+independent judgment. A team can use people. A host with multi-agent seats can use
+those. The safety result matters; the tool shape does not.
 
-<p align="center"><a href="docs/engineering-os-overview.svg">Open the full-size diagram</a></p>
+## What it enables
 
-> The diagram shows the shared **T2/T3 path and its T3 escalation**. T3 requires 2–3
-> parallel candidates, frozen-suite judging, blind two-family review, and stronger
-> verification. T0, T1, and documentation changes take lighter routes defined in
-> [`POLICY.md`](POLICY.md).
+- Onboard Go, Python, Rust, Java, TypeScript, and other repositories using their own
+  commands and layout.
+- Choose `basic`, `standard`, or `strict` project defaults without lowering the safety
+  floor of a risky change.
+- Use one implementation, with an independent test author before T2/T3 work.
+- Keep verification and final review tied to the exact current commit.
+- Move an older governed repository to the new process without removing its old
+  protection too early.
+- Explain the process in plain English at the moment a person needs it.
 
-## Three principles
+## Start here
 
-- **Rules become checks, or they do not count.** Important instructions should not
-  decay into optional prose.
-- **The orchestrator never guards itself.** An AI-driven system should not approve its
-  own evidence.
-- **Every gate checks its inputs.** A green result from missing, wrong, or silently
-  skipped evidence proves nothing.
+Use `$engineering-os` in Codex, or install the Claude Code plugin and ask it to use
+the Engineering OS skill.
 
-For T2/T3 work, policy separates the acceptance-test author from the implementer.
-`process-guard` then checks the available artifact and freeze invariants from Git
-history rather than trusting the pull request’s working tree.
+Typical requests:
 
-## Process follows risk
+```text
+Use $engineering-os to onboard this repository and explain every recommendation.
+Use $engineering-os to explain the current workflow in plain English.
+Use $engineering-os to migrate this repository from the old process.
+Use $engineering-os to start the change described in issue 42.
+Use $engineering-os to report status without changing anything.
+```
 
-[`POLICY.md`](POLICY.md) classifies the **change**, not the diff size:
+The skill asks one question at a time. Before any write, it shows the complete
+configuration, workflow, providers, files, checks, unchanged protections, costs, and
+known gaps. Nothing is written until the owner confirms that preview.
 
-| Change | Route |
-|---|---|
-| **T0 — mechanical** | Normal pull request + CI floor |
-| **T1 — behavior, no trust boundary** | Pipeline default-on; explicit audited skip possible |
-| **T2 — trust boundary** | Critique → frozen independent acceptance → implementation → cross-family review |
-| **T3 — novel or critical boundary** | T2 controls + 2–3 candidates + frozen-suite judging + blind two-family review |
-| **Docs** | Claims-vs-enforcement pass + guarantee-verb grep |
+## Profiles
 
-The friction is deliberate where a mistake can leak credentials, widen permission,
-corrupt evidence, or write unsafe state. A rename should not behave like an
-authorization change.
+| Profile | Normal use | Independent work |
+|---|---|---|
+| `basic` | T0 and closed low-risk work | Owner or CI review where allowed |
+| `standard` | Recommended normal default | Fresh critic and final reviewer |
+| `strict` | T2, T3, and high-risk work | Fresh critic, independent test author, and final reviewer |
 
-## Try it in one repository
+Configuration can make work stricter. It cannot lower the route floor.
 
-1. Use [`ONBOARDING.md`](ONBOARDING.md) to declare the repository tier and add the
-   [`agent context`](templates/agent-context-block.md).
-2. Introduce the acceptance-suite manifest or the temporary onboarding exemption in
-   the order described there.
-3. Add [`process-guard`](process-guard/) to CI and make the repository’s verification
-   jobs required status checks in branch protection. For a T2 surface that can edit
-   its own guard, also require the [base-ref materialized guard](process-guard/README.md#usage);
-   fully closing workflow-definition tampering needs a ruleset-required workflow.
-4. Start work from [`DISPATCH.md`](DISPATCH.md), or install the optional
-   [Claude Code plugin](plugins/engineering-os/) to make the compliant path easier.
+## Language-neutral verification
 
-The plugin is orchestration convenience at prompt layer 2. It does not replace CI or
-branch protection.
+Every repository owns one verify command. CI runs the same command. It must run real
+tests and exercise the shipped command, service, library, package, or application
+where practical. Engineering OS does not guess the language, package manager, source
+directory, or test layout. See [`ONBOARDING.md`](ONBOARDING.md) for the real Go
+fixture.
+
+## What remains enforcement
+
+The skill guides and records decisions. It does not approve its own work or merge.
+The deterministic configuration validator checks the settings. Repository tests, CI,
+and branch protection are the real walls. The owner makes the final merge decision.
 
 ## Where to go next
 
-| I want to… | Read |
+| Need | Read |
 |---|---|
-| Understand the authoritative system | [`OS.md`](OS.md) |
-| Start a change | [`DISPATCH.md`](DISPATCH.md) |
-| Choose verification depth | [`POLICY.md`](POLICY.md) |
-| Onboard a repository | [`ONBOARDING.md`](ONBOARDING.md) |
-| See every control and its origin | [`BASELINE.md`](BASELINE.md) + [`LESSONS.md`](LESSONS.md) |
-| Inspect the enforcement | [`process-guard/`](process-guard/) |
-| Reuse the four agent seats | [`prompts/`](prompts/) |
-| Understand changes to this OS itself | [`contracts.md`](contracts.md) |
+| Source-of-truth workflow and enforcement | [`OS.md`](OS.md) |
+| Onboard or migrate a repository | [`ONBOARDING.md`](ONBOARDING.md) |
+| Start one change | [`DISPATCH.md`](DISPATCH.md) |
+| Choose the risk route | [`POLICY.md`](POLICY.md) |
+| Understand the skill package | [`skills/engineering-os/`](skills/engineering-os/) |
+| Install the Claude Code plugin | [`plugins/engineering-os/`](plugins/engineering-os/) |
+| See controls and their origins | [`BASELINE.md`](BASELINE.md), [`LESSONS.md`](LESSONS.md) |
 
-## Honest limits
+## Optional frozen-test guard
 
-Engineering OS reduces correlated mistakes; it does not prove that a contract is
-correct or that every feature has its own acceptance coverage. The current freeze gate
-is global rather than per-feature, and any configured contract-path change opens its
-coarse re-freeze path. Required in-repo status checks do not fully close workflow-file
-tampering; that needs a trusted ruleset-required workflow. Author separation is also
-owner-forgeable and audited rather than a hard identity boundary. Full accepted risks and incomplete controls are named
-in [`OS.md`](OS.md), [`BASELINE.md`](BASELINE.md), and [`contracts.md`](contracts.md).
+[`process-guard`](process-guard/) remains available when a repository deliberately
+hash-protects named behavior tests. It is not the default and its cost and limitations
+must be explained before enabling it.
+
+## Plain language
+
+All project writing uses plain, easy English. Use technical words only when needed
+for accuracy, and explain them the first time.
 
 ## License
 
-Apache-2.0. If you copy this process, I would genuinely like to hear what broke first.
+Apache-2.0.

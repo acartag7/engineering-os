@@ -1,9 +1,18 @@
 # process-guard
 
-The shared CI action that hard-enforces the artifact chain
-([`OS.md`](../OS.md) §2). It reads git trees, diffs, and hashes — it cannot tell one
-agent, harness, or human from another, which is the point. Zero runtime dependencies;
-fail-closed on every error.
+An optional CI action for repositories that deliberately use hash-frozen acceptance
+tests. It is not the default Engineering OS onboarding path. The normal workflow uses
+repository-owned tests, one language-neutral verify command, and independent
+exact-head review.
+
+This action reads git trees, diffs, and hashes. It has zero runtime dependencies and
+fails closed on its configured inputs.
+
+## Important limitation
+
+A configured contract-path change permits the reviewed re-freeze path. The action can
+prove that the contract file changed; it cannot prove that a human approved the
+semantic change. See [issue #12](https://github.com/acartag7/engineering-os/issues/12).
 
 ## What it decides, and from where
 
@@ -14,11 +23,11 @@ bytes** (not `readFileSync`), so line-ending filters and symlinks can't shift a 
 
 ## Checks
 
-| Check | Rule | Baseline |
-|---|---|---|
-| `stage-artifact` | A PR touching a src path requires the frozen suite's manifest to already exist **on the base tree** (or an exempt marker on base). A **global** gate — it does not verify per-feature coverage. | PC-08 |
-| `freeze-hash` | The committed manifest is self-consistent with HEAD (every mandatory test listed, every key a canonical regular blob hashing to its recorded value) and every base-manifest entry's content is unchanged vs base — unless the contract changed too. Deletions, symlink swaps, unlisted tests, and manifest deletion all fail. | PC-09 |
-| `mixed-diff` | A src change and an effective-frozen test may not change in one PR unless the contract changed too (owner-reviewed path). | PC-10 |
+| Check | Rule |
+|---|---|
+| `stage-artifact` | A PR touching a configured source path requires the frozen suite's manifest on the base tree, or an exemption on the base tree. This is a global check, not per-feature coverage. |
+| `freeze-hash` | The manifest is valid and frozen files match their recorded hashes, unless the reviewed contract-change path is used. |
+| `mixed-diff` | A configured source change and a frozen-test change cannot travel together unless the contract-change path is used. |
 
 Guard-level aborts (before any check, exit 1): `process-guard: config-invalid <field>`
 (a blank/invalid `PG_*`), `git-error` (any git failure), `internal` (any other throw).
@@ -35,7 +44,12 @@ a bypass. Fixtures, READMEs, `phases.json`, and the manifest are outside the fre
 non-matching file can be **opt-in** frozen by listing it in the manifest. A suite must
 contain at least one matched test (an empty manifest never passes).
 
-## Usage
+Freeze only behavior visible outside the implementation. A return value, rejection,
+or user-visible state may belong here. File layout, helper names, and internal call
+order do not. Freezing implementation details makes safe refactoring expensive and
+encourages bypasses.
+
+## Optional usage
 
 ```yaml
 # .github/workflows/ci.yml — make this job a required status check
@@ -47,8 +61,8 @@ process-guard:
     - uses: acartag7/engineering-os/process-guard@<sha> # v0.1.0
       with:
         base-ref: origin/${{ github.base_ref }}
-        # gate the guard's own code (or any extra implementation roots):
-        src-paths: src/,process-guard/scripts/
+        # Configure real source roots. Do not assume src/ for Go or other layouts.
+        src-paths: cmd/,internal/,pkg/
 ```
 
 For a T2 surface that must not be able to clear its own gate, also run the guard
@@ -61,19 +75,23 @@ repo root **in its own PR, merged to the default branch first** — the marker i
 from the base tree, so a marker added in the same PR as a src change does **not** exempt
 that PR. The marker is a named gap in every audit; exemption is visible, never silent.
 
-## The acceptance author's flow
+## Small amendment flow
+
+A small contract amendment may update the contract, code, affected frozen tests, and
+manifest in one pull request. The pull request states what behavior changes, why, and
+which frozen tests move. The guard still requires the configured contract path to
+change and still checks the hashes. This is a faster review path, not a bypass.
 
 ```bash
-# after writing the suite (stage 4), with the tests staged:
+# after updating the affected contract tests, with the tests staged:
 node process-guard/scripts/generate-manifest.mjs test/acceptance
-git add test/acceptance && git commit  # its own PR, merged before implementation
+git add test/acceptance
 ```
 
 `generate-manifest.mjs` hashes the staged (index) blobs of the mandatory-matched tests,
 preserves any pre-existing opt-in keys (aborting rather than silently dropping one),
-and refuses non-regular blobs and symlinked output paths. The implementer activates
-completed phases via `test/acceptance/phases.json` only — content changes to any frozen
-test turn the required check red.
+and refuses non-regular blobs and symlinked output paths. Without a configured
+contract change, content changes to any frozen test turn the required check red.
 
 ## Versioning
 
@@ -84,6 +102,6 @@ point Renovate or Dependabot's `github-actions` ecosystem at this action and it 
 the re-pin PR on each release. Exempt this first-party action from any release-age floor
 with a *scoped* rule (e.g. Renovate `matchPackageNames: ["/^acartag7\/engineering-os/"]`,
 `minimumReleaseAge: "0"`) so hardening fixes propagate immediately — never a blanket
-disable. This turns the batched SHA-bump sweep ([`OS.md`](../OS.md) §6) from a chore into
-automation. A check is never weakened to make a repo green; the repo changes, or the
-exemption is named.
+disable. This turns the batched SHA-bump sweep
+([`ROUTINES.md`](../ROUTINES.md), R-3) from a chore into automation. A check is never
+weakened to make a repo green; the repo changes, or the exemption is named.
