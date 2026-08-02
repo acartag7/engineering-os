@@ -312,8 +312,10 @@ Provider rules are exact:
 - `strict` rejects `current-session`, `ci`, and `not-required` for `testAuthor`;
 - configuration rejects `owner` or `current-session` when the same single-instance
   label is assigned to both `testAuthor` and `implementer`;
-- runtime evidence rejects a `testAuthor` or `reviewer` provider instance that also
-  implemented the same change.
+- runtime evidence rejects a `testAuthor` provider instance that also implemented the
+  same change;
+- for `standard` and `strict`, runtime evidence rejects a `reviewer` provider instance
+  that also implemented the same change.
 
 Repeatable labels such as `fresh-ai-session` may appear in both fields only when the
 per-change routing record names two different real sessions.

@@ -179,6 +179,14 @@ test("the distributed plugin docs name complete modes and honest enforcement", (
     skillSpec,
     /standard` and\s+`strict` work[^.]*final reviewer[^.]*different\s+provider\s+instance/i,
   );
+  assert.match(
+    skillSpec,
+    /runtime evidence rejects a `testAuthor` provider instance[^.]*implemented\s+the\s+same change/i,
+  );
+  assert.match(
+    skillSpec,
+    /standard` and\s+`strict`[^.]*runtime evidence rejects a `reviewer` provider instance[^.]*implemented\s+the\s+same change/i,
+  );
   for (const priorRole of ["critic", "test author", "implementer"]) {
     assert.match(rule(5), new RegExp(priorRole, "i"), `R5 must separate the reviewer from the ${priorRole}`);
   }
