@@ -140,7 +140,14 @@ without allowing a project to configure away its safety floor.
   boundary, cancellation behavior, two-phase migration, or read-only status. The
   validator rejects an exception that names a nonexistent CES rule or any protected
   rule. An exception whose review date has passed is invalid until removed or renewed
-  with a new reason and date.
+  with a new reason and date. An exception is active only when its entry is present
+  and the complete configuration validates when a mode reads it. An active exception
+  waives the whole obligation of only its named non-protected rule for this project
+  until `reviewBy`; its free-text reason never defines a replacement rule. Applying
+  an exception is never silent: visible output names its rule, reason, and `reviewBy`.
+  An exception never changes a protected rule, route floor, provider eligibility,
+  validator behavior, or protected evidence order. When a protected rule independently
+  requires the same behavior, that protected obligation remains in force.
 - **CES-20 — Onboarding result.** Onboarding produces validated
   `engineering-os.json`, a real `BRIEF.md`, agent instructions for supported hosts, a
   repository-owned verify command, a CI proposal, a branch-protection proposal, and
@@ -433,9 +440,9 @@ and record `not applicable` with a reason when a safety-relevant group is skippe
 - Repository verification is HARD only when the `verify` job is required by branch
   protection.
 - Question completeness, recommendation honesty, role independence, previews, safe
-  writes, migration sequencing, continuation, status behavior, plain language, and
-  exact-head thread review are PROMPT + AUDIT until a repository adds its own
-  mechanical check.
+  writes, exception application, migration sequencing, continuation, status behavior,
+  plain language, and exact-head thread review are PROMPT + AUDIT until a repository
+  adds its own mechanical check.
 - P1 and P2 findings are a documented merge rule; the skill cannot enforce GitHub.
 
 ## Skill package

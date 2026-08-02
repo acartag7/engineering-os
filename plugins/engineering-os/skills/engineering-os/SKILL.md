@@ -17,8 +17,8 @@ workflow recommendation.
 
 - Read [references/questions.md](references/questions.md) for every interactive mode.
 - Read [references/configuration.md](references/configuration.md) for onboarding,
-  explanation, configuration changes, starting a change, continuing a change, or
-  status.
+  explanation, configuration changes, migration, starting a change, continuing a
+  change, or status.
 - Read [references/migration.md](references/migration.md) completely before migration.
 - Run `scripts/validate_config.mjs` only as described in the configuration reference.
 - Copy `assets/engineering-os.json` only after adapting it and receiving confirmation.
@@ -79,6 +79,12 @@ not-required.
 When the owner disagrees with a higher recommended route, record both routes and the
 evidence. Keep the higher route as the workflow floor unless new evidence changes the
 recommendation.
+
+After configuration validates, apply active exceptions exactly as the configuration
+reference defines. Each one waives only its named non-protected rule and is named in
+previews, routing records, prepared handoffs, and status. An expired exception makes
+the configuration invalid. No exception lowers a route floor or protected rule, and
+an overlapping protected obligation remains in force.
 
 Use one implementation. Strict work needs an independent test author before
 implementation. For lower routes, `security-only` requires that role for a security
@@ -188,10 +194,10 @@ contract-change limitation before recommending it.
 The skill is guidance. Configuration validation is a hard check only when required
 continuous integration runs it. Repository verification is hard only when branch
 protection requires it. Questions, recommendations, previews, safe-write behavior,
-migration order, continuation, status, provider independence, plain English, and
-thread review remain prompt plus audit rules until a repository adds a mechanical
-check. P1 and P2 findings are a documented merge rule; the skill cannot enforce
-GitHub.
+exception application, migration order, continuation, status, provider independence,
+plain English, and thread review remain prompt plus audit rules until a repository
+adds a mechanical check. P1 and P2 findings are a documented merge rule; the skill
+cannot enforce GitHub.
 
 Without Node, check the same fields by inference, say `deterministic validator did not
 run`, and treat onboarding as incomplete until required continuous integration runs

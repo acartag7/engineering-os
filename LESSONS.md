@@ -244,9 +244,9 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
 - **Where:** several public and security-sensitive project boundaries.
 - **Caught by:** a cross-project source and test audit.
 - **Class:** advisory security rules without a local mechanical rejection.
-- **Became:** language-appropriate static checks in `verify`, duplicate
-  security-header negative tests, closed error-code types, and test-backed security
-  claims; adds PC-32 through PC-34 and strengthens PC-04.
+- **Became:** language-appropriate static checks in `verify`, duplicate-metadata
+  rejection tests, closed error-code types, and test-backed security claims; adds
+  PC-32 through PC-34 and strengthens PC-04.
 
 ## L-018 — The owner could not re-orient from the repository <a name="l-018"></a>
 

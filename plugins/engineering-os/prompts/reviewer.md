@@ -1,5 +1,5 @@
 <!-- vendored from repository prompts/reviewer.md; CI checks exact byte parity after this line -->
-# Reviewer Prompt — v2.5
+# Reviewer Prompt — v2.6
 
 One fresh reviewer checks the exact final commit. The reviewer did not implement the
 slice and reviews the whole diff in one pass.
@@ -75,6 +75,8 @@ head. If a named finding remains or a new finding appears, return `FAIL` with
 
 ## Changelog
 
+- **v2.6** — made the older v2.1 incident note class-level to preserve the public
+  content boundary.
 - **v2.5** — allowed route-based N/A contract and critique evidence when a valid basic
   route does not require those stages; LESSONS.md L-019.
 - **v2.4** — required a paginated current-head thread inventory after an incomplete
@@ -83,7 +85,7 @@ head. If a named finding remains or a new finding appears, return `FAIL` with
   the bounded cleanup check after a reviewer prompt contradicted the stop rule.
 - **v2.2** — added configurable profile/provider evidence, strict independent-test
   proof, and the exact `process-stop` token after LESSONS.md L-019.
-- **v2.1** — added language-appropriate static analysis, duplicate security-header
+- **v2.1** — added language-appropriate static analysis, duplicate-metadata
   rejection, closed error-code and trust-claim checks, Project Brief freshness, and
   the anti-code-golf review check after LESSONS.md L-016 through L-018.
 - **v2.0** — collapsed panels into one fresh full-diff reviewer, bound the verdict to

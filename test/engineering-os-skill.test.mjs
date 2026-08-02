@@ -286,9 +286,9 @@ test("repository verification runs a real JavaScript linter or static analyzer",
   assert.match(verify, /^[^#\n]*\b(eslint|oxlint|biome|quick-lint-js|jshint)\b/m);
 });
 
-test("status and continue load the configuration reference before interpreting engineering-os.json", () => {
-  // Both modes interpret engineering-os.json, so the schema, expiry, and provider
-  // rules in references/configuration.md must be loaded for them too.
+test("status, continue, and migration load the configuration reference before interpreting engineering-os.json", () => {
+  // These modes interpret engineering-os.json, so the schema, expiry, provider, and
+  // exception-effect rules in references/configuration.md must be loaded for them.
   const flatSkill = read(join(CANONICAL, "SKILL.md"))
     .replace(/\s+/g, " ")
     .replace(/\.md\b/g, "-md");
@@ -299,6 +299,7 @@ test("status and continue load the configuration reference before interpreting e
   const loadText = loadSentences.join(" ");
   assert.match(loadText, /\bstatus\b/i, "status mode must load references/configuration.md");
   assert.match(loadText, /\bcontinu/i, "continue mode must load references/configuration.md");
+  assert.match(loadText, /\bmigrat/i, "migration mode must load references/configuration.md");
 
   const audience =
     read(join(CANONICAL, "references/configuration.md"))
@@ -306,6 +307,7 @@ test("status and continue load the configuration reference before interpreting e
       .match(/Read this for[^.]*\./i)?.[0] ?? "";
   assert.match(audience, /\bstatus\b/i, "the reference's own audience line must include status");
   assert.match(audience, /\bcontinu/i, "the reference's own audience line must include continue");
+  assert.match(audience, /\bmigrat/i, "the reference's own audience line must include migration");
 });
 
 test("dispatch keeps the basic T0 path: contract and critique depend on the effective route", () => {
@@ -348,6 +350,141 @@ test("dispatch triggers independent failing tests from strict routing or configu
   assert.match(step, /bug fix/i, "the step must cover configured lower-route bug-fix coverage");
   assert.match(step, /behavior change/i, "the step must cover configured all-behavior-changes coverage");
   assert.match(step, /(lower|route)/i, "the step must say the coverage applies on lower routes");
+});
+
+const sentencesOf = (text) => text.replace(/\s+/g, " ").split(/(?<=\.)\s+/);
+
+test("the configuration reference defines deterministic active-exception semantics", () => {
+  // CES-19 records exceptions, but the reference must also say what one does, in
+  // whole-rule terms. "Active exception" is the anchored term throughout — an
+  // active pull request must not satisfy these checks. The schema and validator
+  // stay unchanged; only the documented semantics are pinned here.
+  for (const pkg of [CANONICAL, VENDORED]) {
+    const path = join(pkg, "references/configuration.md");
+    const sentences = sentencesOf(read(path));
+    const exceptionText = sentences.filter((s) => /exception/i.test(s)).join(" ");
+
+    assert.match(
+      exceptionText,
+      /Each exception contains only `rule`, `reason`, `owner`, `created`, `reviewBy`, and `removalCondition`\./,
+      `${path} must keep the six-field exception schema unchanged`,
+    );
+
+    const active = sentences
+      .filter((s) => /active exceptions?|exception is active/i.test(s))
+      .join(" ");
+    assert.ok(active, `${path} must define the anchored active-exception term`);
+    assert.match(active, /present/i, `${path}: active means the entry is present`);
+    assert.match(active, /complete/i, `${path}: activity needs the complete configuration`);
+    assert.match(active, /valid/i, `${path}: activity needs a validating configuration`);
+    assert.match(active, /read/i, `${path}: activity is decided when a mode reads the configuration`);
+
+    const waiver = sentences.filter((s) => /waiv/i.test(s)).join(" ");
+    assert.ok(waiver, `${path} must state the whole-rule waiver`);
+    assert.match(waiver, /only the named/i, `${path}: it waives only the named rule`);
+    assert.match(waiver, /non-?protected|not protected/i, `${path}: only a non-protected rule can be waived`);
+    assert.match(waiver, /this project|this repository/i, `${path}: the waiver is scoped to this project`);
+    assert.match(waiver, /until[^.]{0,60}(reviewBy|review date)/i, `${path}: the waiver ends at reviewBy`);
+
+    const wall = sentences
+      .filter((s) => /exception/i.test(s) && /never|cannot|does not|do not/i.test(s))
+      .join(" ");
+    assert.match(wall, /protected/i, `${path}: protected rules stay unchanged`);
+    assert.match(wall, /route floor/i, `${path}: route floors stay unchanged`);
+    assert.match(wall, /provider/i, `${path}: provider eligibility stays unchanged`);
+    assert.match(wall, /validator/i, `${path}: validator behavior stays unchanged`);
+    assert.match(wall, /evidence order/i, `${path}: the protected evidence order stays unchanged`);
+
+    assert.match(
+      exceptionText,
+      /never[^.]{0,80}silent|silent[^.]{0,80}never/i,
+      `${path}: applying an exception is never silent`,
+    );
+    const named = sentences.filter((s) => /exception/i.test(s) && /\bnames?\b/i.test(s)).join(" ");
+    assert.match(named, /rule/i, `${path}: visible outputs name the rule`);
+    assert.match(named, /reason/i, `${path}: visible outputs name the reason`);
+    assert.match(named, /reviewBy|review date/i, `${path}: visible outputs name reviewBy`);
+
+    assert.match(
+      exceptionText,
+      /expired[^.]{0,120}invalid|invalid[^.]{0,120}expired/i,
+      `${path}: an expired exception stays the invalid-configuration blocker`,
+    );
+    assert.match(
+      exceptionText,
+      /renew[^.]{0,80}new reason[^.]{0,60}date/i,
+      `${path}: renewal uses a new reason and date`,
+    );
+  }
+});
+
+test("every mode surfaces active exceptions instead of applying them silently", () => {
+  // An active exception waives one named non-protected rule visibly. Each mode must
+  // say where: onboarding collects it in the confirmed preview, explanation
+  // describes the waiver, configuration adds, renews, or removes it through a
+  // validated preview and owner confirmation, start records applied exceptions in
+  // the routing record, continue names them in handoffs, and status lists every
+  // stored field.
+  for (const pkg of [CANONICAL, VENDORED]) {
+    const sentences = sentencesOf(
+      ["SKILL.md", "references/configuration.md", "references/migration.md"]
+        .map((path) => read(join(pkg, path)))
+        .join("\n"),
+    );
+    const about = (pattern) =>
+      sentences.filter((s) => pattern.test(s) && /exception/i.test(s)).join(" ");
+
+    const onboarding = about(/onboard/i);
+    assert.ok(onboarding, `${pkg}: onboarding must collect the exception`);
+    assert.match(onboarding, /preview/i, `${pkg}: onboarding collects it in the preview`);
+    assert.match(onboarding, /confirm/i, `${pkg}: the collecting preview is the confirmed one`);
+
+    const explanation = about(/explanation|explain/i);
+    assert.ok(explanation, `${pkg}: explanation mode must cover exceptions`);
+    assert.match(explanation, /waiv/i, `${pkg}: explanation describes the waiver`);
+
+    const configure = about(/configur/i);
+    assert.match(configure, /add/i, `${pkg}: configuration mode adds an exception`);
+    assert.match(configure, /renew/i, `${pkg}: configuration mode renews an exception`);
+    assert.match(configure, /remov/i, `${pkg}: configuration mode removes an exception`);
+    assert.match(configure, /valid/i, `${pkg}: exception changes go through a validated preview`);
+    assert.match(configure, /preview/i, `${pkg}: exception changes show the complete preview`);
+    assert.match(configure, /confirm/i, `${pkg}: exception changes need owner confirmation`);
+
+    const start = about(/\bstart/i);
+    assert.match(start, /routing record/i, `${pkg}: start records exceptions in the routing record`);
+    assert.match(start, /appli/i, `${pkg}: start records the applied exceptions`);
+
+    const continued = about(/continu/i);
+    assert.match(continued, /handoff/i, `${pkg}: continue names active exceptions in handoffs`);
+
+    const status = about(/status/i);
+    assert.ok(status, `${pkg}: status must list exceptions`);
+    for (const field of ["rule", "reason", "owner", "created", "reviewBy", "removalCondition"]) {
+      assert.match(status, new RegExp(field, "i"), `${pkg}: status lists ${field}`);
+    }
+  }
+});
+
+test("migration names active exceptions while protected migration rules remain", () => {
+  for (const pkg of [CANONICAL, VENDORED]) {
+    const path = join(pkg, "references/migration.md");
+    const exceptionText = sentencesOf(read(path))
+      .filter((s) => /exception/i.test(s))
+      .join(" ");
+    assert.ok(exceptionText, `${path} must cover exceptions`);
+    assert.match(
+      exceptionText,
+      /active exceptions?/i,
+      `${path} must name active exceptions with the anchored term`,
+    );
+    assert.match(exceptionText, /protected/i, `${path}: protected migration rules stay in force`);
+    assert.match(
+      exceptionText,
+      /remain|unchanged|still/i,
+      `${path}: the protected migration rules remain while exceptions are named`,
+    );
+  }
 });
 
 test("the configuration reference gives basic review to the owner or CI for T0 and the owner for T1", () => {

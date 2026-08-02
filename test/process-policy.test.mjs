@@ -80,12 +80,12 @@ test("fleet-audit additions are connected to rules, lessons, prompts, and audit"
   for (const id of ["L-016", "L-017", "L-018", "L-019", "L-020"]) {
     assert.match(lessons, new RegExp(`## ${id} `));
   }
-  assert.match(reviewer, /Reviewer Prompt — v2\.5/);
+  assert.match(reviewer, /Reviewer Prompt — v2\.6/);
   assert.match(reviewer, /paginated current-head thread inventory/i);
   assert.match(reviewer, /`process-stop`/);
   assert.match(reviewer, /code: string/);
   assert.match(reviewer, /`BRIEF\.md` changed/);
-  assert.match(audit, /Monthly Audit — agent prompt v2\.4/);
+  assert.match(audit, /Monthly Audit — agent prompt v2\.5/);
   assert.match(guardReadme, /## Small amendment flow/);
 });
 
@@ -119,10 +119,10 @@ test("vendored prompts exactly match their canonical sources", () => {
 
 test("role prompts carry the configurable independent-test workflow", () => {
   assert.match(read("prompts/acceptance-author.md"), /Independent Test Author Prompt — v3\.1/);
-  assert.match(read("prompts/critique.md"), /Critique Prompt — v2\.2/);
-  assert.match(read("prompts/implementer.md"), /Implementer Prompt — v2\.3/);
+  assert.match(read("prompts/critique.md"), /Critique Prompt — v2\.3/);
+  assert.match(read("prompts/implementer.md"), /Implementer Prompt — v2\.4/);
   assert.match(read("prompts/implementer.md"), /Do not weaken, remove, or rewrite independent tests/);
-  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.5/);
+  assert.match(read("prompts/reviewer.md"), /Reviewer Prompt — v2\.6/);
 });
 
 test("one implementation and bug-fix proof name their enforcement", () => {
@@ -741,4 +741,81 @@ test("route-based and coverage prompt fixes bump versions with changelog entries
   bumped("implementer.md", "Implementer Prompt", 2, 2);
   bumped("reviewer.md", "Reviewer Prompt", 2, 4);
   bumped("acceptance-author.md", "Independent Test Author Prompt", 3, 0);
+});
+
+test("public incident narratives never use the security-header term", () => {
+  // AGENTS.md public-content boundary: incidents are described class-level only,
+  // without repo-identifying specifics. The security-header term names one findable
+  // incident, so LESSONS.md and the prompt and audit changelog narratives must
+  // describe the class instead. Concrete enforceable checks — security-relevant
+  // headers, duplicated credential headers — stay expressible; the exact-parity test
+  // above covers the vendored prompt copies.
+  const term = /security[-\s]headers?/i;
+  for (const allowed of [
+    "rejects more than one value for a security-relevant HTTP header",
+    "duplicated credential header rejection tests",
+  ]) {
+    assert.doesNotMatch(allowed, term, `the ban must keep "${allowed}" expressible`);
+  }
+  for (const path of [
+    "LESSONS.md",
+    "prompts/critique.md",
+    "prompts/implementer.md",
+    "prompts/reviewer.md",
+    "routines/monthly-audit-prompt.md",
+  ]) {
+    assert.doesNotMatch(read(path), term, `${path} must not use the security-header term`);
+  }
+});
+
+test("the security-header rewording advances prompt and audit versions with changelogs", () => {
+  // AGENTS.md: prompt templates are versioned; changes bump the version and add a
+  // changelog line. Removing the security-header term changes these three role
+  // prompts and the monthly audit prompt, so each version must move past its
+  // pre-fix value with a matching changelog entry.
+  const advanced = (path, header, major, minor) => {
+    const text = read(path);
+    const found = text.match(header);
+    assert.ok(found, `${path} must keep its versioned title`);
+    const [maj, min] = [Number(found[1]), Number(found[2])];
+    assert.ok(
+      maj > major || (maj === major && min > minor),
+      `${path} changed for this fix, so its version must move past v${major}.${minor}`,
+    );
+    assert.match(
+      text,
+      new RegExp(`\\n- \\*\\*v${maj}\\.${min}\\*\\* — \\S`),
+      `${path} must add a changelog entry for v${maj}.${min}`,
+    );
+  };
+  advanced("prompts/critique.md", /^# Critique Prompt — v(\d+)\.(\d+)$/m, 2, 2);
+  advanced("prompts/implementer.md", /^# Implementer Prompt — v(\d+)\.(\d+)$/m, 2, 3);
+  advanced("prompts/reviewer.md", /^# Reviewer Prompt — v(\d+)\.(\d+)$/m, 2, 5);
+  advanced("routines/monthly-audit-prompt.md", /^# Monthly Audit — agent prompt v(\d+)\.(\d+)/m, 2, 4);
+});
+
+test("CES-19 and the validator keep the exception schema and whole-rule boundaries", () => {
+  // The exception-semantics fix documents what an active exception does; the schema
+  // and the deterministic validator must stay exactly as CES-19 states them: six
+  // recorded fields, a protected-rule wall, rejection of unknown or protected rule
+  // names, and expiry that stays invalid until renewal with a new reason and date.
+  const ces19 = read("specs/configurable-engineering-os-skill.md")
+    .match(/- \*\*CES-19[\s\S]*?(?=\n- \*\*CES-20)/)?.[0] ?? "";
+  assert.ok(ces19.trim(), "the spec must keep CES-19");
+  const flat = ces19.replace(/\s+/g, " ");
+  assert.match(flat, /records the rule, reason, owner, creation date, review date, and removal condition/);
+  assert.match(flat, /cannot weaken/);
+  assert.match(flat, /validator rejects an exception that names a nonexistent CES rule or any protected rule/);
+  assert.match(flat, /invalid until removed or renewed with a new reason and date/);
+
+  const validator = read("skills/engineering-os/scripts/validate_config.mjs");
+  assert.match(
+    validator,
+    /objectShape\(exception, \["rule", "reason", "owner", "created", "reviewBy", "removalCondition"\]\)/,
+    "the validator must keep the six-field exception schema",
+  );
+  for (const code of ["date-order", "expired-exception", "unknown-rule", "protected-rule"]) {
+    assert.match(validator, new RegExp(`reject\\("${code}"\\)`), `the validator must keep reject("${code}")`);
+  }
+  assert.match(validator, /PROTECTED_RULES = new Set\(/);
 });

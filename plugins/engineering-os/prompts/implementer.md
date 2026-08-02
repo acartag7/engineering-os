@@ -1,5 +1,5 @@
 <!-- vendored from repository prompts/implementer.md; CI checks exact byte parity after this line -->
-# Implementer Prompt — v2.3
+# Implementer Prompt — v2.4
 
 One implementer writes the code and its normal tests for one bounded slice.
 
@@ -56,11 +56,13 @@ DONE MEANS
 
 ## Changelog
 
+- **v2.4** — made the older v2.1 incident note class-level to preserve the public
+  content boundary.
 - **v2.3** — allowed route-based N/A contract and critique inputs when a valid basic
   route does not require those stages; LESSONS.md L-019.
 - **v2.2** — added strict independent-test input and the no-weakening rule after
   LESSONS.md L-019.
-- **v2.1** — added language-appropriate static checks, duplicate security-header
+- **v2.1** — added language-appropriate static checks, duplicate-metadata
   rejection, closed error codes, Project Brief freshness, and the anti-code-golf rule
   after LESSONS.md L-016 through L-018.
 - **v2.0** — replaced the frozen-suite workflow with language-neutral code-and-tests,

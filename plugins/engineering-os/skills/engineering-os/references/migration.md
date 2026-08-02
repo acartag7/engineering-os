@@ -37,6 +37,9 @@ Before writes, show the normal complete preview: files, checks, commands, role
 providers, unchanged protections, costs, exceptions, gaps, and recovery plan. Write
 nothing until the owner confirms.
 
+The preview names every active exception; protected two-phase, cleanup-proof, and
+evidence-preservation rules remain in force.
+
 ## Cleanup gate
 
 Phase two is blocked until evidence proves both:

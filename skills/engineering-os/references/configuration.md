@@ -1,7 +1,7 @@
 # Configuration and workflow
 
-Read this for onboarding, explanation, configuration changes, starting or continuing
-a change, or status.
+Read this for onboarding, explanation, configuration changes, migration, starting or
+continuing a change, or status.
 
 ## Profiles
 
@@ -136,6 +136,34 @@ Each exception contains only `rule`, `reason`, `owner`, `created`, `reviewBy`, a
 `removalCondition`. Dates are real `YYYY-MM-DD` dates. The review date cannot be before
 creation or in the past. Exceptions cannot target protected safety rules. Read the
 canonical contract before proposing one.
+
+### Exception effect
+
+An exception is active only when its entry is present and the complete
+`engineering-os.json` is valid when a mode reads it. An active exception waives the
+whole obligation of only the named non-protected rule for this project until
+`reviewBy`. Its reason explains the waiver; it never defines a replacement rule.
+
+An exception never changes a protected rule, route floor, provider eligibility,
+validator behavior, or protected evidence order. When a protected rule independently
+requires the same behavior, that protected obligation remains in force. Applying an
+exception is never silent: every visible output names its `rule`, `reason`, and
+`reviewBy`. An expired exception keeps the complete configuration invalid. Renew an
+exception only through a configuration change with a new reason and date.
+
+Each mode applies this same meaning:
+
+- Onboarding collects requested exceptions in the complete confirmed preview; they
+  become active only after the owner confirms and the resulting configuration is
+  valid.
+- Explanation mode names each active exception and describes the whole-rule waiver.
+- Configuration mode adds, renews, or removes an exception only through a validated
+  complete preview and owner confirmation.
+- Migration names active exceptions while protected migration rules remain in force.
+- Start mode records every applied active exception in the routing record.
+- Continue mode names every applied active exception in prepared handoffs.
+- Status mode lists all six fields for every active exception: `rule`, `reason`,
+  `owner`, `created`, `reviewBy`, and `removalCondition`.
 
 ## Validation
 

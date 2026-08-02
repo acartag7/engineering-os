@@ -1,4 +1,4 @@
-# Monthly Audit — agent prompt v2.4 (R-1..R-4)
+# Monthly Audit — agent prompt v2.5 (R-1..R-4)
 
 You are running the monthly Engineering OS audit. Read
 `~/project/engineering-os/ROUTINES.md` (R-1 through R-4) and `BASELINE.md` first —
@@ -65,6 +65,8 @@ in the report — never silently skip (that's PC-02 applied to yourself).
 
 ## Changelog
 
+- **v2.5** — made the older v2.1 incident note class-level to preserve the public
+  content boundary.
 - **v2.4** — made the review stop follow each repository's configured final round,
   with three remaining the maximum (LESSONS.md L-019).
 - **v2.3** — added paginated current-head review-thread evidence after LESSONS.md
@@ -73,7 +75,7 @@ in the report — never silently skip (that's PC-02 applied to yourself).
   pre-implementation test proof, safe migration checks, and a no-multi-agent fallback
   after LESSONS.md L-019.
 - **v2.1** — added Project Brief freshness, language-appropriate static checks,
-  test-backed trust claims, duplicate security-header rejection, closed error-code
+  test-backed trust claims, duplicate-metadata rejection, closed error-code
   types, the anti-code-golf review check, and the Project Brief audit (LESSONS.md
   L-016 through L-018).
 - **v2.0** — changed the audit to the solo, language-neutral workflow: required
