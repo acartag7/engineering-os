@@ -85,7 +85,7 @@ test("fleet-audit additions are connected to rules, lessons, prompts, and audit"
   assert.match(reviewer, /`process-stop`/);
   assert.match(reviewer, /code: string/);
   assert.match(reviewer, /`BRIEF\.md` changed/);
-  assert.match(audit, /Monthly Audit — agent prompt v2\.3/);
+  assert.match(audit, /Monthly Audit — agent prompt v2\.4/);
   assert.match(guardReadme, /## Small amendment flow/);
 });
 
@@ -402,4 +402,205 @@ test("the final-round stop token requires a remaining P1 or P2", () => {
   );
   assert.doesNotMatch(reviewer, /the exact token `process-stop`[;.]/);
   assert.match(reviewer, /- \*\*v2\.3\*\* — [^.]*(P1 or P2|final round)/);
+});
+
+const bulletOf = (text, pattern) =>
+  text.split(/\n- /).find((entry) => pattern.test(entry)) ?? "";
+
+test("every review-round stop rule ends at the configured maxReviewRounds", () => {
+  // engineering-os.json makes the stop round configurable and CES-25 stops at "the
+  // configured maximum review round," with three only the highest value the validator
+  // accepts. Each operational stop rule must point at that configured round; a
+  // hard-coded round three overstates the rule for a repository configured lower.
+  // Historical LESSONS.md narrative is not scanned here; it is not an operational rule.
+  assert.match(
+    read("skills/engineering-os/scripts/validate_config.mjs"),
+    /boundedInteger\(workflow\.maxReviewRounds, 1, 3\)/,
+    "three must stay only the allowed maximum for maxReviewRounds",
+  );
+  const rounds = JSON.parse(read("engineering-os.json")).workflow.maxReviewRounds;
+  assert.ok(Number.isInteger(rounds) && rounds >= 1 && rounds <= 3);
+
+  const stopsAtConfiguredRound = (rule, label) => {
+    assert.ok(rule.trim(), `${label}: the review-round stop rule must exist`);
+    assert.match(
+      rule,
+      /configured|maxReviewRounds/i,
+      `${label} must stop at the configured final review round`,
+    );
+    assert.doesNotMatch(
+      rule,
+      /third substantive (review )?round|round three|after round three|over 3 rounds/i,
+      `${label} must not hard-code round three as the universal stop`,
+    );
+    if (/\b(three|3)\b/i.test(rule)) {
+      assert.match(
+        rule,
+        /maximum|at most|up to|no more than|one through three|1 to 3/i,
+        `${label} may name three only as the allowed maximum`,
+      );
+    }
+  };
+  const numberedItem = (text, pattern) =>
+    text.split(/\n\d+\. /).find((entry) => pattern.test(entry)) ?? "";
+
+  const osLimits = read("OS.md").match(/### Slice limits([\s\S]*?)(?=\n### )/)?.[1] ?? "";
+  stopsAtConfiguredRound(bulletOf(osLimits, /review round|stops the change/i), "OS.md slice limits");
+
+  const policyLimits = read("POLICY.md").match(/## Review limits([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  stopsAtConfiguredRound(
+    bulletOf(policyLimits, /stops the change|review round/i),
+    "POLICY.md review limits",
+  );
+
+  const slw10 = read("specs/solo-language-neutral-workflow.md")
+    .match(/- \*\*SLW-10[\s\S]*?(?=\n- \*\*SLW-11)/)?.[0] ?? "";
+  stopsAtConfiguredRound(slw10, "SLW-10");
+
+  stopsAtConfiguredRound(read("BASELINE.md").match(/\| PC-15 \|[^\n]*/)?.[0] ?? "", "PC-15");
+
+  const r2 = read("ROUTINES.md").match(/## R-2([\s\S]*?)(?=\n## R-3)/)?.[1] ?? "";
+  stopsAtConfiguredRound(
+    numberedItem(r2, /LESSONS\.md` entry/),
+    "ROUTINES.md R-2 rounds-per-PR check",
+  );
+  stopsAtConfiguredRound(numberedItem(r2, /Review limits/), "ROUTINES.md R-2 review limits");
+
+  stopsAtConfiguredRound(
+    bulletOf(read("templates/agent-context-block.md"), /P1 and P2 review findings block/),
+    "agent context block",
+  );
+});
+
+test("copied agent rules and baseline rows follow the effective profile", () => {
+  // CES-9, CES-13, and the configuration reference give basic work owner review
+  // (owner or CI for T0, owner for a closed low-risk T1) and reserve the fresh
+  // independent contexts for standard and strict, while a final review stays
+  // mandatory on every profile and matching configured independent-test coverage is
+  // required, not recommended. The context block copied into governed repositories
+  // and the baseline rows must state the same rules.
+  const block = read("templates/agent-context-block.md");
+
+  const review = bulletOf(block, /independent reviewer|final review|exact final commit/i);
+  assert.ok(review.trim(), "the agent block must keep its final-review rule");
+  assert.match(
+    review,
+    /standard|strict|profile|configured/i,
+    "the fresh independent reviewer must be tied to the standard and strict profiles",
+  );
+  assert.match(review, /owner/i, "basic review by the owner (or CI for T0) must stay allowed");
+  assert.match(
+    review,
+    /exact final commit/,
+    "the final review must stay mandatory on the exact final commit",
+  );
+
+  const contract = bulletOf(block, /contract before coding|open decisions/i);
+  assert.ok(contract.trim(), "the agent block must keep its contract rule");
+  assert.match(
+    contract,
+    /profile|basic|configured/i,
+    "the contract requirement must follow the effective profile, not apply universally",
+  );
+
+  const coverage = bulletOf(block, /independent test|test author/i);
+  assert.ok(coverage.trim(), "the agent block must carry the independent-test coverage rule");
+  assert.match(coverage, /configured/i, "the coverage rule must name the configured setting");
+  assert.match(coverage, /requir/i, "matching configured coverage must be required");
+  assert.doesNotMatch(coverage, /only recommend|merely recommend/i);
+
+  const baselineRule = (id) =>
+    read("BASELINE.md").match(new RegExp(`\\| ${id} \\|([^|]*)\\|`))?.[1] ?? "";
+
+  const pc08 = baselineRule("PC-08");
+  assert.match(pc08, /bounded slice/);
+  assert.match(
+    pc08,
+    /profile|basic|configured/i,
+    "PC-08's closed contract must follow the effective profile",
+  );
+
+  const pc10 = baselineRule("PC-10");
+  assert.match(pc10, /exact final commit SHA/);
+  assert.match(
+    pc10,
+    /standard|strict|profile|configured/i,
+    "PC-10 must require the fresh reviewer only for standard and strict",
+  );
+  assert.match(pc10, /owner/i, "PC-10 must preserve owner (or CI) review for basic work");
+
+  const pc13 = baselineRule("PC-13");
+  assert.match(pc13, /strict/i);
+  assert.match(pc13, /configured/i, "PC-13 must name the configured independent-test coverage");
+  assert.match(
+    pc13,
+    /configured[^|]*requir|requir[^|]*configured/i,
+    "PC-13 must make matching configured coverage required, not merely recommended",
+  );
+
+  const slw3 = read("specs/solo-language-neutral-workflow.md")
+    .match(/- \*\*SLW-3[\s\S]*?(?=\n- \*\*SLW-4)/)?.[0] ?? "";
+  assert.match(slw3, /final review appropriate to that profile/);
+  assert.match(
+    read("skills/engineering-os/references/configuration.md"),
+    /A reviewer can never be not required/,
+  );
+
+  const finalReviewCells = (read("POLICY.md")
+    .match(/\| Independent final review \|([^\n]*)/)?.[1] ?? "").split("|");
+  assert.match(finalReviewCells[0] ?? "", /owner or CI/, "T0 keeps owner or CI review");
+  assert.match(finalReviewCells[1] ?? "", /configured|owner/i, "T1 keeps profile-selected review");
+  assert.match(finalReviewCells[2] ?? "", /fresh/i, "T2 keeps a fresh review context");
+});
+
+test("the OS workflow review step is selected by the effective profile", () => {
+  const os = read("OS.md");
+  const row = os.match(/\| 6\. Review \|([^\n]*)/)?.[1] ?? "";
+  const who = row.split("|")[0] ?? "";
+  assert.ok(who.trim(), "OS.md must keep the Review workflow row");
+  assert.match(
+    who,
+    /profile|configured|owner/i,
+    "the Review row must select the reviewer by the effective profile, not demand a fresh context on every route",
+  );
+  assert.match(who, /fresh/i, "standard and strict keep the fresh review context");
+  assert.doesNotMatch(
+    who,
+    /^\s*Fresh human or AI context\s*$/i,
+    "an unconditionally fresh reviewer contradicts the basic profile's owner review",
+  );
+  assert.match(row, /final commit SHA recorded/, "the final review itself stays mandatory");
+});
+
+test("L-015's outcome describes the configurable workflow, not fixed requirements", () => {
+  const l015 = read("LESSONS.md").match(/## L-015[\s\S]*?(?=\n## L-016)/)?.[0] ?? "";
+  assert.ok(l015.trim(), "LESSONS.md must keep L-015");
+  const became = l015.match(/\*\*Became:\*\*([\s\S]*)/)?.[1] ?? "";
+  assert.ok(became.trim(), "L-015 must keep its Became outcome");
+
+  // R-4 verifies that Became items still exist. After the configurable skill, the
+  // fixed critic, reviewer, and round-three requirements no longer exist as rules, so
+  // the outcome must describe the profile-configured behavior that replaced them.
+  assert.match(
+    became,
+    /profile|configur/i,
+    "the outcome must point at the current profile-configured workflow",
+  );
+  assert.doesNotMatch(
+    became,
+    /round-three stop|round three stop/i,
+    "the fixed round-three stop was superseded by the configured maxReviewRounds",
+  );
+  assert.match(
+    became,
+    /configured[^.;]*round|round[^.;]*configured/i,
+    "the stop must be described as the configured final review round",
+  );
+  if (/fresh/i.test(became)) {
+    assert.match(
+      became,
+      /standard|strict|profile/i,
+      "fresh critic and reviewer must be described as the standard/strict addition, not a universal requirement",
+    );
+  }
 });

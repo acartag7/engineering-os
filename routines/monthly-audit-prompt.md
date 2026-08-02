@@ -1,4 +1,4 @@
-# Monthly Audit — agent prompt v2.3 (R-1..R-4)
+# Monthly Audit — agent prompt v2.4 (R-1..R-4)
 
 You are running the monthly Engineering OS audit. Read
 `~/project/engineering-os/ROUTINES.md` (R-1 through R-4) and `BASELINE.md` first —
@@ -26,13 +26,15 @@ they define exactly what to check. This prompt tells you how to execute.
   rejection and closed error-code types.
 - **R-2 (outcomes + review burn):** `gh pr list --state merged --search "merged:>DATE"`,
   then per PR count review→push cycles from `gh pr view --json reviews,commits`.
-  Cross-check every >3-round PR against LESSONS.md entries. Read routing records,
+  Cross-check every PR that exceeded its configured final review round against
+  LESSONS.md entries. Read routing records,
   critique/test/review artifacts, CI results, and new LESSONS entries to report stage
   yield; use `unknown` when the catch stage is not evidenced. Check the one-rule slice,
   regression counterfactual, real-entrypoint evidence, exact-head review SHA,
-  round-three stop, two-PR work-in-progress limit, false greens, silent skips, and
-  complete discovery records exactly as R-2 defines them. Fetch the paginated review
-  threads and flag unread or unresolved actionable findings at the merged head.
+  configured review-round stop, two-PR work-in-progress limit, false greens, silent
+  skips, and complete discovery records exactly as R-2 defines them. Fetch the
+  paginated review threads and flag unread or unresolved actionable findings at the
+  merged head.
   Check brief updates and line-cap-shaped code compression as R-2 defines them.
 - **R-3 (drift):** compare rule PRESENCE, not exact wording. The canonical rule
   list is `templates/agent-context-block.md`. For pins: grep workflow files for
@@ -63,6 +65,8 @@ in the report — never silently skip (that's PC-02 applied to yourself).
 
 ## Changelog
 
+- **v2.4** — made the review stop follow each repository's configured final round,
+  with three remaining the maximum (LESSONS.md L-019).
 - **v2.3** — added paginated current-head review-thread evidence after LESSONS.md
   L-020.
 - **v2.2** — added configurable profiles, provider-instance evidence, strict
@@ -74,7 +78,7 @@ in the report — never silently skip (that's PC-02 applied to yourself).
   L-016 through L-018).
 - **v2.0** — changed the audit to the solo, language-neutral workflow: required
   repository verify, real entrypoint, one-rule slice, regression proof, exact-head
-  review, round-three stop, and optional `process-guard` (LESSONS.md L-015).
+  review, a bounded review-round stop, and optional `process-guard` (LESSONS.md L-015).
 - **v1.1** — extended R-1 exemption lifecycle checks and R-2 outcome/stage-yield,
   routing, discovery, and criteria-correction reporting (practical-process gap PA-5 /
   PA-6).

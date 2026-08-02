@@ -64,11 +64,14 @@ It also blocks a Go repository whose source and tests do not live under `src/` a
 - **SLW-8 — Regression proof.** A bug fix includes a test that fails when the fix is
   removed. The pull request records that proof. General mutation testing remains a
   periodic report, not a required check for every change.
-- **SLW-9 — Exact-head review.** The independent reviewer records the full commit SHA.
-  Any later push makes the review stale. P1 and P2 findings block merge.
-- **SLW-10 — Stop after round three.** A third substantive review round stops the
-  change. The owner fixes the contract or cuts a smaller slice before review resumes.
-  This stop is prompt and audit enforced until a reliable GitHub check exists.
+- **SLW-9 — Exact-head review.** Every profile uses a final reviewer and records the
+  full commit SHA. Basic uses owner review, or CI for T0; standard and strict use a
+  fresh independent reviewer. Any later push makes the review stale. P1 and P2
+  findings block merge.
+- **SLW-10 — Stop at the configured round.** The configured final substantive review
+  round stops the change; three is the maximum. The owner fixes the contract or cuts
+  a smaller slice before review resumes. This stop is prompt and audit enforced until
+  a reliable GitHub check exists.
 - **SLW-11 — Work in progress.** A solo owner keeps no more than two pull requests in
   active review. This is audit enforced, not a GitHub block.
 - **SLW-12 — Plain English.** Project writing uses plain, easy English. Technical

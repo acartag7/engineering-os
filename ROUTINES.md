@@ -55,8 +55,9 @@ upstream.
 **Check exactly:**
 
 1. Rounds per merged PR (review event → fix push → re-review = one round).
-   Median and worst. Every PR over 3 rounds must have a `LESSONS.md` entry — if it
-   doesn't, that's the finding.
+   Median and worst. Every PR that continued beyond its configured final review round
+   must have a `LESSONS.md` entry; configured limits are one through three. If the
+   entry is missing, that's the finding.
 2. Red merges: any PR merged while a required check was failing (possible in
    degraded mode on private repos — this is the honesty check for that mode).
 3. Slice shape: each behavior-changing PR states one changed rule and exclusions.
@@ -75,9 +76,10 @@ upstream.
    observations, and exit decision. Flag any
    experiment merged or deployed as delivery, production mutation/credentials, or
    delivery started without returning to the contract stage.
-8. Review limits: flag a third substantive round that did not stop, any review whose
-   SHA differs from the merged head, and more than two PRs simultaneously in active
-   review for one solo owner.
+8. Review limits: flag a configured final substantive review round that did not stop
+   the work; three is the maximum. Also flag any review whose SHA differs from the
+   merged head and more than two PRs simultaneously in active review for one solo
+   owner.
 9. Readability: flag code compressed or split mechanically to satisfy a line target.
 10. Brief drift: architecture, module, or command changes must update `BRIEF.md` in
     the same pull request.

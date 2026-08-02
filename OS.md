@@ -14,8 +14,8 @@ it proved.
 ### 2. The agent runner never approves itself
 
 The tool that writes or dispatches work cannot be the final judge. Required CI lives
-in the repository. The final review uses a fresh context and binds its result to the
-exact commit reviewed.
+in the repository. The effective profile selects owner, CI, or fresh-context review,
+and every final review binds its result to the exact commit reviewed.
 
 ### 3. Every gate checks its inputs
 
@@ -83,7 +83,7 @@ A slice changes one clear rule that one reviewer can understand in one sitting.
 | 3. Independent tests | Strict routing or matching configured coverage | Small behavior tests written and proven red before code |
 | 4. Implement | One implementer | One implementation plus its normal tests |
 | 5. Verify | Repository CI | The repository's verification command and real entrypoint pass |
-| 6. Review | Fresh human or AI context | Findings and reviewed final commit SHA recorded |
+| 6. Review | Profile-selected owner, CI, or fresh context | Findings and reviewed final commit SHA recorded |
 | 7. Merge | Owner | The only required human decides after checks and review are complete |
 
 The `basic` profile is the smallest valid path. `standard` adds a fresh critic and
@@ -104,8 +104,8 @@ fleet-wide gate checks the whole sequence.**
 - Never compress code or make mechanical file splits to satisfy a line target. Split
   only when the new files represent clear concepts.
 - A solo owner keeps no more than two pull requests in active review.
-- A third substantive review round stops the change. Fix the contract or cut a smaller
-  slice before continuing.
+- The configured final substantive review round stops the change; three is the
+  maximum. Fix the contract or cut a smaller slice before continuing.
 
 **Enforcement: prompt + monthly audit. These are not yet fleet-wide CI gates.**
 

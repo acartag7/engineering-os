@@ -28,7 +28,7 @@ fleet-wide mechanical classifier chooses the tier.**
 | Independent test author before implementation | when configured coverage matches | when configured coverage matches; recommended for other bugs | required | required | — |
 | Implementations | 1 | 1 | 1 | 1 | 1 |
 | Tests | existing checks | code + tests | code + tests | code + tests | link or rendering checks |
-| Independent final review | owner or CI | configured fresh context | fresh context | fresh context | claims against source |
+| Independent final review | owner or CI | configured owner or fresh context | fresh context | fresh context | claims against source |
 | Real entrypoint | when relevant | required | required | required | examples when relevant |
 
 The independent test author is not a second implementer. It writes a small set of
@@ -74,7 +74,8 @@ only for a named model evaluation with a fixed comparison plan.
 ## Review limits
 
 - Target one or two substantive rounds.
-- Round three stops the change. Update the contract or cut a smaller slice.
+- The configured final review round stops the change; three is the maximum. Update
+  the contract or cut a smaller slice.
 - Keep at most two pull requests in active review for one owner.
 - Re-review the exact new head after every fix push.
 - After every push, fetch the complete paginated review-thread inventory. Read every

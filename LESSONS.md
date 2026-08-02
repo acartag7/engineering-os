@@ -165,8 +165,9 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   contracts shipped to implementers with open decisions.
 - **Became:** critique v1.1 (SC-8: no hand-rolled parsers over untrusted input
   without a bounded contract; SC-9: contracts with pending decisions or out-of-repo
-  references are not implementable), PC-15 (>3 rounds = process failure, recorded),
-  and the review-stance line: review verifies, it never discovers.
+  references are not implementable), PC-15 (continuing after the configured final
+  review round is a recorded process failure), and the review-stance line: review
+  verifies, it never discovers.
 
 ## L-013 — The prompt said it and the code still shipped wrong <a name="l-013"></a>
 
@@ -212,11 +213,13 @@ Format — five lines: **What** happened, **Where** (class of repo), **Caught by
   failed as a usable process, not by the process's own stop rules.
 - **Class:** oversized work plus manual ceremony; advisory steps presented as a
   pipeline; language- and directory-specific assumptions treated as universal.
-- **Became:** one bounded slice, one fresh critic, one implementer writing code and
-  tests, one repository-owned language-neutral verify command, one fresh exact-head
-  reviewer, optional acceptance challenge only for high-risk work, a round-three stop,
-  and `process-guard` moved from default onboarding to an explicit optional tool;
-  updates PC-08 through PC-15.
+- **Became:** one bounded slice under a configured basic, standard, or strict profile;
+  a fresh critic and reviewer where standard or strict requires them; one implementer
+  writing code and tests; one repository-owned language-neutral verify command; a
+  stop at the configured final review round, with three as the maximum; optional
+  independent tests where routing or configured coverage requires them; and
+  `process-guard` moved from default onboarding to an explicit optional tool. Updates
+  PC-08 through PC-15.
 
 ## L-016 — A costly safety rule created its own bypass <a name="l-016"></a>
 
