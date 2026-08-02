@@ -81,9 +81,18 @@ test("profiles keep route floors and require independent evidence", () => {
   assert.match(config, /before implementation.*(fail|failing)/is);
   assert.match(config, /full.*SHA/is);
   assert.match(config, /different provider instance/i);
+  assert.match(config, /test\s+author[^.]*different\s+provider\s+instance[^.]*implementer/is);
+  assert.match(config, /standard and strict work[^.]*reviewer[^.]*owner/is);
+  assert.match(config, /basic work may use owner review/i);
   assert.match(config, /fresh (AI )?session/i);
   assert.match(config, /fresh critic session.*fresh test-author session.*implementer session.*fresh reviewer session/is);
   assert.match(config, /process-stop.*only.*configured final round/is);
+
+  const skill = read(join(CANONICAL, "SKILL.md"));
+  const questions = read(join(CANONICAL, "references/questions.md"));
+  assert.match(skill, /test\s+author[^.]*different\s+provider\s+instance[^.]*implementer/is);
+  assert.match(skill, /standard and strict work[^.]*reviewer[^.]*different\s+provider\s+instance/is);
+  assert.match(questions, /test\s+author[^?]*implementer[^?]*different\s+provider\s+instances/i);
 });
 
 test("writes require a complete preview and stop safely", () => {

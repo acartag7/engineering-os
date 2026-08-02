@@ -166,19 +166,25 @@ test("the monthly audit checks exception and optional-guard exemption lifecycles
 
 test("the distributed plugin docs name complete modes and honest enforcement", () => {
   const contract = read("plugins/engineering-os/CONTRACT.md");
+  const skillSpec = read("specs/configurable-engineering-os-skill.md");
   const completeModes = contract.match(/- \*\*R2 — Complete modes\.\*\*[\s\S]*?(?=\n- \*\*R3)/)?.[0] ?? "";
   assert.match(completeModes, /continu/i, "the binding mode list must include continue");
 
   const rule = (number) =>
     contract.match(new RegExp(`- \\*\\*R${number} —[\\s\\S]*?(?=\\n- \\*\\*R${number + 1})`))?.[0] ?? "";
   assert.match(rule(4), /Docs[^.]{0,80}at\s+least[^.]{0,40}standard/i);
-  assert.match(rule(5), /different provider instance/i);
+  assert.match(rule(5), /different\s+provider\s+instance/i);
+  assert.match(rule(5), /standard and strict[^.]*final reviewer[^.]*different\s+provider\s+instance/i);
+  assert.match(
+    skillSpec,
+    /standard` and\s+`strict` work[^.]*final reviewer[^.]*different\s+provider\s+instance/i,
+  );
   for (const priorRole of ["critic", "test author", "implementer"]) {
     assert.match(rule(5), new RegExp(priorRole, "i"), `R5 must separate the reviewer from the ${priorRole}`);
   }
   assert.match(
     rule(5),
-    /independent test author uses\s+a different provider instance from the implementer/i,
+    /independent test author uses\s+a different\s+provider\s+instance from the implementer/i,
   );
   assert.match(rule(6), /strict/i);
   assert.match(rule(6), /configured coverage/i);
@@ -395,6 +401,15 @@ test("the dispatch guide carries one honest enforcement statement", () => {
   );
 
   const statement = statements[0] ?? "";
+  assert.match(
+    dispatch,
+    /standard and strict work[^.]*final\s+reviewer[^.]*different provider instance/i,
+  );
+  assert.match(dispatch, /Basic may use owner review; T0 may use CI/i);
+  assert.match(
+    dispatch,
+    /independent test author[^.]*provider instance[^.]*different from the implementer/i,
+  );
   assert.match(statement, /prompt/i, "the statement must name prompt guidance");
   assert.match(statement, /review/i, "the statement must name review guidance");
   assert.match(statement, /audit/i, "the statement must name audit guidance");
@@ -652,7 +667,7 @@ test("copied agent rules and baseline rows follow the effective profile", () => 
   assert.match(slw3, /final review appropriate to that profile/);
   assert.match(
     read("skills/engineering-os/references/configuration.md"),
-    /A reviewer can never be not required/,
+    /A reviewer can never be the current\s+implementation session or not required/,
   );
 
   const finalReviewCells = (read("POLICY.md")

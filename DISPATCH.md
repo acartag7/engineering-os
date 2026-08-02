@@ -27,8 +27,10 @@ use strict. Every Docs route uses at least standard.
 
 A provider may be a named human, fresh AI session, or multi-agent seat. Multi-agent
 support is not required. When it is unavailable, the skill prepares the exact prompt
-and evidence package for a fresh session. The final reviewer is a different provider
-instance from the implementer and other independent roles.
+and evidence package for a fresh session. For standard and strict work, the final
+reviewer is a different provider instance from the implementer and other independent
+roles. Basic may use owner review; T0 may use CI. Whenever an independent test author
+is required, that provider instance is different from the implementer.
 
 ## Evidence order
 

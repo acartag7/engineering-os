@@ -92,8 +92,10 @@ or trust boundary, `security-and-bug-fixes` also requires it for every bug fix, 
 `all-behavior-changes` requires it for every behavior change. Configured coverage can
 add the role but never remove a route requirement. Derive and record the result before
 choosing providers. The failing-test evidence names the pre-implementation commit,
-exact command, and failing output. A final reviewer uses a different provider instance
-from the critic, test author, and implementer. A label such as `fresh-ai-session` is
+exact command, and failing output. The independent test author uses a different
+provider instance from the implementer. For standard and strict work, the final
+reviewer uses a different provider instance from the critic, test author, and
+implementer. Basic work may use owner review. A label such as `fresh-ai-session` is
 not proof by itself; record the real session, person, or run.
 
 Multi-agent support is optional. When dispatch is unavailable, prepare the exact

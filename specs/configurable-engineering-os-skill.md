@@ -99,10 +99,12 @@ without allowing a project to configure away its safety floor.
 - **CES-13 — Provider-neutral roles.** Allowed providers are the owner, a human
   teammate, a fresh AI session, a multi-agent seat, the current implementation
   session, or CI where the role permits it. `standard` and `strict` review cannot be
-  performed by the same live session that implemented the change. The final reviewer
-  is a different provider instance from the critic, test author, and implementer. A
-  per-change routing record names each provider instance; generic configuration
-  values such as `fresh-ai-session` are not proof of independence.
+  performed by the same live session that implemented the change. For `standard` and
+  `strict` work, the final reviewer is a different provider instance from the critic,
+  test author, and implementer. Basic work may use the owner or CI for final review and
+  does not promise a different reviewer instance. A per-change routing record names
+  each provider instance; generic configuration values such as `fresh-ai-session` are
+  not proof of independence.
 - **CES-14 — No multi-agent requirement.** When the host cannot dispatch agents, the
   skill prepares the exact next prompt and evidence package for a fresh session or
   gives the task to a named human. Missing dispatch support never becomes a fake pass.
@@ -302,12 +304,19 @@ Allowed values are exact:
 Provider rules are exact:
 
 - `implementer` rejects `ci` and `not-required`;
-- `reviewer` rejects `not-required` for every profile;
+- `reviewer` rejects `current-session` and `not-required` for every profile;
 - `standard` and `strict` reject `current-session`, `ci`, and `not-required` for
-  `critic`, and reject `current-session` and `ci` for `reviewer`;
+  `critic`, and reject `ci` for `reviewer`;
+- `standard` and `strict` reject `owner` for the reviewer when `owner` also fills the
+  critic, test-author, or implementer role;
 - `strict` rejects `current-session`, `ci`, and `not-required` for `testAuthor`;
+- configuration rejects `owner` or `current-session` when the same single-instance
+  label is assigned to both `testAuthor` and `implementer`;
 - runtime evidence rejects a `testAuthor` or `reviewer` provider instance that also
   implemented the same change.
+
+Repeatable labels such as `fresh-ai-session` may appear in both fields only when the
+per-change routing record names two different real sessions.
 
 Default-profile validation does not authorize a lower per-change route. Before a
 change advances, validate the providers against its effective profile. When the stored
