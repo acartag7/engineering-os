@@ -216,6 +216,52 @@ test("exception rules, shape, dates, and expiry are checked", () => {
   expectInvalid(runValidator({ config: twoProblems }), "expired-exception");
 });
 
+test("an exception with a date-order and an unknown-rule defect reports date-order first", () => {
+  // The contract's fixed order inside the schema group is: ... bounds, dates,
+  // exception rules, provider conflicts. Dates win over rule-name checks.
+  const config = starter();
+  config.exceptions = [
+    {
+      rule: "CES-99",
+      reason: "Two defects in one exception",
+      owner: "repository owner",
+      created: "2099-12-31",
+      reviewBy: "2099-01-01",
+      removalCondition: "Both defects are fixed",
+    },
+  ];
+  expectInvalid(runValidator({ config }), "date-order");
+});
+
+test("all date failures take priority over exception-rule failures", () => {
+  const withException = (exception) => {
+    const config = starter();
+    config.exceptions = [{
+      reason: "Two defects in one exception",
+      owner: "repository owner",
+      removalCondition: "Both defects are fixed",
+      ...exception,
+    }];
+    return config;
+  };
+
+  expectInvalid(runValidator({ config: withException({
+    rule: "CES-99",
+    created: "not-a-date",
+    reviewBy: "2099-01-01",
+  }) }), "invalid-date");
+  expectInvalid(runValidator({ config: withException({
+    rule: "CES-8",
+    created: "2099-12-31",
+    reviewBy: "2099-01-01",
+  }) }), "date-order");
+  expectInvalid(runValidator({ config: withException({
+    rule: "CES-99",
+    created: "2000-01-01",
+    reviewBy: "2000-01-02",
+  }) }), "expired-exception");
+});
+
 test("not-applicable decisions have exact groups, shape, and reasons", () => {
   const groups = [
     "mode", "project", "commands", "risk", "team", "workflow", "platform",

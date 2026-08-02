@@ -35,8 +35,11 @@ instance from the implementer and other independent roles.
 1. Close the contract when the effective route or profile requires one.
 2. Run a fresh critique when the effective route or profile requires one. Basic T0
    work with already-clear behavior does not need a contract or fresh critique.
-3. For strict work, add small independent behavior tests and prove they fail at the
-   pre-implementation commit.
+3. Add small independent behavior tests and prove they fail at the pre-implementation
+   commit whenever strict routing or configured independent-test coverage requires
+   them. On a lower route, these independent failing tests cover a security boundary
+   under `security-only`, a bug fix under `security-and-bug-fixes`, and every behavior
+   change under `all-behavior-changes`.
 4. Write one implementation and its normal tests.
 5. Run the repository verify command and real entrypoint.
 6. Review the full diff at the exact current commit SHA.

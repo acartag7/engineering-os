@@ -165,6 +165,10 @@ The tier depends on what a mistake can leak or break.
 | **I** | Internal with real data, credentials, or logins | Required verify, threat notes for boundaries, independent review |
 | **X** | Experiment or scratch work | Secrets hygiene and an honest status |
 
+**Enforcement: the tier value is HARD when configuration validation runs in required
+CI. Applying the tier's minimum process is prompt + monthly audit; no fleet-wide
+mechanical gate applies the whole table yet.**
+
 ## Optional frozen-test guard
 
 `process-guard` remains supported for a repository that explicitly chooses hash-frozen

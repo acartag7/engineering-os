@@ -241,10 +241,10 @@ function validateExceptions(exceptions) {
     const created = calendarDate(exception.created);
     const reviewBy = calendarDate(exception.reviewBy);
     text(exception.removalCondition);
-    if (!RULES.has(rule)) reject("unknown-rule");
-    if (PROTECTED_RULES.has(rule)) reject("protected-rule");
     if (reviewBy < created) reject("date-order");
     if (reviewBy < todayUtc()) reject("expired-exception");
+    if (!RULES.has(rule)) reject("unknown-rule");
+    if (PROTECTED_RULES.has(rule)) reject("protected-rule");
   }
 }
 

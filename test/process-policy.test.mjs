@@ -146,6 +146,24 @@ test("prompt headers do not claim a stale source commit", () => {
   }
 });
 
+test("project-tier minimum-process rules name their honest enforcement layer", () => {
+  const os = read("OS.md");
+  const section = os.match(/## Project tiers([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  assert.match(section, /Minimum process/, "OS.md must keep the tier minimum-process table");
+  assert.match(section, /\| \*\*S\*\* \|/, "OS.md must keep the tier rows");
+
+  const enforcement = section.match(/\*\*Enforcement:[^*]*\*\*/)?.[0] ?? "";
+  assert.ok(
+    enforcement,
+    "the Project tiers section states minimum-process rules, so it must carry an **Enforcement:** label",
+  );
+  assert.match(
+    enforcement,
+    /(prompt|audit|review|Layer|CI|branch protection|not (yet )?enforced)/i,
+    "the tier enforcement label must honestly name where the rules are checked",
+  );
+});
+
 test("the final-round stop token requires a remaining P1 or P2", () => {
   const reviewer = read("prompts/reviewer.md").replace(/\s+/g, " ");
   assert.match(

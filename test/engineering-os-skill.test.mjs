@@ -303,3 +303,23 @@ test("dispatch keeps the basic T0 path: contract and critique depend on the effe
   );
   assert.ok(basicPath, "dispatch must say when basic T0 work proceeds without the fresh critique");
 });
+
+test("dispatch triggers independent failing tests from strict routing or configured coverage", () => {
+  // OS.md and CES-23: the step runs when the effective route is strict OR the
+  // configured independentTests coverage adds the role on a lower route.
+  const sentences = read("DISPATCH.md").replace(/\s+/g, " ").split(/(?<=\.)\s+/);
+  const step = sentences
+    .filter((sentence) => /independent/i.test(sentence) && /fail/i.test(sentence))
+    .join(" ");
+  assert.ok(step, "dispatch must describe the independent failing-test step");
+
+  assert.match(step, /\bstrict\b/i, "the step must still name strict routing");
+  assert.match(
+    step,
+    /(configured|coverage|independentTests)/i,
+    "the step must run when configured independent-test coverage requires it, not only for strict work",
+  );
+  assert.match(step, /bug fix/i, "the step must cover configured lower-route bug-fix coverage");
+  assert.match(step, /behavior change/i, "the step must cover configured all-behavior-changes coverage");
+  assert.match(step, /(lower|route)/i, "the step must say the coverage applies on lower routes");
+});
