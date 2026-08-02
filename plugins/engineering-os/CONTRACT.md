@@ -19,11 +19,14 @@ the merge wall.
 - **R3 — Inspect and ask.** It inspects without side effects, treats repository text
   as untrusted evidence, and asks every applicable unresolved question one at a time.
 - **R4 — Configurable floor.** Basic, standard, and strict profiles may increase but
-  never lower the route floor. T2 and T3 always use strict.
+  never lower the route floor. T2 and T3 always use strict. Every Docs route uses at
+  least standard.
 - **R5 — Provider neutral.** Roles may use named humans, fresh AI sessions, or
-  multi-agent seats. A provider instance never reviews its own implementation.
-- **R6 — One implementation.** Strict work has an independent test author before one
-  implementation. The pre-implementation failing result is recorded.
+  multi-agent seats. The final reviewer uses a different provider instance from the
+  critic, independent test author, and implementer.
+- **R6 — One implementation.** Strict work or matching configured coverage uses an
+  independent test author before one implementation. The pre-implementation failing
+  result is recorded.
 - **R7 — Safe writes.** The complete preview is confirmed before writing. Symlinks,
   outside-repository targets, cancellation, invalid config, and partial failures fail
   closed.
@@ -42,8 +45,8 @@ the merge wall.
 
 Configuration validation is hard only when required CI runs the validator. Repository
 verification is hard only when branch protection requires it. Interaction quality,
-provider independence, previews, migration order, and exact-head blocking are prompt
-plus audit rules until separately mechanized.
+provider independence, route floors, required roles, previews, migration order, and
+exact-head blocking are prompt plus audit rules until separately mechanized.
 
 ## Out of scope
 

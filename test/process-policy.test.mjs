@@ -51,6 +51,36 @@ test("project brief template and repository brief carry the fixed structure", ()
   }
 });
 
+test("the README workflow diagram matches the configurable one-implementation process", () => {
+  const readme = read("README.md");
+  const diagramPath = "docs/engineering-os-workflow.svg";
+  const diagram = read(diagramPath);
+
+  assert.match(readme, new RegExp(diagramPath.replaceAll(".", "\\.")));
+  assert.match(readme, /configured coverage/i);
+  for (const label of [
+    "Basic",
+    "Standard",
+    "Strict",
+    "STRICT OR COVERAGE",
+    "One implementer",
+    "Repository verify",
+    "Exact-head review",
+    "PROFILE PICKS THE REVIEWER",
+    "Owner merges",
+    "fresh AI session",
+    "T2 and T3 use Strict",
+    "Docs use at least Standard",
+  ]) {
+    assert.match(diagram, new RegExp(label, "i"), label);
+  }
+  assert.doesNotMatch(
+    diagram,
+    /parallel implementation|hash (freeze|manifest)|frozen[- ]suite|build candidates|two-family/i,
+  );
+  assert.doesNotMatch(diagram, /\bproven red\b/i);
+});
+
 test("generated host and brief templates label every rule's enforcement", () => {
   const agentBlock = read("templates/agent-context-block.md");
   const note = agentBlock.match(/Enforcement note:[\s\S]*?(?=\n```)/)?.[0] ?? "";
@@ -129,6 +159,16 @@ test("the distributed plugin docs name complete modes and honest enforcement", (
   const completeModes = contract.match(/- \*\*R2 — Complete modes\.\*\*[\s\S]*?(?=\n- \*\*R3)/)?.[0] ?? "";
   assert.match(completeModes, /continu/i, "the binding mode list must include continue");
 
+  const rule = (number) =>
+    contract.match(new RegExp(`- \\*\\*R${number} —[\\s\\S]*?(?=\\n- \\*\\*R${number + 1})`))?.[0] ?? "";
+  assert.match(rule(4), /Docs[^.]{0,80}at\s+least[^.]{0,40}standard/i);
+  assert.match(rule(5), /different provider instance/i);
+  for (const priorRole of ["critic", "test author", "implementer"]) {
+    assert.match(rule(5), new RegExp(priorRole, "i"), `R5 must separate the reviewer from the ${priorRole}`);
+  }
+  assert.match(rule(6), /strict/i);
+  assert.match(rule(6), /configured coverage/i);
+
   const readme = read("plugins/engineering-os/README.md");
   const enforcement = readme.match(/\*\*Enforcement:[^*]*\*\*/)?.[0] ?? "";
   assert.ok(enforcement, "the plugin README's workflow rules need an enforcement label");
@@ -136,6 +176,11 @@ test("the distributed plugin docs name complete modes and honest enforcement", (
   assert.match(enforcement, /audit/i);
   assert.match(enforcement, /hard/i);
   assert.match(enforcement, /branch protection/i);
+  assert.match(enforcement, /required roles/i);
+
+  const contractEnforcement = contract.match(/## Enforcement([\s\S]*?)(?=\n## )/)?.[1] ?? "";
+  assert.match(contractEnforcement, /route floors/i);
+  assert.match(contractEnforcement, /required roles/i);
 });
 
 test("old pipeline helper only forwards to the configurable skill", () => {

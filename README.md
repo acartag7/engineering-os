@@ -11,13 +11,25 @@ It works without multi-agent tools. A solo developer can use fresh AI sessions f
 independent judgment. A team can use people. A host with multi-agent seats can use
 those. The safety result matters; the tool shape does not.
 
+<p align="center">
+  <img src="docs/engineering-os-workflow.svg" alt="Engineering OS workflow: one owner scopes a change, the selected profile adds the needed contract, critique, and independent tests, one implementer builds it, repository verification and exact-head review check it, and the owner decides whether to merge." />
+</p>
+
+<p align="center"><a href="docs/engineering-os-workflow.svg">Open the full-size workflow diagram</a></p>
+
+The picture shows the normal path for one change. `basic`, `standard`, and `strict`
+control how much independent work is added. Risk can raise the profile but never lower
+it. Every path keeps one implementation, real repository verification, final review,
+and the owner-controlled merge.
+
 ## What it enables
 
 - Onboard Go, Python, Rust, Java, TypeScript, and other repositories using their own
   commands and layout.
 - Choose `basic`, `standard`, or `strict` project defaults without lowering the safety
   floor of a risky change.
-- Use one implementation, with an independent test author before T2/T3 work.
+- Use one implementation. Strict work and configured coverage add an independent test
+  author before implementation.
 - Keep verification and final review tied to the exact current commit.
 - Move an older governed repository to the new process without removing its old
   protection too early.
