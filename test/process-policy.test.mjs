@@ -220,6 +220,24 @@ test("every top-level OS section names its enforcement layer", () => {
   );
 });
 
+test("every top-level policy section names enforcement and configured test coverage", () => {
+  const policy = read("POLICY.md");
+  const sections = policy.split(/^## /m).slice(1);
+  assert.ok(sections.length > 0, "POLICY.md must keep its source-of-truth sections");
+  for (const section of sections) {
+    const heading = section.split("\n", 1)[0];
+    assert.match(
+      section,
+      /\*\*Enforcement:/,
+      `POLICY.md section "${heading}" must name its enforcement layer`,
+    );
+  }
+
+  const row = policy.match(/\| Independent test author before implementation \|([^\n]*)/)?.[1] ?? "";
+  assert.match(row, /configured coverage/i);
+  assert.match(row, /required/);
+});
+
 test("the final-round stop token requires a remaining P1 or P2", () => {
   const reviewer = read("prompts/reviewer.md").replace(/\s+/g, " ");
   assert.match(

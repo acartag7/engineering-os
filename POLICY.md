@@ -16,13 +16,16 @@ Before coding, confirm that the slice changes one clear rule, has no open decisi
 lists every affected path, and can be reviewed in one sitting. Around 300 changed
 lines is a warning to check the cut, not a block.
 
+**Enforcement: route selection is prompt + pull-request evidence + monthly audit; no
+fleet-wide mechanical classifier chooses the tier.**
+
 ## Required path
 
 | Step | T0 | T1 | T2 | T3 | Docs |
 |---|---|---|---|---|---|
 | Small contract | — | when behavior is not already clear | required | required | claims list |
 | Fresh critique before code | — | configured; recommended | required | required | claims review |
-| Independent test author before implementation | — | recommended for bugs | required | required | — |
+| Independent test author before implementation | when configured coverage matches | when configured coverage matches; recommended for other bugs | required | required | — |
 | Implementations | 1 | 1 | 1 | 1 | 1 |
 | Tests | existing checks | code + tests | code + tests | code + tests | link or rendering checks |
 | Independent final review | owner or CI | configured fresh context | fresh context | fresh context | claims against source |
@@ -36,6 +39,10 @@ implementation and may add normal tests without weakening the independent ones.
 T3 always use strict. Standard and strict use fresh critic and reviewer contexts;
 strict also uses the independent test author. A fresh AI session, named human, or
 multi-agent seat can fill an independent role.
+
+**Enforcement: required roles and route floors are prompt + pull-request evidence +
+monthly audit. Repository verification is HARD only when branch protection requires
+it; no fleet-wide gate checks the whole route table.**
 
 ## Routing record
 
