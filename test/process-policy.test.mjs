@@ -51,6 +51,21 @@ test("project brief template and repository brief carry the fixed structure", ()
   }
 });
 
+test("generated host and brief templates label every rule's enforcement", () => {
+  const agentBlock = read("templates/agent-context-block.md");
+  const note = agentBlock.match(/Enforcement note:[\s\S]*?(?=\n```)/)?.[0] ?? "";
+  assert.match(note, /hard gates?/i);
+  assert.match(note, /all (other|remaining) rules/i);
+  assert.match(note, /prompt/i);
+  assert.match(note, /audit/i);
+
+  const brief = read("templates/project-brief.md");
+  const maintenance = brief.match(/Maintenance rule:[\s\S]*$/)?.[0] ?? "";
+  assert.match(maintenance, /Enforcement:/i);
+  assert.match(maintenance, /review/i);
+  assert.match(maintenance, /monthly audit/i);
+});
+
 test("engineering-os governs itself with validated configuration", () => {
   const config = JSON.parse(read("engineering-os.json"));
   const packageJson = JSON.parse(read("package.json"));

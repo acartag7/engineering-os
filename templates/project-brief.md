@@ -47,3 +47,6 @@ infrastructure names, or commands that do not work from a clean checkout.
 
 Maintenance rule: update this file in the same pull request that changes architecture,
 adds or removes a module, or changes run or test commands.
+
+**Enforcement:** pull-request review plus monthly audit; no fleet-wide mechanical
+check enforces this template yet.

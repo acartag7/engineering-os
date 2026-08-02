@@ -39,7 +39,7 @@ Repository rules:
   error reason-code types. Every written security guarantee points to a test.
 - Keep root `BRIEF.md` current when architecture, modules, or run/test commands change.
 
-Enforcement note: required CI and branch protection are hard gates. Slice size,
-review-round limits, plain language, and profile-selected final review are prompt and
-audit rules until this repository adds its own mechanical checks.
+Enforcement note: required CI and branch protection make the configured verify
+command a hard gate. All remaining rules are prompt and audit rules unless this
+repository names its own mechanical check for them.
 ```
